@@ -1,0 +1,114 @@
+name: frontend CI
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+
+jobs:
+  packages:
+    name: check npm install
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./frontend/.node-version
+          cache: npm
+      - name: check npm ci
+        run: npm ci
+  lint:
+    name: run lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    needs: [packages]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./.node-version
+          cache: npm
+      - name: npm ci
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: 0
+      - name: run lint
+        run: npm run lint:no-fix -- --max-warnings=0
+  format:
+    name: run format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    needs: [packages]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./.node-version
+          cache: npm
+      - name: npm ci
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: 0
+      - name: run format
+        run: npx prettier --check .
+  type-check:
+    name: run type-check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    needs: [packages]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./.node-version
+          cache: npm
+      - name: npm ci
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: 0
+      - name: run type-check
+        run: npm run type-check
+  build:
+    name: run build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    needs: [packages]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./.node-version
+          cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: ./public/fonts
+          key: font-build-${{ runner.os }}
+          restore-keys: |
+            font-build-${{ runner.os }}
+      - name: npm ci
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: 0
+      - name: run build
+        run: npm run build:may-with-font
