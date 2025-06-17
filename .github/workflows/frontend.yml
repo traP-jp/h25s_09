@@ -6,13 +6,13 @@ on:
       - "frontend/**"
       - ".github/workflows/frontend.yml"
 
+defaults:
+  run:
+    working-directory: frontend
 jobs:
   packages:
     name: check npm install
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -27,9 +27,6 @@ jobs:
   lint:
     name: run lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     needs: [packages]
     steps:
       - name: checkout
@@ -49,9 +46,6 @@ jobs:
   format:
     name: run format
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     needs: [packages]
     steps:
       - name: checkout
@@ -71,9 +65,6 @@ jobs:
   type-check:
     name: run type-check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     needs: [packages]
     steps:
       - name: checkout
@@ -93,9 +84,6 @@ jobs:
   build:
     name: run build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     needs: [packages]
     steps:
       - name: checkout
