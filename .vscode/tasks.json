@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Prepare for PR Review with Copilot",
+      "detail": "差分ファイルを生成し、Copilotへのレビュー依頼プロンプトをクリップボードにコピーします。",
+      "dependsOn": ["Generate Diff File", "Copy Copilot Prompt"],
+      "dependsOrder": "sequence", // "Generate Diff File" の後に "Copy Copilot Prompt" を実行
+      "problemMatcher": [],
+      // このタスクをデフォルトのビルドタスクに設定すると Ctrl+Shift+B で実行できます
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Generate Diff File",
+      "type": "shell",
+      // 現在のブランチとmainブランチの差分を .vscode/pr-diff.diff に出力
+      "command": "git diff main...HEAD > .vscode/pr-diff.diff",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Copy Copilot Prompt",
+      "type": "shell",
+      "problemMatcher": [],
+      "windows": {
+        // Windows (cmd.exe)
+        "command": "echo #file:.vscode/pr-diff.diff #codebase この差分ファイルに基づいて、プルリクエストのレビューコメントを作成してください。具体的には、以下の観点でレビューをお願いします。・潜在的なバグ ・コードの改善点(可読性、パフォーマンスなど) ・コーディング規約の遵守 ・テストが不足している箇所 ・懸念点 | clip"
+      },
+      "osx": {
+        // macOS
+        "command": "printf \"#file:.vscode/pr-diff.diff #codebase この差分ファイルに基づいて、プルリクエストのレビューコメントを作成してください。具体的には、以下の観点でレビューをお願いします。\\n- 潜在的なバグ\\n- コードの改善点(可読性、パフォーマンスなど)\\n- コーディング規約の遵守\\n- テストが不足している箇所\\n- 懸念点\" | pbcopy"
+      },
+      "linux": {
+        // Linux
+        "command": "printf \"#file:.vscode/pr-diff.diff #codebase この差分ファイルに基づいて、プルリクエストのレビューコメントを作成してください。具体的には、以下の観点でレビューをお願いします。\\n- 潜在的なバグ\\n- コードの改善点(可読性、パフォーマンスなど)\\n- コーディング規約の遵守\\n- テストが不足している箇所\\n- 懸念点\" | xclip -selection clipboard"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}
