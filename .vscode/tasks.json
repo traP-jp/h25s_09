@@ -5,9 +5,8 @@
       "label": "Prepare for PR Review with Copilot",
       "detail": "差分ファイルを生成し、Copilotへのレビュー依頼プロンプトをクリップボードにコピーします。",
       "dependsOn": ["Generate Diff File", "Copy Copilot Prompt"],
-      "dependsOrder": "sequence", // "Generate Diff File" の後に "Copy Copilot Prompt" を実行
+      "dependsOrder": "sequence",
       "problemMatcher": [],
-      // このタスクをデフォルトのビルドタスクに設定すると Ctrl+Shift+B で実行できます
       "group": {
         "kind": "build",
         "isDefault": true
@@ -24,7 +23,6 @@
     {
       "label": "Generate Diff File",
       "type": "shell",
-      // 現在のブランチとmainブランチの差分を .vscode/pr-diff.diff に出力
       "command": "git fetch origin main && git diff origin/main...HEAD > .vscode/pr-diff.diff",
       "problemMatcher": [],
       "presentation": {
@@ -44,15 +42,12 @@
       },
       "problemMatcher": [],
       "windows": {
-        // Windows (cmd.exe)
         "command": "powershell -Command \"$env:COPILOT_REVIEW_PROMPT | Set-Clipboard\""
       },
       "osx": {
-        // macOS
         "command": "printf \"$COPILOT_REVIEW_PROMPT\" | pbcopy"
       },
       "linux": {
-        // Linux
         "command": "printf \"$COPILOT_REVIEW_PROMPT\" | xclip -selection clipboard"
       },
       "presentation": {
