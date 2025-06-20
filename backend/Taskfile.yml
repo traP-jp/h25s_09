@@ -1,3 +1,11 @@
 version: 3
 
-tasks: {}
+tasks:
+  up:
+    cmds:
+      - go mod tidy
+      - docker-compose up -d
+  
+  down:
+    cmds:
+      - docker-compose down
