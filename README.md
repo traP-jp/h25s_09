@@ -3,6 +3,7 @@
 ## メンバー
 
 - tidus (リーダー, バックエンド)
-
 - ebisen(下っ端 フロント)
 - quarantineeeeeeeeee (無職, バックエンド)
+- you6174
+- ebisen(部下 フロント)
