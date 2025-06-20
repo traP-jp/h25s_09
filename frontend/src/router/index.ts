@@ -1,4 +1,4 @@
-import TimelinePage from '@/pages/home/TimelinePage.vue'
+import TimelinePage from '@/pages/Timeline/TimelinePage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
