@@ -31,3 +31,6 @@ db/mysql
 
 # Environment variables
 .env
+
+# Air temporary files
+tmp/

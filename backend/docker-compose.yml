@@ -2,9 +2,11 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     ports:
       - "8080:8080"
+    volumes:
+      - .:/src
 
   db:
     image: mariadb:latest
