@@ -5,8 +5,8 @@ COPY . .
 
 FROM base AS build
 WORKDIR /src
-RUN ["go", "mod", "tidy"]
-RUN ["go", "build", "-o", "./bin/app"]
+RUN go mod download
+RUN go build -o ./bin/app
 
 FROM alpine:latest
 WORKDIR /
