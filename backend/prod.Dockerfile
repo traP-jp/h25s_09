@@ -6,7 +6,7 @@ COPY . .
 FROM base AS build
 WORKDIR /src
 RUN go mod download
-RUN go build -o ./bin/app
+RUN CGO_ENABLED=0 go build -ldflags "-s -w" -o ./bin/app
 
 FROM alpine:latest
 WORKDIR /
