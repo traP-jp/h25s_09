@@ -1,0 +1,63 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Prepare for PR Review with Copilot",
+      "detail": "差分ファイルを生成し、Copilotへのレビュー依頼プロンプトをクリップボードにコピーします。",
+      "dependsOn": ["Generate Diff File", "Copy Copilot Prompt"],
+      "dependsOrder": "sequence", // "Generate Diff File" の後に "Copy Copilot Prompt" を実行
+      "problemMatcher": [],
+      // このタスクをデフォルトのビルドタスクに設定 (Ctrl+Shift+B または Command+Shift+B で実行可能)
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Generate Diff File",
+      "type": "shell",
+      // 現在のブランチとmainブランチの差分を .vscode/pr-diff.diff に出力
+      "command": "git fetch origin main && git diff origin/main...HEAD > .vscode/pr-diff.diff",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Copy Copilot Prompt",
+      "type": "shell",
+      "options": {
+        "env": {
+          "COPILOT_REVIEW_PROMPT": "#codebase\\r\\n\\r\\n## プルリクエストレビュー依頼\\r\\n\\r\\n差分ファイル .vscode/pr-diff.diff の変更内容について詳細なレビューを実施してください。変更箇所の妥当性を検証した上で、関連する他ファイルへの影響も確認してください。\\r\\n\\r\\n### 🎯 レビュー手順（この順序で実施）\\r\\n\\r\\n**STEP 1: 差分内容の詳細分析**\\r\\n- 各変更行の目的と妥当性\\r\\n- 追加・削除・修正されたコードの正確性\\r\\n- ロジックの整合性\\r\\n\\r\\n**STEP 2: 変更による直接的影響**\\r\\n- 変更されたファイル内での整合性\\r\\n- 関数・クラス・モジュール間の依存関係\\r\\n\\r\\n**STEP 3: 波及効果の確認**\\r\\n- 差分に含まれない他ファイルへの影響（呼び出し元、型定義など）\\r\\n- APIの互換性・破壊的変更\\r\\n\\r\\n### 🔍 重点チェック項目\\r\\n- ❌ **バグ・エラー**: 潜在的なバグ、エラーハンドリング\\r\\n- ⚠️ **品質**: 可読性、パフォーマンス、規約遵守\\r\\n- ✅ **補完**: テスト・ドキュメントの必要性\\r\\n\\r\\n**出力形式**: 各変更箇所について「ファイル名:行数」を明記し、問題があれば改善提案も提示してください。"
+        }
+      },
+      "problemMatcher": [],
+      "windows": {
+        "command": "powershell -Command \"$env:COPILOT_REVIEW_PROMPT | Set-Clipboard\""
+      },
+      "osx": {
+        "command": "printf \"$COPILOT_REVIEW_PROMPT\" | pbcopy"
+      },
+      "linux": {
+        "command": "printf \"$COPILOT_REVIEW_PROMPT\" | xclip -selection clipboard"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}
