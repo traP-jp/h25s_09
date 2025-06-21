@@ -46,6 +46,16 @@ const goToUserDetail = (traqId: string) => {
   router.push(`/users/${traqId}`)
 }
 
+// メッセージ全体のクリックハンドラー
+const handleMessageClick = (event: Event) => {
+  // ボタンやリンクなどのインタラクティブ要素をクリックした場合は無視
+  const target = event.target as HTMLElement
+  if (target.tagName === 'BUTTON' || target.closest('button')) {
+    return
+  }
+  goToDetail()
+}
+
 // 画像読み込みエラーハンドリング
 const onImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
@@ -55,7 +65,15 @@ const onImageError = (event: Event) => {
 </script>
 
 <template>
-  <article :class="$style.messageItem" role="article">
+  <article
+    :class="$style.messageItem"
+    role="article"
+    @click="handleMessageClick"
+    @keydown.enter="goToDetail"
+    @keydown.space.prevent="goToDetail"
+    tabindex="0"
+    :aria-label="`${message.author}のメッセージ: ${message.content.slice(0, 50)}${message.content.length > 50 ? '...' : ''}`"
+  >
     <div :class="$style.messageHeader">
       <UserIcon
         :traq-id="message.author"
@@ -133,11 +151,27 @@ const onImageError = (event: Event) => {
 .messageItem {
   padding: 1rem;
   background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border-light);
-  transition: background-color 0.2s ease;
+  border: 1px solid var(--color-border-light);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-radius: 0.5rem;
 
   &:hover {
     background-color: var(--color-surface-variant);
+    box-shadow: 0 2px 8px var(--color-shadow-light);
+    transform: translateY(-1px);
+    border-color: var(--color-border-medium);
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+    background-color: var(--color-surface-variant);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px var(--color-shadow-light);
   }
 }
 
