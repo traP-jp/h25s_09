@@ -8,10 +8,26 @@ import router from '@/router'
 // グローバルテーマ変数をインポート
 import '@/assets/styles/variables.scss'
 
-const app = createApp(App)
+// MSWを開発環境で有効にする
+async function enableMocking() {
+  if (import.meta.env.MODE !== 'development' || import.meta.env.VITE_ENABLE_MSW !== 'true') {
+    return
+  }
 
-app.use(createPinia())
-app.use(router)
-app.use(VueQueryPlugin)
+  const { worker } = await import('@/mocks')
 
-app.mount('#app')
+  // Service Worker を開始
+  return worker.start({
+    onUnhandledRequest: 'warn',
+  })
+}
+
+enableMocking().then(() => {
+  const app = createApp(App)
+
+  app.use(createPinia())
+  app.use(router)
+  app.use(VueQueryPlugin)
+
+  app.mount('#app')
+})
