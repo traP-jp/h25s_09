@@ -3,24 +3,23 @@ package repository
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/traP-jp/h25s_09/domain"
 )
 
 type AchievementsRepository interface {
-	GetUserAchievements(userID uuid.UUID) ([]domain.UserAchievement, error)
-	InsertUserAchievement(userID uuid.UUID, achievementID int64) (*domain.UserAchievement, error)
+	GetUserAchievements(username string) ([]domain.UserAchievement, error)
+	InsertUserAchievement(username string, achievementID int64) (*domain.UserAchievement, error)
 }
 
 type userAchievement struct {
 	AchievementID int64     `db:"id"`
-	Username      uuid.UUID `db:"username"`
-	AchievedAt    time.Time  `db:"achieved_at"`
+	Username      string    `db:"username"`
+	AchievedAt    time.Time `db:"achieved_at"`
 }
 
-func (r *repositoryImpl) GetUserAchievements(userID uuid.UUID) ([]domain.UserAchievement, error) {
+func (r *repositoryImpl) GetUserAchievements(username string) ([]domain.UserAchievement, error) {
 	var achievementsDB []userAchievement
-	err := r.db.Select(&achievementsDB, "SELECT * FROM achievements WHERE username = ?", userID)
+	err := r.db.Select(&achievementsDB, "SELECT * FROM achievements WHERE username = ?", username)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +29,7 @@ func (r *repositoryImpl) GetUserAchievements(userID uuid.UUID) ([]domain.UserAch
 	for _, achDB := range achievementsDB {
 		domainAchievements = append(domainAchievements, domain.UserAchievement{
 			AchievementID: achDB.AchievementID,
-			UserID:        achDB.Username,
+			Username:      achDB.Username,
 			AchievedAt:    achDB.AchievedAt,
 		})
 	}
@@ -38,13 +37,13 @@ func (r *repositoryImpl) GetUserAchievements(userID uuid.UUID) ([]domain.UserAch
 	return domainAchievements, nil
 }
 
-func (r *repositoryImpl) InsertUserAchievement(userID uuid.UUID, achievementID int64) (*domain.UserAchievement, error) {
-	_, err := r.db.Exec("INSERT INTO achievements (id, username) VALUES (?, ?)", achievementID, userID)
+func (r *repositoryImpl) InsertUserAchievement(username string, achievementID int64) (*domain.UserAchievement, error) {
+	_, err := r.db.Exec("INSERT INTO achievements (id, username) VALUES (?, ?)", achievementID, username)
 	if err != nil {
 		return nil, err
 	}
 	var achievement userAchievement
-	err = r.db.Get(&achievement, "SELECT * FROM achievements WHERE id = ? AND username = ?", achievementID, userID)
+	err = r.db.Get(&achievement, "SELECT * FROM achievements WHERE id = ? AND username = ?", achievementID, username)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +51,7 @@ func (r *repositoryImpl) InsertUserAchievement(userID uuid.UUID, achievementID i
 	// ドメインの型に変換
 	domainAchievement := domain.UserAchievement{
 		AchievementID: achievement.AchievementID,
-		UserID:        achievement.Username,
+		Username:      achievement.Username,
 		AchievedAt:    achievement.AchievedAt,
 	}
 

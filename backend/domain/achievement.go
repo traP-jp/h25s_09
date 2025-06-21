@@ -7,6 +7,6 @@ import (
 
 type UserAchievement struct {
 	AchievementID	int64
-	UserID			uuid.UUID
+	Username		string
 	AchievedAt      time.Time
 }
