@@ -12,6 +12,7 @@ import (
 type MessageRepository interface {
 	CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error)
 	GetMessageByID(id uuid.UUID) (*domain.Message, error)
+	GetMessages(limit, offset int64, username string, includeReplies bool) ([]domain.Message, error)
 	GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error)
 }
 
@@ -22,6 +23,48 @@ type Message struct {
     ParentID  uuid.UUID `db:"parent_id"`
     CreatedAt time.Time `db:"created_at"`
     UpdatedAt time.Time `db:"updated_at"`
+}
+
+func (r *repositoryImpl) GetMessages(limit, offset int64, username string, includeReplies bool) ([]domain.Message, error) {
+	var messages []Message
+	query := "SELECT id, author, message, replies_id, created_at, updated_at FROM messages"
+	args := []any{}
+
+	if username != "" && includeReplies {
+		query += " WHERE author = ?"
+		args = append(args, username)
+	}
+	if username != "" && !includeReplies {
+		query += " WHERE author = ? AND replies_to IS NULL"
+		args = append(args, username)
+	}
+	if includeReplies {
+		query += " WHERE replies_to IS NULL"
+	}
+
+
+	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
+	
+	err := r.db.Select(&messages, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	// domain.Messageに変換して返す
+	domainMessages := make([]domain.Message, len(messages))
+	for i, msg := range messages {
+		domainMessages[i] = domain.Message{
+			ID:        msg.ID,
+			Author:    msg.Author,
+			Content:   msg.Content,
+			ParentID:  msg.ParentID,
+			CreatedAt: msg.CreatedAt,
+			UpdatedAt: msg.UpdatedAt,
+		}
+	}
+
+	return domainMessages, nil
 }
 
 func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error) {
