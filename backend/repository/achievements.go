@@ -6,6 +6,6 @@ import (
 )
 
 type AchievementsRepository interface {
-	GetUserAchievements(userId uuid.UUID) ([]domain.UserAchievement, error)
-	InsertUserAchievement(userId uuid.UUID, achievementID int64) (domain.UserAchievement, error)
+	GetUserAchievements(userID uuid.UUID) ([]domain.UserAchievement, error)
+	InsertUserAchievement(userID uuid.UUID, achievementID int64) (domain.UserAchievement, error)
 }
