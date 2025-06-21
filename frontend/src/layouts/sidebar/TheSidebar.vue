@@ -24,6 +24,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   width: 400px;
+  height: 100%;
   padding: 30px;
+  background-color: var(--color-background);
 }
 </style>

@@ -80,17 +80,26 @@ body {
 .app-layout {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  position: relative;
 }
 
 .app-sidebar {
-  flex-shrink: 0;
+  position: fixed;
+  top: 64px; /* ヘッダーの高さ分オフセット */
+  left: 0;
+  bottom: 0;
+  z-index: 10;
+  background-color: var(--color-background);
+  border-right: 1px solid var(--color-border-light);
+  overflow-y: auto;
 }
 
 .app-main {
   flex: 1;
+  margin-left: 400px; /* サイドバーの幅分マージン */
   overflow-y: auto;
   padding: 1rem;
+  min-height: calc(100vh - 64px); /* ヘッダーの高さを除く */
 }
 
 .app-footer {
@@ -99,6 +108,7 @@ body {
 
 @media (max-width: 767px) {
   .app-main {
+    margin-left: 0; /* モバイルではサイドバーが非表示なのでマージンなし */
     padding: 0.5rem;
   }
 }
