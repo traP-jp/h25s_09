@@ -37,12 +37,7 @@ func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUI
 		return nil, err
 	}
 
-	message, err = r.GetMessageByID(message.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return message, nil
+	return r.GetMessageByID(message.ID)
 }
 
 func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
