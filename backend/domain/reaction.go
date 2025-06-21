@@ -11,9 +11,3 @@ type MessageReaction struct {
 	UserName  uuid.UUID
 	CreatedAt time.Time
 }
-
-type UserReactionToMessage struct {
-	MessageID uuid.UUID
-	Username  uuid.UUID
-	CreatedAt time.Time
-}
