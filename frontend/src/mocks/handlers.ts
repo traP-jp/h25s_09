@@ -59,14 +59,6 @@ const generateMockMessages = (count: number): Message[] => {
       createdAt: new Date(Date.now() - (count - i) * 60000).toISOString(), // 1分ずつ古い時刻
     }
 
-    // デバッグ用ログ - 特定のメッセージのリアクション状態を確認
-    if (i <= 5) {
-      console.log(`Generated message ${i}:`, {
-        id: message.id,
-        reactions: message.reactions,
-      })
-    }
-
     messages.push(message)
   }
   return messages
@@ -145,7 +137,10 @@ export const handlers = [
 
     if (traqId) {
       filteredMessages = mockMessages.filter((message) => message.author === traqId)
-      mswLog('info', `ユーザー ${traqId} のメッセージをフィルタリング`)
+      mswLog(
+        'info',
+        `ユーザー ${traqId} のメッセージをフィルタリング: ${filteredMessages.length}件`,
+      )
     }
 
     // includeRepliesがtrueの場合は、返信も含めたメッセージを返す
