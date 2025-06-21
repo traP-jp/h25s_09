@@ -114,13 +114,15 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 	if err != nil && err != http.ErrMissingFile {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid image file")
 	}
-	// Check MIME type: image/*
-	if !strings.HasPrefix(file.Header.Get("Content-Type"), "image/") {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid image file type")
-	}
-	// Check file size: max 16MiB
-	if file.Size > 16*1024*1024 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Image file is too large. (max: 16MiB)")
+	if file != nil {
+		// Check MIME type: image/*
+		if !strings.HasPrefix(file.Header.Get("Content-Type"), "image/") {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid image file type")
+		}
+		// Check file size: max 16MiB
+		if file.Size > 16*1024*1024 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Image file is too large. (max: 16MiB)")
+		}
 	}
 
 	if parentID != uuid.Nil {
@@ -137,15 +139,18 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		}
 	}
 
-	fileReader, err := file.Open()
-	if err != nil {
-		c.Logger().Error(err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open image file")
-	}
-	imageData, err := io.ReadAll(fileReader)
-	if err != nil {
-		c.Logger().Error(err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read image file")
+	var imageData []byte
+	if file != nil {
+		fileReader, err := file.Open()
+		if err != nil {
+			c.Logger().Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open image file")
+		}
+		imageData, err = io.ReadAll(fileReader)
+		if err != nil {
+			c.Logger().Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read image file")
+		}
 	}
 
 	msg, err := h.repo.CreateMessage(author, message, parentID)
@@ -153,17 +158,21 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create message")
 	}
-	img, err := h.repo.CreateMessageImage(msg.ID, imageData, file.Header.Get("Content-Type"))
-	if err != nil {
-		c.Logger().Error(err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save image")
+	imgID := uuid.Nil
+	if file != nil && len(imageData) != 0 {
+		img, err := h.repo.CreateMessageImage(msg.ID, imageData, file.Header.Get("Content-Type"))
+		if err != nil {
+			c.Logger().Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save image")
+		}
+		imgID = img.ID
 	}
 
 	return c.JSON(http.StatusOK, &messageDetail{
 		ID:        msg.ID,
 		Author:    msg.Author,
 		Content:   msg.Content,
-		ImageID:   img.ID,
+		ImageID:   imgID,
 		Reactions: reactions{Count: 0, MyReaction: false},
 		Replies:   []any{},
 		CreatedAt: msg.CreatedAt,
