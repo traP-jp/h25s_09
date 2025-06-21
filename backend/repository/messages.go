@@ -12,7 +12,6 @@ type MessageRepository interface {
 }
 
 func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error) {
-	
 	message := &domain.Message{
         ID:       uuid.New(),
         Author:   author,
@@ -30,6 +29,7 @@ func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUI
 	}
 	return message, nil
 }
+
 func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 	message := &domain.Message{
 		ID:       id,
