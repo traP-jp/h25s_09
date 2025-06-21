@@ -4,8 +4,8 @@ tasks:
   up:
     cmds:
       - go mod tidy
-      - docker-compose up -d
+      - docker compose up --build -d
   
   down:
     cmds:
-      - docker-compose down
+      - docker compose down
