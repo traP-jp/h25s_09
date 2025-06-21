@@ -10,10 +10,13 @@ import { RouterView } from 'vue-router'
 
 const breakpoints = useBreakpoints({
   mobile: 0,
-  tablet: 768,
+  compactSidebar: 900, // コンパクトサイドバー
+  fullSidebar: 1200, // フルサイドバー
 })
 
-const isDesktop = breakpoints.greaterOrEqual('tablet')
+const showFullSidebar = breakpoints.greaterOrEqual('fullSidebar')
+const showCompactSidebar = breakpoints.between('compactSidebar', 'fullSidebar')
+const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
 
 // テーマ初期化
 useTheme()
@@ -28,12 +31,25 @@ onMounted(() => {
   <div id="app" class="app-container">
     <TheHeader />
     <div class="app-layout">
-      <TheSidebar v-if="isDesktop" class="app-sidebar" />
-      <main class="app-main">
+      <TheSidebar
+        v-if="showSidebar"
+        class="app-sidebar"
+        :class="{
+          'app-sidebar--full': showFullSidebar,
+          'app-sidebar--compact': showCompactSidebar,
+        }"
+      />
+      <main
+        class="app-main"
+        :class="{
+          'app-main--full-sidebar': showFullSidebar,
+          'app-main--compact-sidebar': showCompactSidebar,
+        }"
+      >
         <RouterView />
       </main>
     </div>
-    <TheFooter v-if="!isDesktop" class="app-footer" />
+    <TheFooter v-if="!showSidebar" class="app-footer" />
     <ErrorToast />
   </div>
 </template>
@@ -80,26 +96,53 @@ body {
 .app-layout {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  position: relative;
 }
 
 .app-sidebar {
-  flex-shrink: 0;
+  position: fixed;
+  top: 4rem; /* ヘッダーの高さ(4rem) */
+  left: 0;
+  bottom: 0;
+  z-index: 10;
+  background-color: var(--color-background);
+  border-right: 1px solid var(--color-border-light);
+  overflow-y: auto;
+}
+
+.app-sidebar--full {
+  width: 300px; /* フルサイドバーの固定幅 */
+}
+
+.app-sidebar--compact {
+  width: 100px; /* コンパクトサイドバーの固定幅を狭める */
 }
 
 .app-main {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+  padding-top: calc(4rem + 1rem); /* ヘッダーの高さ(4rem) + 通常のpadding(1rem) */
+  min-height: calc(100vh - 4rem); /* ヘッダーの高さ(4rem)を除く */
+}
+
+.app-main--full-sidebar {
+  margin-left: 300px; /* フルサイドバーの幅分マージン */
+}
+
+.app-main--compact-sidebar {
+  margin-left: 100px; /* コンパクトサイドバーの幅分マージン */
 }
 
 .app-footer {
   flex-shrink: 0;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 899px) {
   .app-main {
+    margin-left: 0; /* サイドバー非表示時はマージンなし */
     padding: 0.5rem;
+    padding-top: calc(4rem + 0.5rem); /* ヘッダーの高さ(4rem) + 通常のpadding(0.5rem) */
   }
 }
 

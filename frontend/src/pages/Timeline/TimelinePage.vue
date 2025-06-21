@@ -24,7 +24,7 @@ const handlePostError = (error: Error) => {
   <div :class="$style.timeline">
     <div :class="$style.container">
       <MessageForm @success="handlePostSuccess" @error="handlePostError" />
-      <MessageList />
+      <MessageList :include-replies="false" :use-infinite-scroll="true" />
     </div>
   </div>
 </template>
