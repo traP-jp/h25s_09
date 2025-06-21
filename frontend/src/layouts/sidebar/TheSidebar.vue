@@ -1,19 +1,15 @@
 <script lang="ts" setup>
+import { Icon } from '@iconify/vue'
+import { userService } from '@/lib/apis/services.ts'
 
-import { Icon } from "@iconify/vue";
-// import type { UserInfo } from "@/lib/apis";
-import { userService } from "@/lib/apis/services.ts";
-
-const userInfo = await userService.getUserInfo();
-const userId = userInfo.traqId;
+const userInfo = await userService.getUserInfo()
+const userId = userInfo.traqId
 
 const tools = [
   { name: 'タイムライン', path: '/timeline', icon: 'mdi:home' },
   { name: 'プロフィール', path: `/user/${userId}/messages`, icon: 'mdi:account' },
-  { name: '実績', path: '/achievements', icon: 'mdi:achievement' }
-];
-
-
+  { name: '実績', path: '/achievements', icon: 'mdi:achievement' },
+]
 </script>
 
 <template>
@@ -21,11 +17,10 @@ const tools = [
     <nav :class="$style.sidebar">
       <div v-for="tool in tools" :key="tool.name" :class="$style.sidebar__item">
         <router-link :class="$style.sidebar__link" :to="tool.path">
-          <icon :icon="tool.icon" height="40px" width="40px" :class="$style.sidebar__icon"/>
+          <icon :icon="tool.icon" height="40px" width="40px" :class="$style.sidebar__icon" />
           <span>{{ tool.name }}</span>
         </router-link>
       </div>
-
     </nav>
   </header>
 </template>
@@ -37,9 +32,9 @@ const tools = [
   width: 400px;
   padding: 30px;
 }
-.sidebar__item {  
+.sidebar__item {
   cursor: pointer;
-  margin:10px;
+  margin: 10px;
   border-radius: 30px;
   &:hover {
     background-color: var(--color-shadow-light);
