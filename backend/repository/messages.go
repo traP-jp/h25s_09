@@ -57,17 +57,17 @@ func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 
 	// domain.Messageに変換して返す
 	return &domain.Message{
-		ID:       message.ID,
-		Author:   message.Author,
-		Content:  message.Content,
-		ParentID: message.ParentID,
+		ID:        message.ID,
+		Author:    message.Author,
+		Content:   message.Content,
+		ParentID:  message.ParentID,
 		CreatedAt: message.CreatedAt,
 		UpdatedAt: message.UpdatedAt,
 	}, nil
 }
 
 func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error) {
-	var replies []*domain.Message
+	var replies []*Message
 	err := r.db.Select(&replies, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages ORDER BY created_at DESC WHERE replies_id = ?", messageID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -76,5 +76,18 @@ func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.M
 		return nil, err // エラーが発生した場合はnilを返す
 	}
 
-	return replies, nil
+	// Messageをdomain.Messageに変換
+	var domainReplies []*domain.Message
+	for i := range replies {
+		domainReplies = append(domainReplies, &domain.Message{
+			ID:        replies[i].ID,
+			Author:    replies[i].Author,
+			Content:   replies[i].Content,
+			ParentID:  replies[i].ParentID,
+			CreatedAt: replies[i].CreatedAt,
+			UpdatedAt: replies[i].UpdatedAt,
+		})
+	}
+
+	return domainReplies, nil
 }
