@@ -1,10 +1,19 @@
 <script setup lang="ts">
-// ナビゲーションアイテムのデータは、スクリプト内に配列として持ちます。
-const navItems = [
-  { to: '/', iconName: 'icon-home', label: 'ホーム' },
-  { to: '/achievement', iconName: 'icon-achievement', label: 'アチーブメント' },
-  { to: '/profile', iconName: 'icon-user', label: 'プロフィール' },
-]
+import { Icon } from '@iconify/vue'
+import { userService } from '@/lib/apis/services.ts'
+import { onMounted, ref } from 'vue'
+import { computed } from 'vue'  
+
+// ユーザーIDの取得
+const userId = ref<string | null>(null)
+onMounted(async () => {
+  userId.value = (await userService.getUserInfo()).traqId
+}) 
+const navItems = computed(()=>[
+  { to: '/timeline', icon: 'mdi:home', label: 'ホーム' },
+  { to: '/achievements', icon: 'mdi:trophy', label: 'アチーブメント' },
+  { to: `/user/${userId.value}`, icon: 'mdi:account', label: 'プロフィール' },
+])
 </script>
 
 <template>
@@ -16,7 +25,7 @@ const navItems = [
       :class="$style.tabItem"
       active-class="is-active"
     >
-      <i :class="[$style.icon, item.iconName]"></i>
+      <Icon :icon="item.icon" :class="$style.icon" />
       <span :class="$style.label">{{ item.label }}</span>
     </router-link>
   </footer>
@@ -29,53 +38,55 @@ const navItems = [
 
 /* 親コンテナのスタイル */
 .bottomBar {
-  /* --- 位置とサイズ --- */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  box-sizing: border-box;
-
-  /* --- 見た目と中身のレイアウト --- */
+  --colorBackground: #000000;
+  --colorPrimary: #f9f9fb;
+  --colorActive: #7591e4;
+  --colorBorder: #000300;
+  --shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background-color: #048004;
-  border-top: 1px solid #095709;
-  z-index: 1000;
-
-  /* --- 高さ と セーフエリア対応 --- */
-  height: 60px;
-  padding-bottom: env(safe-area-inset-bottom);
+  background-color: var(--colorBackground);
+  padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  box-shadow: var(--shadow);
+    z-index: 1000;
 }
-
 .tabItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex-grow: 1;
-  height: 100%;
-  color: #f6f6f6;
   text-decoration: none;
-  transition: color 0.2s;
-
-  &.is-active {
-    color: #0d39d9; /* アクティブ時の色 */
-    font-weight: 600;
-  }
+  color: var(--colorPrimary);
+  font-size: 12px;
+  padding: 5px;
+    transition: color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+    border-radius: 10px;
+    &:hover {
+    color: var(--colorActive);
+    transform: scale(2.0);
+    box-shadow: var(--shadow);
+    transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; 
+    }
+    &.isActive {
+    color: var(--colorActive);
+    transform: scale(1.1);
+    font-weight: bold;
+    box-shadow: var(--shadow);
+    transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
 }
 .icon {
   font-size: 24px;
+  
 }
 
 .label {
-  font-size: 20px;
+  font-size: 10px;
   margin-top: 2px;
 }
-/*
- * 
-active-classで指定したクラス名はグローバルなクラスとして扱われるため、
- * CSSモジュール内からスタイルを当てるには :global() で囲みます。
- */
+
 </style>
