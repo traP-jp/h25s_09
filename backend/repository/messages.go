@@ -41,17 +41,10 @@ func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUI
 }
 
 func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
-	message := &Message{
-		ID:       id,
-		Author:   "",
-		Content:  "",
-		ParentID: uuid.Nil,
-		CreatedAt: time.Time{},
-		UpdatedAt: time.Time{},
-	}
+	var message Message
 
 	// データベースからメッセージを取得しmessageに格納
-	err := r.db.Get(message, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages WHERE id = ?", id)
+	err := r.db.Get(&message, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages WHERE id = ?", id)
 	if err != nil {
 		return nil, err // エラーが発生した場合はnilを返す
 	}
