@@ -25,6 +25,9 @@ func (r *repositoryImpl) InsertUserAchievement(userID uuid.UUID, achievementID i
 		return nil, err
 	}
 	var achievement domain.UserAchievement
-	r.db.Get(&achievement, "SELECT * FROM achievements WHERE id = ? AND username = ?", achievementID, userID)
+	err = r.db.Get(&achievement, "SELECT * FROM achievements WHERE id = ? AND username = ?", achievementID, userID)
+	if err != nil {
+		return nil, err
+	}
 	return &achievement, nil
 }
