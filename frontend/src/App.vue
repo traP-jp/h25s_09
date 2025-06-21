@@ -148,23 +148,54 @@ body {
   }
 }
 
-// スクロールバーのスタイリング
+// スクロールバーのスタイリング（オーバーレイ表示でUIに影響しない）
+* {
+  scrollbar-width: thin; /* Firefox用 */
+  scrollbar-color: var(--color-border-medium) transparent; /* Firefox用 */
+}
+
+/* WebKit系ブラウザ用のオーバーレイスクロールバー */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+  background: transparent; /* 背景を透明に */
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-surface-variant);
+  background: transparent; /* トラックも透明に */
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-border-medium);
   border-radius: 4px;
+  background-clip: padding-box; /* パディング内でのみ表示 */
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-border-strong);
+}
+
+/* コンテナ要素にオーバーレイスクロールを適用 */
+.app-container,
+.app-main,
+.app-sidebar {
+  overflow: overlay; /* オーバーレイスクロールを使用 */
+}
+
+/* 代替案：スクロールバーを非表示にする場合 */
+@supports not (overflow: overlay) {
+  .app-container,
+  .app-main,
+  .app-sidebar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .app-container::-webkit-scrollbar,
+  .app-main::-webkit-scrollbar,
+  .app-sidebar::-webkit-scrollbar {
+    display: none; /* WebKit */
+  }
 }
 
 // フォーカスリングのスタイリング
