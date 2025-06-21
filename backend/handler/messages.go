@@ -89,6 +89,8 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, jsonMessages)
 }
 
+const MaxImageSize = 16 * 1024 * 1024 // 16 MiB
+
 func (h *handler) PostMessageHandler(c echo.Context) error {
 	author, ok := c.Get(middleware.UsernameKey).(string)
 	if !ok || author == "" {
@@ -120,7 +122,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid image file type")
 		}
 		// Check file size: max 16MiB
-		if file.Size > 16*1024*1024 {
+		if file.Size > MaxImageSize {
 			return echo.NewHTTPError(http.StatusBadRequest, "Image file is too large. (max: 16MiB)")
 		}
 	}
