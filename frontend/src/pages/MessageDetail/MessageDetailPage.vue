@@ -1,18 +1,49 @@
 <script lang="ts" setup>
 import UserIcon from '@/components/UserIcon.vue'
-import { useMessageDetail } from '@/lib/composables'
+import { useMessageDetail, useAddReaction, useRemoveReaction } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 
 const route = useRoute()
-const router = useRouter()
 
 // URLパラメータからメッセージIDを取得
 const messageId = computed(() => route.params.id as string)
 
 // メッセージ詳細取得
 const { data: message, isLoading, error } = useMessageDetail(messageId)
+
+// リアクション機能
+const addReactionMutation = useAddReaction()
+const removeReactionMutation = useRemoveReaction()
+
+// メインメッセージのリアクション切り替え処理
+const toggleMainReaction = async () => {
+  if (!message.value) return
+
+  try {
+    if (message.value.reactions.myReaction) {
+      await removeReactionMutation.mutateAsync(message.value.id)
+    } else {
+      await addReactionMutation.mutateAsync(message.value.id)
+    }
+  } catch (error) {
+    console.error('Failed to toggle reaction:', error)
+  }
+}
+
+// 返信のリアクション切り替え処理
+const toggleReplyReaction = async (replyId: string, myReaction: boolean) => {
+  try {
+    if (myReaction) {
+      await removeReactionMutation.mutateAsync(replyId)
+    } else {
+      await addReactionMutation.mutateAsync(replyId)
+    }
+  } catch (error) {
+    console.error('Failed to toggle reply reaction:', error)
+  }
+}
 
 // フォーマット済み作成日時
 const formatDate = (dateString: string) => {
@@ -25,16 +56,6 @@ const formatDate = (dateString: string) => {
     minute: '2-digit',
   })
 }
-
-// ユーザー詳細ページへの遷移
-const goToUserDetail = (traqId: string) => {
-  router.push(`/users/${traqId}`)
-}
-
-// 戻る
-const goBack = () => {
-  router.back()
-}
 </script>
 
 <template>
@@ -42,10 +63,10 @@ const goBack = () => {
     <div :class="$style.container">
       <!-- ヘッダー -->
       <header :class="$style.header">
-        <button :class="$style.backButton" @click="goBack">
+        <RouterLink to="/timeline" :class="$style.backButton">
           <Icon icon="mdi:arrow-left" />
           戻る
-        </button>
+        </RouterLink>
         <h1 :class="$style.title">メッセージ詳細</h1>
       </header>
 
@@ -74,16 +95,13 @@ const goBack = () => {
         <!-- メインメッセージ -->
         <article :class="$style.mainMessage">
           <div :class="$style.messageHeader">
-            <UserIcon
-              :traq-id="message.author"
-              size="lg"
-              clickable
-              @click="goToUserDetail(message.author)"
-            />
+            <RouterLink :to="`/users/${message.author}`" :class="$style.userIconLink">
+              <UserIcon :traq-id="message.author" size="lg" />
+            </RouterLink>
             <div :class="$style.messageInfo">
-              <button :class="$style.authorName" @click="goToUserDetail(message.author)">
+              <RouterLink :to="`/users/${message.author}`" :class="$style.authorName">
                 @{{ message.author }}
-              </button>
+              </RouterLink>
               <time :class="$style.timestamp" :datetime="message.createdAt">
                 {{ formatDate(message.createdAt) }}
               </time>
@@ -106,14 +124,20 @@ const goBack = () => {
             </div>
           </div>
 
-          <!-- リアクション表示（読み取り専用） -->
-          <div v-if="message.reactions.count > 0" :class="$style.reactions">
-            <div
-              :class="[$style.reactionItem, { [$style.myReaction]: message.reactions.myReaction }]"
+          <!-- リアクションボタン -->
+          <div :class="$style.messageActions">
+            <button
+              v-if="message.reactions"
+              :class="[$style.reactionButton, { [$style.active]: message.reactions.myReaction }]"
+              @click="toggleMainReaction"
+              :disabled="
+                addReactionMutation.isPending.value || removeReactionMutation.isPending.value
+              "
+              :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
             >
-              <Icon icon="mdi:thumb-up" :class="$style.emoji" />
+              <Icon icon="mdi:heart" :class="$style.emoji" />
               <span :class="$style.count">{{ message.reactions.count }}</span>
-            </div>
+            </button>
           </div>
         </article>
 
@@ -123,16 +147,13 @@ const goBack = () => {
           <div :class="$style.repliesList">
             <article v-for="reply in message.replies" :key="reply.id" :class="$style.reply">
               <div :class="$style.messageHeader">
-                <UserIcon
-                  :traq-id="reply.author"
-                  size="md"
-                  clickable
-                  @click="goToUserDetail(reply.author)"
-                />
+                <RouterLink :to="`/users/${reply.author}`" :class="$style.userIconLink">
+                  <UserIcon :traq-id="reply.author" size="md" />
+                </RouterLink>
                 <div :class="$style.messageInfo">
-                  <button :class="$style.authorName" @click="goToUserDetail(reply.author)">
+                  <RouterLink :to="`/users/${reply.author}`" :class="$style.authorName">
                     @{{ reply.author }}
-                  </button>
+                  </RouterLink>
                   <time :class="$style.timestamp" :datetime="reply.createdAt">
                     {{ formatDate(reply.createdAt) }}
                   </time>
@@ -155,17 +176,20 @@ const goBack = () => {
                 </div>
               </div>
 
-              <!-- 返信のリアクション表示（読み取り専用） -->
-              <div v-if="reply.reactions.count > 0" :class="$style.reactions">
-                <div
-                  :class="[
-                    $style.reactionItem,
-                    { [$style.myReaction]: reply.reactions.myReaction },
-                  ]"
+              <!-- 返信のリアクションボタン -->
+              <div :class="$style.messageActions">
+                <button
+                  v-if="reply.reactions"
+                  :class="[$style.reactionButton, { [$style.active]: reply.reactions.myReaction }]"
+                  @click="toggleReplyReaction(reply.id, reply.reactions.myReaction)"
+                  :disabled="
+                    addReactionMutation.isPending.value || removeReactionMutation.isPending.value
+                  "
+                  :aria-label="`${reply.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${reply.reactions.count} 件)`"
                 >
-                  <Icon icon="mdi:thumb-up" :class="$style.emoji" />
+                  <Icon icon="mdi:heart" :class="$style.emoji" />
                   <span :class="$style.count">{{ reply.reactions.count }}</span>
-                </div>
+                </button>
               </div>
             </article>
           </div>
@@ -200,14 +224,12 @@ const goBack = () => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: none;
-  border: none;
   color: var(--color-primary-600);
-  cursor: pointer;
   font-size: 0.875rem;
   padding: 0.5rem;
   border-radius: 0.25rem;
   transition: background-color 0.2s ease;
+  text-decoration: none;
 
   &:hover {
     background-color: var(--color-primary-50);
@@ -300,6 +322,22 @@ const goBack = () => {
   margin-bottom: 1rem;
 }
 
+.userIconLink {
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+}
+
 .messageInfo {
   display: flex;
   flex-direction: column;
@@ -307,14 +345,10 @@ const goBack = () => {
 }
 
 .authorName {
-  background: none;
-  border: none;
-  padding: 0;
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-primary-600);
-  cursor: pointer;
-  text-align: left;
+  text-decoration: none;
 
   &:hover {
     color: var(--color-primary-700);
@@ -348,6 +382,49 @@ const goBack = () => {
   max-height: 20rem;
   border-radius: 0.5rem;
   border: 1px solid var(--color-border-light);
+}
+
+.messageActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.reactionButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-surface-variant);
+  border: 1px solid var(--color-border-light);
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-200);
+    color: var(--color-primary-600);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-200);
+    color: var(--color-primary-700);
+
+    [data-theme='dark'] & {
+      background-color: var(--color-primary-900);
+      border-color: var(--color-primary-800);
+      color: var(--color-primary-300);
+    }
+  }
 }
 
 .reactions {

@@ -11,3 +11,4 @@ linters:
     - nlreturn
     - wsl
     - mnd
+    - cyclop
