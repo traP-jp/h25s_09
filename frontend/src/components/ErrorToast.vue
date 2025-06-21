@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useGlobalError } from '@/lib/composables'
+import { Icon } from '@iconify/vue'
 
 const { error, isErrorVisible, clearError } = useGlobalError()
 </script>
@@ -9,13 +10,17 @@ const { error, isErrorVisible, clearError } = useGlobalError()
     <Transition name="error-toast">
       <div v-if="isErrorVisible && error" :class="$style.errorToast" @click="clearError">
         <div :class="$style.errorContent">
-          <div :class="$style.errorIcon">⚠️</div>
+          <div :class="$style.errorIcon">
+            <Icon icon="material-symbols:error" />
+          </div>
           <div :class="$style.errorMessage">
             <strong>エラーが発生しました</strong>
             <p>{{ error.message }}</p>
             <small v-if="error.status">Status: {{ error.status }}</small>
           </div>
-          <button :class="$style.closeButton" @click="clearError">×</button>
+          <button :class="$style.closeButton" @click="clearError">
+            <Icon icon="material-symbols:close" />
+          </button>
         </div>
       </div>
     </Transition>
@@ -46,6 +51,10 @@ const { error, isErrorVisible, clearError } = useGlobalError()
 .errorIcon {
   font-size: 1.5rem;
   flex-shrink: 0;
+  color: #721c24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .errorMessage {
@@ -75,7 +84,7 @@ const { error, isErrorVisible, clearError } = useGlobalError()
   background: none;
   border: none;
   color: #721c24;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
   padding: 0;
