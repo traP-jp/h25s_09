@@ -9,30 +9,44 @@ import (
 	"github.com/traP-jp/h25s_09/domain"
 )
 
-func (h *handler) ReactionsGetter(c echo.Context) error {
+func (h *handler) ReactionsAdder(c echo.Context) error {
+	//idを取得してuuid型に
 	ID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid ID")
 	}
-	//IDが存在しているか
+	// idのメッセージがそもそも存在するか
 	_, err = h.repo.GetMessageByID(ID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "id not found")
-		}
+		} //404用
 		c.Logger().Error("Failed to retrieve id:", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve id")
-	}
-	//リアクションの数の取得
-	var count int
-	s, _ := h.repo.GetReactionsToMessage(ID)
-	count = len(s)
+	} //404以外は500に
 	//ユーザーネームの取得
 	usernameRaw := c.Get("username")
 	username, ok := usernameRaw.(string)
 	if !ok || username == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized,"unauthorized")
+		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 	}
+	//リアクションを追加
+	_, err = h.repo.InsertMessageReaction(ID, username)
+	if err != nil {
+		if errors.Is(err, domain.ErrConflict) {
+			return echo.NewHTTPError(http.StatusConflict, "already reacted")
+		} //409
+		c.Logger().Error("failed to insert reaction:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to insert reaction")
+	} //409以外
+	//リアクションの数の取得
+	s, err := h.repo.GetReactionsToMessage(ID)
+	if err != nil {
+		c.Logger().Error("Failed to get reactions:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
+	}
+	count := len(s)
+	//自身のリアクションの有無
 	myreaction := contains(s, username)
 	res := map[string]interface{}{
 		"count":      count,
