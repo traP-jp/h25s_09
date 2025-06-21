@@ -23,9 +23,11 @@ onMounted(async () => {
 .sidebar {
   display: flex;
   flex-direction: column;
-  width: 400px;
+  width: 100%;
   height: 100%;
-  padding: 30px;
+  padding: 0.5rem 0.25rem; /* さらに左右のパディングを削減 */
   background-color: var(--color-background);
+  container-type: inline-size; /* Container Queryを有効化 */
+  container-name: sidebar;
 }
 </style>
