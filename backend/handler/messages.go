@@ -146,6 +146,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 			c.Logger().Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open image file")
 		}
+		defer fileReader.Close()
 		imageData, err = io.ReadAll(fileReader)
 		if err != nil {
 			c.Logger().Error(err)
