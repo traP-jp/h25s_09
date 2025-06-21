@@ -12,7 +12,7 @@ import (
 type MessageReactionRepository interface {
 	GetMessageReaction(messageID uuid.UUID) (domain.GetMessageReactionResponse, error)
 	InsertMessageReaction(messageID uuid.UUID, username string) (*domain.MessageReaction, error)
-	DeleteMessageReaction(messageID uuid.UUID) (*domain.MessageReaction, error)
+	DeleteMessageReaction(messageID uuid.UUID) (error)
 }
 
 func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID,username string) (*domain.GetMessageReactionResponse, error) {
@@ -42,7 +42,7 @@ func (r *repositoryImpl) InsertMessageReaction(messageID uuid.UUID, username str
 		return  domain.InsertMessageReactionResponce{},err}
 
 	var count int	
-	err = r.db.Get(&count, "SELECT * FROM message_reactions WHERE Message_id = ?",messageID)
+	err = r.db.Get(&count, "SELECT COUNT(*) FROM message_reactions WHERE Message_id = ?",messageID)
 	if err != nil {
 		return domain.InsertMessageReactionResponce{},err
 	}
@@ -57,15 +57,15 @@ func (r *repositoryImpl) InsertMessageReaction(messageID uuid.UUID, username str
 } 
 
 
-func (r *repositoryImpl) DeleteMessageReaction(messageID uuid.UUID) (*domain.MessageReaction, error) {
+func (r *repositoryImpl) DeleteMessageReaction(messageID uuid.UUID) ( error) {
 	res, err := r.db.Exec("DELETE FROM message_reactions WHERE message_id = ?", messageID)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	fmt.Println("Rows Affected:", rowsAffected)
-	return nil, nil
+	return  err
 }
