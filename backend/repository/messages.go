@@ -68,7 +68,7 @@ func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 
 func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error) {
 	var replies []*Message
-	err := r.db.Select(&replies, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages ORDER BY created_at DESC WHERE replies_id = ?", messageID)
+	err := r.db.Select(&replies, "SELECT * FROM messages ORDER BY created_at DESC WHERE replies_id = ?", messageID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domain.ErrNotFound
@@ -77,7 +77,7 @@ func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.M
 	}
 
 	// Messageをdomain.Messageに変換
-	var domainReplies []*domain.Message
+	domainReplies := make([]*domain.Message, len(replies))
 	for i := range replies {
 		domainReplies = append(domainReplies, &domain.Message{
 			ID:        replies[i].ID,
