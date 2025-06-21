@@ -8,16 +8,20 @@ import (
 	"github.com/traP-jp/h25s_09/repository"
 )
 
-type Handler struct {
+type handler struct {
+	repo repository.Repository
 }
 
 func Start() {
 	e := echo.New()
 	e.Use(middleware.Logger(), middleware.Recover())
 
-	_, err := repository.NewDB()
+	db, err := repository.NewDB()
 	if err != nil {
 		e.Logger.Fatal("Failed to connect to the database:", err)
+	}
+	_ = &handler{
+		repo: repository.NewRepository(db),
 	}
 
 	g := e.Group("/api")
