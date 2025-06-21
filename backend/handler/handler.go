@@ -29,7 +29,7 @@ func Start() {
 		g.GET("/health", h.GetHealthHandler)
 		g.GET("/me", h.GetMeHandler)
 		g.GET("/try-achieve/:id", h.TryAchieveHandler)
-		g.GET("/Messages/:messageId", h.GetMessageByMessageID)
+		g.GET("/messages/:messageId", h.GetMessageByMessageID)
 	}
 
 	e.Logger.Fatal(e.Start(":8080"))
