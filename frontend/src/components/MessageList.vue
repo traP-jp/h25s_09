@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Message } from '@/lib/apis/generated'
-import { useMessages, useInfiniteMessages, useInfiniteUserMessages } from '@/lib/composables'
+import { useInfiniteMessages, useInfiniteUserMessages, useMessages } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
 import { computed, ref } from 'vue'
 import MessageItem from './MessageItem.vue'
@@ -293,7 +293,6 @@ const isReplyMessage = (message: Message, index: number): boolean => {
   gap: 0.5rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--color-border-light);
   background-color: var(--color-background);
   box-shadow: 0 1px 3px var(--color-shadow-light);
 }
