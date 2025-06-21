@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/traP-jp/h25s_09/handler"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	handler.Start()
 }
