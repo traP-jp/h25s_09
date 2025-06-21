@@ -26,12 +26,4 @@ onMounted(async () => {
   width: 400px;
   padding: 30px;
 }
-.sidebar__item {
-  cursor: pointer;
-  margin: 10px;
-  border-radius: 30px;
-  &:hover {
-    background-color: var(--color-shadow-light);
-  }
-}
 </style>
