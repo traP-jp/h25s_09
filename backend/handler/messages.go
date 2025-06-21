@@ -56,7 +56,11 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	for i, msg := range messages {
 		ImageID, err := h.repo.GetMessageImageIDByMessageID(msg.ID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve message image ID: "+err.Error())
+			if !errors.Is(err, domain.ErrNotFound) {
+				ctx.Logger().Error(err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			ImageID = uuid.Nil
 		}
 		Replies, err := h.repo.GetRepliesByMessageID(msg.ID)
 		if err != nil {
