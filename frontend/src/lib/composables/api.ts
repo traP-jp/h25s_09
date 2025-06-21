@@ -35,10 +35,20 @@ export function useCreateMessage() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (content: string) => apiService.messages.createMessage(content),
+    mutationFn: ({
+      content,
+      image,
+      repliesTo,
+    }: {
+      content: string
+      image?: File
+      repliesTo?: string
+    }) => apiService.messages.createMessage(content, image, repliesTo),
     onSuccess: () => {
       // メッセージ一覧を無効化して再取得
       queryClient.invalidateQueries({ queryKey: queryKeys.messages })
+      // メッセージ詳細も無効化
+      queryClient.invalidateQueries({ queryKey: ['messages'] })
     },
   })
 }
@@ -49,46 +59,6 @@ export function useDeleteMessage() {
   return useMutation({
     mutationFn: (messageId: string) => apiService.messages.deleteMessage(messageId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.messages })
-    },
-  })
-}
-
-export function useCreateReply() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ messageId, content }: { messageId: string; content: string }) =>
-      apiService.messages.createReply(messageId, content),
-    onSuccess: (_, { messageId }) => {
-      // 該当メッセージの詳細を無効化
-      queryClient.invalidateQueries({ queryKey: queryKeys.messageDetail(messageId) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.messages })
-    },
-  })
-}
-
-export function useAddReaction() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
-      apiService.messages.addReaction(messageId, emoji),
-    onSuccess: (_, { messageId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.messageDetail(messageId) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.messages })
-    },
-  })
-}
-
-export function useRemoveReaction() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
-      apiService.messages.removeReaction(messageId, emoji),
-    onSuccess: (_, { messageId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.messageDetail(messageId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.messages })
     },
   })
@@ -106,7 +76,12 @@ export function useUserInfo() {
 export function useUserMessages(userId?: MaybeRefOrGetter<string>) {
   return useQuery({
     queryKey: computed(() => queryKeys.userMessages(toValue(userId))),
-    queryFn: () => apiService.user.getUserMessages(toValue(userId)),
+    queryFn: () => {
+      const id = toValue(userId)
+      if (!id) throw new Error('userId is required')
+      return apiService.user.getUserMessages(id)
+    },
+    enabled: computed(() => !!toValue(userId)),
   })
 }
 
@@ -133,7 +108,12 @@ export function useAchievements() {
 export function useUserAchievements(userId?: MaybeRefOrGetter<string>) {
   return useQuery({
     queryKey: computed(() => queryKeys.userAchievements(toValue(userId))),
-    queryFn: () => apiService.achievements.getUserAchievements(toValue(userId)),
+    queryFn: () => {
+      const id = toValue(userId)
+      if (!id) throw new Error('userId is required')
+      return apiService.achievements.getUserAchievements(id)
+    },
+    enabled: computed(() => !!toValue(userId)),
   })
 }
 
@@ -149,9 +129,31 @@ export function useTryAchieve() {
   })
 }
 
-// Images API Hooks
-export function useUploadImage() {
+// Reactions API Hooks
+export function useAddReaction() {
+  const queryClient = useQueryClient()
+
   return useMutation({
-    mutationFn: (file: File) => apiService.images.uploadImage(file),
+    mutationFn: (messageId: string) => apiService.messages.addReaction(messageId),
+    onSuccess: (_, messageId) => {
+      // メッセージ詳細を無効化して再取得
+      queryClient.invalidateQueries({ queryKey: queryKeys.messageDetail(messageId) })
+      // メッセージ一覧も無効化
+      queryClient.invalidateQueries({ queryKey: queryKeys.messages })
+    },
+  })
+}
+
+export function useRemoveReaction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (messageId: string) => apiService.messages.removeReaction(messageId),
+    onSuccess: (_, messageId) => {
+      // メッセージ詳細を無効化して再取得
+      queryClient.invalidateQueries({ queryKey: queryKeys.messageDetail(messageId) })
+      // メッセージ一覧も無効化
+      queryClient.invalidateQueries({ queryKey: queryKeys.messages })
+    },
   })
 }

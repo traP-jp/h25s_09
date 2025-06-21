@@ -1,5 +1,6 @@
 # Generated files
 src/lib/apis/generated/
+public/mockServiceWorker.js
 
 # Build outputs
 dist/

@@ -14,7 +14,13 @@ export default defineConfigWithVueTs(
     files: ['**/*.{ts,mts,tsx,vue}'],
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/generated/**']),
+  globalIgnores([
+    '**/dist/**',
+    '**/dist-ssr/**',
+    '**/coverage/**',
+    '**/generated/**',
+    'public/mockServiceWorker.js',
+  ]),
 
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,

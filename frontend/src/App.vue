@@ -25,11 +25,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app-container">
+  <div id="app" class="app-container">
     <TheHeader />
-    <TheSidebar v-if="isDesktop" />
-    <TheFooter v-else />
-    <RouterView />
+    <div class="app-layout">
+      <TheSidebar v-if="isDesktop" class="app-sidebar" />
+      <main class="app-main">
+        <RouterView />
+      </main>
+    </div>
+    <TheFooter v-if="!isDesktop" class="app-footer" />
     <ErrorToast />
   </div>
 </template>
@@ -66,9 +70,37 @@ body {
 }
 
 .app-container {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   width: 100%;
   background-color: var(--color-background);
+}
+
+.app-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.app-sidebar {
+  flex-shrink: 0;
+}
+
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.app-footer {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .app-main {
+    padding: 0.5rem;
+  }
 }
 
 // スクロールバーのスタイリング
