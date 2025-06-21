@@ -3,8 +3,9 @@ import type { Message } from '@/lib/apis/generated'
 import { useAddReaction, useRemoveReaction } from '@/lib/composables'
 import { formatFullDateTime, formatRelativeTime } from '@/lib/utils/format'
 import { Icon } from '@iconify/vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import ReplyModal from './ReplyModal.vue'
 import UserIcon from './UserIcon.vue'
 
 interface Props {
@@ -15,6 +16,13 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  replySuccess: []
+}>()
+
+// リプライモーダルの表示状態
+const showReplyModal = ref(false)
 
 // リアクション機能
 const addReactionMutation = useAddReaction()
@@ -58,6 +66,25 @@ const toggleReaction = async () => {
 // フォーマット済み作成日時
 const formattedCreatedAt = computed(() => formatRelativeTime(props.message.createdAt))
 const fullDateTime = computed(() => formatFullDateTime(props.message.createdAt))
+
+// リプライ成功時の処理
+const handleReplySuccess = () => {
+  emit('replySuccess')
+  showReplyModal.value = false
+}
+
+// リプライエラー時の処理
+const handleReplyError = (error: Error) => {
+  console.error('Failed to create reply:', error)
+  // エラーハンドリング（トーストなどでユーザーに通知）
+}
+
+// リプライモーダルを開く
+const openReplyModal = (event: Event) => {
+  event.preventDefault()
+  event.stopPropagation()
+  showReplyModal.value = true
+}
 
 // 画像読み込みエラーハンドリング
 const onImageError = (event: Event) => {
@@ -152,19 +179,30 @@ const onImageError = (event: Event) => {
         </button>
 
         <!-- 返信ボタン -->
-        <RouterLink
-          :to="`/messages/${message.id}`"
+        <button
           :class="[$style.actionButton, $style.replyButton]"
           :aria-label="`返信する${message.replyCount > 0 ? ` (${message.replyCount} 件の返信)` : ''}`"
-          @click.stop
+          @click="openReplyModal"
         >
           <Icon icon="mdi:reply" :class="$style.icon" aria-hidden="true" />
           <span v-if="message.replyCount > 0" :class="$style.count" aria-label="返信数">
             {{ message.replyCount }}
           </span>
-        </RouterLink>
+        </button>
       </div>
     </RouterLink>
+
+    <!-- リプライモーダル -->
+    <ReplyModal
+      v-if="showReplyModal"
+      :message-id="message.id"
+      :message-content="message.content"
+      :message-author="message.author"
+      :is-open="showReplyModal"
+      @close="showReplyModal = false"
+      @success="handleReplySuccess"
+      @error="handleReplyError"
+    />
   </article>
 </template>
 
