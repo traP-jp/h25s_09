@@ -8,7 +8,7 @@ import (
 
 type MessageReaction struct {
 	MessageID uuid.UUID
-	UserName  string
+	Username  string
 	CreatedAt time.Time
 }
 
@@ -21,5 +21,5 @@ type InsertMessageReactionResponce struct {
 	MessageID uuid.UUID
 	UserName  string
 	CreatedAt time.Time
-	GetMessageReactionResponse 
+	GetMessageReactionResponse
 }
