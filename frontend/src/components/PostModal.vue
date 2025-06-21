@@ -174,7 +174,7 @@ onMounted(() => {
 
   /* ポップオーバーが開いている時のスタイル */
   &:popover-open {
-    animation: modalFadeIn 0.2s ease-out;
+    animation: modalFadeIn 0.1s ease-out;
     /* モーダル全体でクリックイベントを受け取る */
     pointer-events: auto;
   }
