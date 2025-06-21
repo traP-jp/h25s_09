@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MSW テスト</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      button {
+        margin: 10px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      pre {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>MSW API テスト</h1>
+
+    <div>
+      <button onclick="testGetMessages()">メッセージ一覧を取得</button>
+      <button onclick="testPostMessage()">メッセージを投稿</button>
+      <button onclick="testGetAchievements()">実績一覧を取得</button>
+      <button onclick="testHealthCheck()">ヘルスチェック</button>
+    </div>
+
+    <h2>レスポンス:</h2>
+    <pre id="response"></pre>
+
+    <script>
+      const API_BASE = '/api'
+
+      function displayResponse(data) {
+        document.getElementById('response').textContent = JSON.stringify(data, null, 2)
+      }
+
+      async function testGetMessages() {
+        try {
+          const response = await fetch(`${API_BASE}/messages`)
+          const data = await response.json()
+          displayResponse(data)
+        } catch (error) {
+          displayResponse({ error: error.message })
+        }
+      }
+
+      async function testPostMessage() {
+        try {
+          const formData = new FormData()
+          formData.append('message', 'テストメッセージです！')
+
+          const response = await fetch(`${API_BASE}/messages`, {
+            method: 'POST',
+            body: formData,
+          })
+          const data = await response.json()
+          displayResponse(data)
+        } catch (error) {
+          displayResponse({ error: error.message })
+        }
+      }
+
+      async function testGetAchievements() {
+        try {
+          const response = await fetch(`${API_BASE}/achievements`)
+          const data = await response.json()
+          displayResponse(data)
+        } catch (error) {
+          displayResponse({ error: error.message })
+        }
+      }
+
+      async function testHealthCheck() {
+        try {
+          const response = await fetch(`${API_BASE}/health`)
+          const data = await response.json()
+          displayResponse(data)
+        } catch (error) {
+          displayResponse({ error: error.message })
+        }
+      }
+    </script>
+  </body>
+</html>

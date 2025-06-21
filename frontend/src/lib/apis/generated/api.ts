@@ -621,6 +621,74 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @summary メッセージからリアクションを削除
+         * @param {string} id メッセージID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        messagesIdReactionsDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('messagesIdReactionsDelete', 'id', id)
+            const localVarPath = `/messages/{id}/reactions`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary メッセージにリアクションを追加
+         * @param {string} id メッセージID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        messagesIdReactionsPost: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('messagesIdReactionsPost', 'id', id)
+            const localVarPath = `/messages/{id}/reactions`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary メッセージの投稿
          * @param {string} message メッセージ本文
          * @param {string} [repliesTo] 返信先のメッセージID
@@ -710,6 +778,32 @@ export const MessagesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary メッセージからリアクションを削除
+         * @param {string} id メッセージID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async messagesIdReactionsDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Reactions>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.messagesIdReactionsDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MessagesApi.messagesIdReactionsDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary メッセージにリアクションを追加
+         * @param {string} id メッセージID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async messagesIdReactionsPost(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Reactions>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.messagesIdReactionsPost(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MessagesApi.messagesIdReactionsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary メッセージの投稿
          * @param {string} message メッセージ本文
          * @param {string} [repliesTo] 返信先のメッセージID
@@ -757,6 +851,26 @@ export const MessagesApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @summary メッセージからリアクションを削除
+         * @param {string} id メッセージID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        messagesIdReactionsDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<Reactions> {
+            return localVarFp.messagesIdReactionsDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary メッセージにリアクションを追加
+         * @param {string} id メッセージID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        messagesIdReactionsPost(id: string, options?: RawAxiosRequestConfig): AxiosPromise<Reactions> {
+            return localVarFp.messagesIdReactionsPost(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary メッセージの投稿
          * @param {string} message メッセージ本文
          * @param {string} [repliesTo] 返信先のメッセージID
@@ -801,6 +915,30 @@ export class MessagesApi extends BaseAPI {
      */
     public messagesIdGet(id: string, options?: RawAxiosRequestConfig) {
         return MessagesApiFp(this.configuration).messagesIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary メッセージからリアクションを削除
+     * @param {string} id メッセージID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MessagesApi
+     */
+    public messagesIdReactionsDelete(id: string, options?: RawAxiosRequestConfig) {
+        return MessagesApiFp(this.configuration).messagesIdReactionsDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary メッセージにリアクションを追加
+     * @param {string} id メッセージID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MessagesApi
+     */
+    public messagesIdReactionsPost(id: string, options?: RawAxiosRequestConfig) {
+        return MessagesApiFp(this.configuration).messagesIdReactionsPost(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

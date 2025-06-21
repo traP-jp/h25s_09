@@ -1,0 +1,211 @@
+// CSS Modules用のコンポーネントスタイル
+// 各クラスはCSS Modulesとしてエクスポートされる
+
+// Utility Classes
+.textPrimary {
+  color: var(--color-text-primary);
+}
+.textSecondary {
+  color: var(--color-text-secondary);
+}
+.textTertiary {
+  color: var(--color-text-tertiary);
+}
+.textInverse {
+  color: var(--color-text-inverse);
+}
+
+.bgPrimary {
+  background-color: var(--color-primary-500);
+}
+.bgPrimaryLight {
+  background-color: var(--color-primary-100);
+}
+.bgSecondary {
+  background-color: var(--color-secondary-500);
+}
+.bgAccent {
+  background-color: var(--color-accent-500);
+}
+.bgWarning {
+  background-color: var(--color-warning-500);
+}
+.bgError {
+  background-color: var(--color-error-500);
+}
+
+.bgSurface {
+  background-color: var(--color-surface);
+}
+.bgSurfaceVariant {
+  background-color: var(--color-surface-variant);
+}
+.bgBackground {
+  background-color: var(--color-background);
+}
+
+.borderLight {
+  border-color: var(--color-border-light);
+}
+.borderMedium {
+  border-color: var(--color-border-medium);
+}
+.borderStrong {
+  border-color: var(--color-border-strong);
+}
+
+// Component Base Styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  background-color: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary-600);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-700);
+    border-color: var(--color-primary-700);
+  }
+
+  &:active {
+    background-color: var(--color-primary-800);
+    border-color: var(--color-primary-800);
+  }
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-gray-50);
+    border-color: var(--color-border-strong);
+  }
+}
+
+.btnOutline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  background-color: transparent;
+  color: var(--color-primary-600);
+  border-color: var(--color-primary-600);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-50);
+  }
+}
+
+.card {
+  background-color: var(--color-surface);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 1px 3px var(--color-shadow-light);
+  padding: 1.5rem;
+}
+
+.cardElevated {
+  background-color: var(--color-surface);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 4px 6px var(--color-shadow-medium);
+  padding: 1.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border-medium);
+  border-radius: 0.375rem;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease-in-out;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px var(--color-primary-200);
+  }
+
+  &::placeholder {
+    color: var(--color-text-tertiary);
+  }
+
+  &:disabled {
+    background-color: var(--color-surface-variant);
+    cursor: not-allowed;
+  }
+}
+
+// Animation classes
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slideInUp {
+  animation: slideInUp 0.3s ease-out;
+}
