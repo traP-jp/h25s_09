@@ -7,5 +7,5 @@ import (
 
 type MessageImageRepository interface {
 	GetMessageImage(imageID uuid.UUID) (domain.MessageImage, error)
-	CreateMessageImage(request domain.PostMessageImageRequest) (domain.MessageImage, error)
+	CreateMessageImage(messageID uuid.UUID, data []byte, mime string) (domain.MessageImage, error)
 }

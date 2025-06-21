@@ -13,9 +13,3 @@ type MessageImage struct {
 	Mime      string
 	CreatedAt time.Time
 }
-
-type PostMessageImageRequest struct {
-	MessageID uuid.UUID
-	Data      []byte
-	Mime      string
-}
