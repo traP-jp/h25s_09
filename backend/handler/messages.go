@@ -64,7 +64,7 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reactions: "+err.Error())
 		}
 		ReactionsCount := int64(len(Reactions))
-		MyReaction := slices.ContainsFunc(Reactions, func(r domain.MessageReaction) bool {
+		MyReaction := slices.ContainsFunc(Reactions, func(r *domain.MessageReaction) bool {
 			return r.Username == ctx.Get("username").(string)
 		})
 
