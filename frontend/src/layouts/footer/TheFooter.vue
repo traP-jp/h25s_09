@@ -4,7 +4,7 @@ const navItems = [
   { to: '/', iconName: 'icon-home', label: 'ホーム' },
   { to: '/achievement', iconName: 'icon-achievement', label: 'アチーブメント' },
   { to: '/profile', iconName: 'icon-user', label: 'プロフィール' },
-];
+]
 </script>
 
 <template>
@@ -61,7 +61,7 @@ const navItems = [
   transition: color 0.2s;
 
   &.is-active {
-     color: #0d39d9; /* アクティブ時の色 */
+    color: #0d39d9; /* アクティブ時の色 */
     font-weight: 600;
   }
 }
@@ -78,5 +78,4 @@ const navItems = [
 active-classで指定したクラス名はグローバルなクラスとして扱われるため、
  * CSSモジュール内からスタイルを当てるには :global() で囲みます。
  */
-
 </style>
