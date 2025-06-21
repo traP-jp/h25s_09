@@ -16,7 +16,7 @@ type MessageImageRepository interface {
 }
 
 type repoMessageImage struct {
-	Id        uuid.UUID `db:"id"`
+	ID        uuid.UUID `db:"id"`
 	MessageID uuid.UUID `db:"message_id"`
 	Data      []byte    `db:"data"`
 	Mime      string    `db:"mime"`
@@ -34,7 +34,7 @@ func (r *repositoryImpl) GetMessageImage(imageID uuid.UUID) (*domain.MessageImag
 		}
 	}
 	return &domain.MessageImage{
-		ID:        img.Id,
+		ID:        img.ID,
 		MessageID: img.MessageID,
 		Data:      img.Data,
 		Mime:      img.Mime,
@@ -44,7 +44,7 @@ func (r *repositoryImpl) GetMessageImage(imageID uuid.UUID) (*domain.MessageImag
 
 func (r *repositoryImpl) CreateMessageImage(messageID uuid.UUID, data []byte, mime string) (*domain.MessageImage, error) {
 	img := repoMessageImage{
-		Id:        uuid.Must(uuid.NewV7()),
+		ID:        uuid.Must(uuid.NewV7()),
 		MessageID: messageID,
 		Data:      data,
 		Mime:      mime,
@@ -56,7 +56,7 @@ func (r *repositoryImpl) CreateMessageImage(messageID uuid.UUID, data []byte, mi
 	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
 		return nil, errors.New("no rows affected")
 	}
-	return r.GetMessageImage(img.Id)
+	return r.GetMessageImage(img.ID)
 }
 
 func (r *repositoryImpl) GetMessageImageIDByMessageID(messageID uuid.UUID) (uuid.UUID, error) {
