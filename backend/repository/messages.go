@@ -111,7 +111,7 @@ func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 
 func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error) {
 	var replies []*Message
-	err := r.db.Select(&replies, "SELECT * FROM messages ORDER BY created_at DESC WHERE replies_to = ?", messageID)
+	err := r.db.Select(&replies, "SELECT * FROM messages WHERE replies_to = ? ORDER BY created_at DESC", messageID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domain.ErrNotFound
