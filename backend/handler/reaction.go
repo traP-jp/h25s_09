@@ -40,7 +40,7 @@ func (h *handler) ReactionsGetter(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, res)
 }
-func contains(slice []domain.MessageReaction, target string) bool {
+func contains(slice []*domain.MessageReaction, target string) bool {
 	for _, v := range slice {
 		if v.Username == target {
 			return true
