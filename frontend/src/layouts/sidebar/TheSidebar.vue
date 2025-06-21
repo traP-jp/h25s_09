@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+
+import { Icon } from "@iconify/vue";
 const tools = [
-  { name: 'timeline', path: '/timeline' },
-  { name: 'messageId', path: '/messageId' },
-  { name: 'messages', path: '/messages' },
-  { name: 'achievements', path: '/achievements' }
+  { name: 'タイムライン', path: '/timeline', icon: 'mdi:home' },
+  { name: 'プロフィール', path: '/messages', icon: 'mdi:account' },
+  { name: '実績', path: '/achievements', icon: 'mdi:achievement' }
 ];
 
 
@@ -13,7 +14,10 @@ const tools = [
   <header>
     <nav :class="$style.sidebar">
       <div v-for="tool in tools" :key="tool.name" :class="$style.sidebar__item">
-        <router-link :class="$style.sidebar__link" :to="tool.path">{{ tool.name }}</router-link>
+        <router-link :class="$style.sidebar__link" :to="tool.path">
+          <icon :icon="tool.icon" height="40px" width="40px" :class="$style.sidebar__icon"/>
+          <span>{{ tool.name }}</span>
+        </router-link>
       </div>
 
     </nav>
@@ -24,19 +28,25 @@ const tools = [
 .sidebar {
   display: flex;
   flex-direction: column;
-  width: 200px;
+  width: 400px;
+  padding: 30px;
 }
-.sidebar__item {
-  padding: 10px;
-  text-decoration: none;
+.sidebar__item {  
   cursor: pointer;
+  margin:10px;
+  border-radius: 30px;
   &:hover {
     background-color: #f0f0f0;
   }
 }
 .sidebar__link {
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
   color: inherit;
   font-weight: bold;
+  font-size: 150%;
+  text-decoration: none;
 }
 </style>
