@@ -40,72 +40,56 @@ interface MessageDetail {
   createdAt: string
 }
 
-// モックデータ
-const mockMessages: Message[] = [
-  {
-    id: '550e8400-e29b-41d4-a716-446655440001',
-    author: 'rei',
-    content: 'こんにちは！これは最初のテストメッセージです。',
-    imageId: null,
-    reactions: {
-      count: 3,
-      myReaction: true,
-    },
-    replyCount: 1,
-    createdAt: '2025-06-21T10:00:00Z',
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440002',
-    author: 'rei',
-    content: 'こんにちは！画像付きのメッセージです。',
-    imageId: '550e8400-e29b-41d4-a716-446655440010',
-    reactions: {
-      count: 1,
-      myReaction: false,
-    },
-    replyCount: 0,
-    createdAt: '2025-06-21T10:30:00Z',
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440003',
-    author: 'rei',
-    content: 'これは返信メッセージの例です。',
-    imageId: null,
-    reactions: {
-      count: 0,
-      myReaction: false,
-    },
-    replyCount: 0,
-    createdAt: '2025-06-21T11:00:00Z',
-  },
-]
-
-const mockMessageDetails: MessageDetail[] = [
-  {
-    id: '550e8400-e29b-41d4-a716-446655440001',
-    author: 'rei',
-    content: 'こんにちは！これは最初のテストメッセージです。',
-    imageId: null,
-    reactions: {
-      count: 3,
-      myReaction: true,
-    },
-    createdAt: '2025-06-21T10:00:00Z',
-    replies: [
-      {
-        id: '550e8400-e29b-41d4-a716-446655440004',
-        author: 'rei',
-        content: 'このメッセージへの返信です！',
-        images: null,
-        reactions: {
-          count: 1,
-          myReaction: false,
-        },
-        createdAt: '2025-06-21T10:15:00Z',
+// モックデータ - より多くのメッセージを生成
+const generateMockMessages = (count: number): Message[] => {
+  const messages: Message[] = []
+  for (let i = 1; i <= count; i++) {
+    messages.push({
+      id: `550e8400-e29b-41d4-a716-${i.toString().padStart(12, '0')}`,
+      author: 'rei',
+      content: `これは${i}番目のテストメッセージです。Infinite scrollのテストに使用されます。`,
+      imageId: i % 5 === 0 ? `image-${i}` : null, // 5個おきに画像を追加
+      reactions: {
+        count: Math.floor(Math.random() * 10),
+        myReaction: Math.random() > 0.5,
       },
-    ],
-  },
-]
+      replyCount: Math.floor(Math.random() * 3),
+      createdAt: new Date(Date.now() - (count - i) * 60000).toISOString(), // 1分ずつ古い時刻
+    })
+  }
+  return messages
+}
+
+const mockMessages: Message[] = generateMockMessages(100) // 100個のメッセージを生成
+
+const generateMockMessageDetails = (messages: Message[]): MessageDetail[] => {
+  return messages.map((message) => ({
+    id: message.id,
+    author: message.author,
+    content: message.content,
+    imageId: message.imageId,
+    reactions: message.reactions,
+    createdAt: message.createdAt,
+    replies:
+      message.replyCount > 0
+        ? [
+            {
+              id: `reply-${message.id}`,
+              author: 'rei',
+              content: `${message.content}への返信です。`,
+              images: null,
+              reactions: {
+                count: Math.floor(Math.random() * 3),
+                myReaction: Math.random() > 0.5,
+              },
+              createdAt: new Date(new Date(message.createdAt).getTime() + 300000).toISOString(), // 5分後
+            },
+          ]
+        : [],
+  }))
+}
+
+const mockMessageDetails: MessageDetail[] = generateMockMessageDetails(mockMessages)
 
 const mockAchievements = [
   {
