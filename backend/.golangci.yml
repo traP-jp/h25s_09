@@ -10,8 +10,4 @@ linters:
     - lll
     - nlreturn
     - wsl
-formatters:
-  exclusions:
-    paths:
-      - db/**
-      - backend/handler/achievements.go
+    - mnd
