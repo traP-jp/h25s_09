@@ -7,6 +7,6 @@ import (
 )
 
 type MessageRepository interface {
-	CreateMessage(message *domain.Message) (*domain.Message, error)
+	CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error)
 	GetMessageByID(id uuid.UUID) (*domain.Message, error)
 }
