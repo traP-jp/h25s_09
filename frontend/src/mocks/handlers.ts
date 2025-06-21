@@ -350,53 +350,106 @@ export const handlers = [
   // リアクション追加
   http.post('/api/messages/:id/reactions', ({ params }) => {
     const { id } = params
+
+    // まずメインメッセージから検索
     const messageDetail = mockMessageDetails.find((msg) => msg.id === id)
+    let targetReply: Reply | null = null
 
+    // メインメッセージが見つからない場合、リプライから検索
     if (!messageDetail) {
-      return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
-    }
-
-    // リアクションを追加
-    if (!messageDetail.reactions.myReaction) {
-      messageDetail.reactions.count += 1
-      messageDetail.reactions.myReaction = true
-
-      // 対応するMessageも更新
-      const message = mockMessages.find((msg) => msg.id === id)
-      if (message) {
-        message.reactions = { ...messageDetail.reactions }
+      for (const msg of mockMessageDetails) {
+        const reply = msg.replies.find((r) => r.id === id)
+        if (reply) {
+          targetReply = reply
+          break
+        }
       }
 
-      mswLog('info', `メッセージ ${id} にリアクションを追加`)
-    } else {
-      mswLog('warn', `メッセージ ${id} は既にリアクション済み`)
+      if (!targetReply) {
+        return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
+      }
     }
 
-    return HttpResponse.json(messageDetail.reactions, { status: 201 })
+    if (messageDetail) {
+      // メインメッセージのリアクション処理
+      if (!messageDetail.reactions.myReaction) {
+        messageDetail.reactions.count += 1
+        messageDetail.reactions.myReaction = true
+
+        // 対応するMessageも更新
+        const message = mockMessages.find((msg) => msg.id === id)
+        if (message) {
+          message.reactions = { ...messageDetail.reactions }
+        }
+
+        mswLog('info', `メッセージ ${id} にリアクションを追加`)
+      } else {
+        mswLog('warn', `メッセージ ${id} は既にリアクション済み`)
+      }
+
+      return HttpResponse.json(messageDetail.reactions, { status: 201 })
+    } else if (targetReply) {
+      // リプライのリアクション処理
+      if (!targetReply.reactions.myReaction) {
+        targetReply.reactions.count += 1
+        targetReply.reactions.myReaction = true
+
+        mswLog('info', `リプライ ${id} にリアクションを追加`)
+      } else {
+        mswLog('warn', `リプライ ${id} は既にリアクション済み`)
+      }
+
+      return HttpResponse.json(targetReply.reactions, { status: 201 })
+    }
   }),
 
   // リアクション削除
   http.delete('/api/messages/:id/reactions', ({ params }) => {
     const { id } = params
+
+    // まずメインメッセージから検索
     const messageDetail = mockMessageDetails.find((msg) => msg.id === id)
+    let targetReply: Reply | null = null
 
+    // メインメッセージが見つからない場合、リプライから検索
     if (!messageDetail) {
-      return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
-    }
+      for (const msg of mockMessageDetails) {
+        const reply = msg.replies.find((r) => r.id === id)
+        if (reply) {
+          targetReply = reply
+          break
+        }
+      }
 
-    // リアクションを削除
-    if (messageDetail.reactions.myReaction) {
-      messageDetail.reactions.count = Math.max(0, messageDetail.reactions.count - 1)
-      messageDetail.reactions.myReaction = false
-
-      // 対応するMessageも更新
-      const message = mockMessages.find((msg) => msg.id === id)
-      if (message) {
-        message.reactions = { ...messageDetail.reactions }
+      if (!targetReply) {
+        return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
       }
     }
 
-    mswLog('info', `メッセージ ${id} のリアクションを削除`)
-    return HttpResponse.json(messageDetail.reactions)
+    if (messageDetail) {
+      // メインメッセージのリアクション削除
+      if (messageDetail.reactions.myReaction) {
+        messageDetail.reactions.count = Math.max(0, messageDetail.reactions.count - 1)
+        messageDetail.reactions.myReaction = false
+
+        // 対応するMessageも更新
+        const message = mockMessages.find((msg) => msg.id === id)
+        if (message) {
+          message.reactions = { ...messageDetail.reactions }
+        }
+      }
+
+      mswLog('info', `メッセージ ${id} のリアクションを削除`)
+      return HttpResponse.json(messageDetail.reactions)
+    } else if (targetReply) {
+      // リプライのリアクション削除
+      if (targetReply.reactions.myReaction) {
+        targetReply.reactions.count = Math.max(0, targetReply.reactions.count - 1)
+        targetReply.reactions.myReaction = false
+      }
+
+      mswLog('info', `リプライ ${id} のリアクションを削除`)
+      return HttpResponse.json(targetReply.reactions)
+    }
   }),
 ]
