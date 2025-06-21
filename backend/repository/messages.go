@@ -32,8 +32,8 @@ func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUI
 	}
 
 	// データベースに保存
-	_, err := r.db.Exec("INSERT INTO messages (id, author, message, replies_id) VALUES (?, ?, ?, ?)",
-		message.ID, message.Author, message.Content, message.ParentID,
+	_, err := r.db.Exec("INSERT INTO messages (id, author, message, replies_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+		message.ID, message.Author, message.Content, message.ParentID, message.CreatedAt, message.UpdatedAt,
 	)
 	
 	if err != nil {
