@@ -7,15 +7,15 @@ import (
 )
 
 type MessageImage struct {
-	Id        uuid.UUID
-	MessageId uuid.UUID
+	ID        uuid.UUID
+	MessageID uuid.UUID
 	Data      []byte
 	Mime      string
 	CreatedAt time.Time
 }
 
 type PostMessageImageRequest struct {
-	MessageId uuid.UUID
+	MessageID uuid.UUID
 	Data      []byte
 	Mime      string
 }
