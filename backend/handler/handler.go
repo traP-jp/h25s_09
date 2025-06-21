@@ -32,6 +32,7 @@ func Start() {
 		g.GET("/try-achieve/:id", h.TryAchieveHandler)
 		g.POST("/messages/:id/reaction",h.ReactionsAdder)
 		g.GET("/messages", h.GetMessagesHandler)
+		g.DELETE("/messages/:id/reaction", h.ReactionsDeleter)
 		g.POST("/messages", h.PostMessageHandler)
 	}
 
