@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Message } from '@/lib/apis/generated'
-import { useMessages, useInfiniteMessages } from '@/lib/composables'
+import { useMessages, useInfiniteMessages, useInfiniteUserMessages } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
 import { computed, ref } from 'vue'
 import MessageItem from './MessageItem.vue'
@@ -16,15 +16,24 @@ interface Props {
   includeReplies?: boolean
   /** infinite scrollを使用するかどうか */
   useInfiniteScroll?: boolean
+  /** ユーザーID（特定ユーザーのメッセージのみ表示する場合） */
+  userId?: string
 }
 
 const props = defineProps<Props>()
 
 // infinite scrollを使用する場合
 const infiniteScrollData = props.useInfiniteScroll
-  ? useInfiniteMessages({
-      includeReplies: props.includeReplies || false,
-    })
+  ? props.userId
+    ? useInfiniteUserMessages(
+        computed(() => props.userId!),
+        {
+          includeReplies: props.includeReplies || false,
+        },
+      )
+    : useInfiniteMessages({
+        includeReplies: props.includeReplies || false,
+      })
   : {
       messages: computed(() => [] as Message[]),
       isLoading: computed(() => false),
