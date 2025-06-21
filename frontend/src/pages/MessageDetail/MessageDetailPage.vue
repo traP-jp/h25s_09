@@ -3,10 +3,9 @@ import UserIcon from '@/components/UserIcon.vue'
 import { useMessageDetail } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 
 const route = useRoute()
-const router = useRouter()
 
 // URLパラメータからメッセージIDを取得
 const messageId = computed(() => route.params.id as string)
@@ -25,16 +24,6 @@ const formatDate = (dateString: string) => {
     minute: '2-digit',
   })
 }
-
-// ユーザー詳細ページへの遷移
-const goToUserDetail = (traqId: string) => {
-  router.push(`/users/${traqId}`)
-}
-
-// 戻る
-const goBack = () => {
-  router.back()
-}
 </script>
 
 <template>
@@ -42,10 +31,10 @@ const goBack = () => {
     <div :class="$style.container">
       <!-- ヘッダー -->
       <header :class="$style.header">
-        <button :class="$style.backButton" @click="goBack">
+        <RouterLink to="/timeline" :class="$style.backButton">
           <Icon icon="mdi:arrow-left" />
           戻る
-        </button>
+        </RouterLink>
         <h1 :class="$style.title">メッセージ詳細</h1>
       </header>
 
@@ -74,16 +63,13 @@ const goBack = () => {
         <!-- メインメッセージ -->
         <article :class="$style.mainMessage">
           <div :class="$style.messageHeader">
-            <UserIcon
-              :traq-id="message.author"
-              size="lg"
-              clickable
-              @click="goToUserDetail(message.author)"
-            />
+            <RouterLink :to="`/users/${message.author}`" :class="$style.userIconLink">
+              <UserIcon :traq-id="message.author" size="lg" />
+            </RouterLink>
             <div :class="$style.messageInfo">
-              <button :class="$style.authorName" @click="goToUserDetail(message.author)">
+              <RouterLink :to="`/users/${message.author}`" :class="$style.authorName">
                 @{{ message.author }}
-              </button>
+              </RouterLink>
               <time :class="$style.timestamp" :datetime="message.createdAt">
                 {{ formatDate(message.createdAt) }}
               </time>
@@ -123,16 +109,13 @@ const goBack = () => {
           <div :class="$style.repliesList">
             <article v-for="reply in message.replies" :key="reply.id" :class="$style.reply">
               <div :class="$style.messageHeader">
-                <UserIcon
-                  :traq-id="reply.author"
-                  size="md"
-                  clickable
-                  @click="goToUserDetail(reply.author)"
-                />
+                <RouterLink :to="`/users/${reply.author}`" :class="$style.userIconLink">
+                  <UserIcon :traq-id="reply.author" size="md" />
+                </RouterLink>
                 <div :class="$style.messageInfo">
-                  <button :class="$style.authorName" @click="goToUserDetail(reply.author)">
+                  <RouterLink :to="`/users/${reply.author}`" :class="$style.authorName">
                     @{{ reply.author }}
-                  </button>
+                  </RouterLink>
                   <time :class="$style.timestamp" :datetime="reply.createdAt">
                     {{ formatDate(reply.createdAt) }}
                   </time>
@@ -200,14 +183,12 @@ const goBack = () => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: none;
-  border: none;
   color: var(--color-primary-600);
-  cursor: pointer;
   font-size: 0.875rem;
   padding: 0.5rem;
   border-radius: 0.25rem;
   transition: background-color 0.2s ease;
+  text-decoration: none;
 
   &:hover {
     background-color: var(--color-primary-50);
@@ -300,6 +281,22 @@ const goBack = () => {
   margin-bottom: 1rem;
 }
 
+.userIconLink {
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+}
+
 .messageInfo {
   display: flex;
   flex-direction: column;
@@ -307,14 +304,10 @@ const goBack = () => {
 }
 
 .authorName {
-  background: none;
-  border: none;
-  padding: 0;
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-primary-600);
-  cursor: pointer;
-  text-align: left;
+  text-decoration: none;
 
   &:hover {
     color: var(--color-primary-700);
