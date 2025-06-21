@@ -39,14 +39,6 @@ const closeModal = () => {
   }
 }
 
-// バックドロップクリックを防ぐ
-const handleBackdropClick = (event: Event) => {
-  // モーダル内のクリックは無視
-  if (event.target === popoverRef.value) {
-    closeModal()
-  }
-}
-
 // Escキーでモーダルを閉じる
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
@@ -65,15 +57,28 @@ onMounted(() => {
         document.addEventListener('keydown', handleKeydown)
         // 背景のスクロールを無効化
         document.body.style.overflow = 'hidden'
+        // 背景クリック用のイベントリスナーを追加
+        setTimeout(() => {
+          document.addEventListener('click', handleOutsideClick)
+        }, 0)
       } else {
         // モーダルが閉じた時にキーボードイベントリスナーを削除
         document.removeEventListener('keydown', handleKeydown)
         // 背景のスクロールを有効化
         document.body.style.overflow = ''
+        // 背景クリック用のイベントリスナーを削除
+        document.removeEventListener('click', handleOutsideClick)
       }
     })
   }
 })
+
+// 外側クリックでモーダルを閉じる
+const handleOutsideClick = (event: Event) => {
+  if (popoverRef.value && !popoverRef.value.contains(event.target as Node)) {
+    closeModal()
+  }
+}
 </script>
 
 <template>
@@ -95,16 +100,15 @@ onMounted(() => {
     role="dialog"
     aria-labelledby="modal-title"
     aria-modal="true"
-    @click="handleBackdropClick"
   >
-    <div :class="$style.modalHeader" @click.stop>
+    <div :class="$style.modalHeader">
       <h2 id="modal-title" :class="$style.modalTitle">新しい投稿</h2>
       <button :class="$style.closeButton" @click="closeModal" aria-label="モーダルを閉じる">
         <Icon icon="mdi:close" />
       </button>
     </div>
 
-    <div :class="$style.modalContent" @click.stop>
+    <div :class="$style.modalContent">
       <MessageForm @success="handlePostSuccess" @error="handlePostError" />
     </div>
   </div>
@@ -168,7 +172,7 @@ onMounted(() => {
   &::backdrop {
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
-    /* バックドロップクリックを無効化 */
+    /* バックドロップのクリックを有効化 */
     pointer-events: auto;
   }
 
