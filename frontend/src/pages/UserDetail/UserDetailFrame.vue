@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import UserIcon from '@/components/UserIcon.vue'
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 
 const route = useRoute()
-const router = useRouter()
 
 // URLパラメータからユーザーIDを取得
 const userId = computed(() => route.params.traqId as string)
@@ -21,11 +20,6 @@ const currentTab = computed(() => {
   if (path.includes('/achievements')) return 'achievements'
   return 'messages'
 })
-
-// タブ切り替え
-const switchTab = (tabPath: string) => {
-  router.push(tabPath)
-}
 </script>
 
 <template>
@@ -44,14 +38,14 @@ const switchTab = (tabPath: string) => {
     <!-- タブナビゲーション -->
     <nav :class="$style.tabNavigation">
       <div :class="$style.tabList">
-        <button
+        <RouterLink
           v-for="tab in tabs"
           :key="tab.id"
+          :to="tab.path"
           :class="[$style.tabButton, { [$style.active]: currentTab === tab.id }]"
-          @click="switchTab(tab.path)"
         >
           {{ tab.label }}
-        </button>
+        </RouterLink>
       </div>
     </nav>
 
@@ -114,16 +108,15 @@ const switchTab = (tabPath: string) => {
 }
 
 .tabButton {
-  background: none;
-  border: none;
   padding: 1rem 1.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-secondary);
-  cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
   position: relative;
+  text-decoration: none;
+  display: block;
 
   &:hover {
     color: var(--color-text-primary);
