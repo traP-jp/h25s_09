@@ -40,11 +40,24 @@ interface MessageDetail {
   createdAt: string
 }
 
-// モックデータ
+interface UserInfo {
+  traqId: string
+}
+
+// モック用のユーザー状態管理
+const mockUserInfo: UserInfo = {
+  traqId: 'rei',
+}
+
+// 現在のユーザー情報を取得するヘルパー関数
+const getCurrentUser = (): UserInfo => {
+  return mockUserInfo
+}
+
 const mockMessages: Message[] = [
   {
     id: '550e8400-e29b-41d4-a716-446655440001',
-    author: 'rei',
+    author: mockUserInfo.traqId,
     content: 'こんにちは！これは最初のテストメッセージです。',
     imageId: null,
     reactions: {
@@ -56,7 +69,7 @@ const mockMessages: Message[] = [
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440002',
-    author: 'rei',
+    author: mockUserInfo.traqId,
     content: 'こんにちは！画像付きのメッセージです。',
     imageId: '550e8400-e29b-41d4-a716-446655440010',
     reactions: {
@@ -68,7 +81,7 @@ const mockMessages: Message[] = [
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440003',
-    author: 'rei',
+    author: mockUserInfo.traqId,
     content: 'これは返信メッセージの例です。',
     imageId: null,
     reactions: {
@@ -83,7 +96,7 @@ const mockMessages: Message[] = [
 const mockMessageDetails: MessageDetail[] = [
   {
     id: '550e8400-e29b-41d4-a716-446655440001',
-    author: 'rei',
+    author: mockUserInfo.traqId,
     content: 'こんにちは！これは最初のテストメッセージです。',
     imageId: null,
     reactions: {
@@ -94,7 +107,7 @@ const mockMessageDetails: MessageDetail[] = [
     replies: [
       {
         id: '550e8400-e29b-41d4-a716-446655440004',
-        author: 'rei',
+        author: mockUserInfo.traqId,
         content: 'このメッセージへの返信です！',
         images: null,
         reactions: {
@@ -162,8 +175,9 @@ export const handlers = [
       return HttpResponse.json({ message: 'メッセージ本文が空です' }, { status: 400 })
     }
 
-    // /me APIで取得されるcurrentUserのtraqId（モック環境では固定値）
-    const currentUserTraqId = 'rei'
+    // /me APIで取得されるcurrentUserのtraqId
+    const currentUser = getCurrentUser()
+    const currentUserTraqId = currentUser.traqId
 
     const newMessageId = `550e8400-e29b-41d4-a716-${Date.now()}`
 
@@ -299,8 +313,9 @@ export const handlers = [
     const url = new URL(request.url)
     const traqId = url.searchParams.get('traqId')
 
-    // /me APIで取得されるcurrentUserのtraqId（モック環境では固定値）
-    const currentUserTraqId = 'rei'
+    // /me APIで取得されるcurrentUserのtraqId
+    const currentUser = getCurrentUser()
+    const currentUserTraqId = currentUser.traqId
 
     if (traqId && traqId !== currentUserTraqId) {
       // 他のユーザーの実績を返す（少なめ）
@@ -312,9 +327,7 @@ export const handlers = [
 
   // 自身の情報を取得
   http.get('/api/me', () => {
-    return HttpResponse.json({
-      traqId: 'rei',
-    })
+    return HttpResponse.json(getCurrentUser())
   }),
 
   // リアクション追加
