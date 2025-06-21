@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "backend/**"
+      - "!backend/db/**"
       - ".github/workflows/backend.yml"
   workflow_dispatch:
 
@@ -26,7 +27,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8.0.0
         with:
           working-directory: backend
-          args: --timeout 3m
+          args: --config=.golangci.yml
 
   backend-build:
     name: build backend

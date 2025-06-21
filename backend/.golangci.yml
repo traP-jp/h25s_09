@@ -1,0 +1,12 @@
+version: "2"
+
+run:
+  timeout: 3m
+  allow-parallel-runners: true
+linters:
+  default: fast
+  disable:
+    - depguard
+    - lll
+    - nlreturn
+    - wsl
