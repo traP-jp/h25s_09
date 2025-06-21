@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { Message } from '@/lib/apis/generated'
-import { useMessages } from '@/lib/composables'
+import { useInfiniteMessages, useInfiniteUserMessages, useMessages } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import MessageItem from './MessageItem.vue'
 
 interface Props {
@@ -12,26 +12,111 @@ interface Props {
   loading?: boolean
   /** エラー状態（外部から渡される場合） */
   error?: Error | null
+  /** 返信を含めるかどうか */
+  includeReplies?: boolean
+  /** infinite scrollを使用するかどうか */
+  useInfiniteScroll?: boolean
+  /** ユーザーID（特定ユーザーのメッセージのみ表示する場合） */
+  userId?: string
 }
 
 const props = defineProps<Props>()
 
-// 内部でメッセージを取得する場合
+// infinite scrollを使用する場合
+const infiniteScrollData = props.useInfiniteScroll
+  ? props.userId
+    ? useInfiniteUserMessages(
+        computed(() => props.userId!),
+        {
+          includeReplies: props.includeReplies || false,
+        },
+      )
+    : useInfiniteMessages({
+        includeReplies: props.includeReplies || false,
+      })
+  : {
+      messages: computed(() => [] as Message[]),
+      isLoading: computed(() => false),
+      error: computed(() => null as Error | null),
+      hasNextPage: computed(() => false),
+      isFetchingNextPage: computed(() => false),
+      target: ref<HTMLElement | null>(null),
+      refetch: () => Promise.resolve(),
+    }
+
+// 通常のAPIクエリを使用する場合
 const {
   data: internalMessages,
   isLoading: internalLoading,
   error: internalError,
   refetch,
-} = useMessages()
+} = useMessages({
+  includeReplies: props.includeReplies || false,
+})
 
 // 表示用のデータを決定
-const displayMessages = computed(() => props.messages || internalMessages.value || [])
-const isLoading = computed(() => props.loading ?? internalLoading.value)
-const displayError = computed(() => props.error ?? internalError.value)
+const displayMessages = computed(() => {
+  if (props.messages) return props.messages
+  if (props.useInfiniteScroll) return infiniteScrollData.messages.value
+  return internalMessages.value || []
+})
+
+const isLoading = computed(() => {
+  if (props.loading !== undefined) return props.loading
+  if (props.useInfiniteScroll) return infiniteScrollData.isLoading.value
+  return internalLoading.value
+})
+
+const displayError = computed(() => {
+  if (props.error !== undefined) return props.error
+  if (props.useInfiniteScroll) return infiniteScrollData.error.value
+  return internalError.value
+})
+
+const hasNextPage = computed(() => {
+  if (!props.useInfiniteScroll) return false
+  return infiniteScrollData.hasNextPage.value
+})
+
+const isFetchingNextPage = computed(() => {
+  if (!props.useInfiniteScroll) return false
+  return infiniteScrollData.isFetchingNextPage.value
+})
 
 // エラー時の再試行
 const handleRetry = () => {
-  refetch()
+  if (props.useInfiniteScroll) {
+    infiniteScrollData.refetch()
+  } else {
+    refetch()
+  }
+}
+
+// リプライ成功時の処理
+const handleReplySuccess = () => {
+  // メッセージ一覧を再取得してリプライを反映
+  if (props.useInfiniteScroll) {
+    infiniteScrollData.refetch()
+  } else {
+    refetch()
+  }
+}
+
+// 返信メッセージかどうかを判定する関数
+const isReplyMessage = (message: Message, index: number): boolean => {
+  // includeRepliesがfalseまたは未定義の場合は返信として扱わない
+  if (!props.includeReplies) return false
+
+  // replyCountが0の場合は返信の可能性が高い
+  // また、前のメッセージのreplyCountが1以上で、現在のメッセージが直後にある場合
+  if (message.replyCount === 0 && index > 0) {
+    const prevMessage = displayMessages.value[index - 1]
+    if (prevMessage && prevMessage.replyCount > 0) {
+      return true
+    }
+  }
+
+  return false
 }
 </script>
 
@@ -63,7 +148,35 @@ const handleRetry = () => {
 
     <!-- メッセージ一覧 -->
     <div v-else-if="displayMessages.length > 0" :class="$style.messageList">
-      <MessageItem v-for="message in displayMessages" :key="message.id" :message="message" />
+      <MessageItem
+        v-for="(message, index) in displayMessages"
+        :key="message.id"
+        :message="message"
+        :is-reply="isReplyMessage(message, index)"
+        @reply-success="handleReplySuccess"
+      />
+
+      <!-- infinite scroll用のトリガー要素 -->
+      <div
+        v-if="props.useInfiniteScroll"
+        :ref="
+          (el) => {
+            if (infiniteScrollData.target) infiniteScrollData.target.value = el as HTMLElement
+          }
+        "
+        :class="$style.infiniteScrollTrigger"
+      >
+        <!-- 次のページを読み込み中の表示 -->
+        <div v-if="isFetchingNextPage" :class="$style.loadingMore" role="status" aria-live="polite">
+          <div :class="$style.loadingSpinner" aria-hidden="true"></div>
+          <p>さらに読み込み中...</p>
+        </div>
+
+        <!-- すべて読み込み完了の表示 -->
+        <div v-else-if="!hasNextPage" :class="$style.allLoaded">
+          <p>すべてのメッセージを読み込みました</p>
+        </div>
+      </div>
     </div>
 
     <!-- 空状態 -->
@@ -191,7 +304,6 @@ const handleRetry = () => {
   gap: 0.5rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--color-border-light);
   background-color: var(--color-background);
   box-shadow: 0 1px 3px var(--color-shadow-light);
 }
@@ -219,5 +331,32 @@ const handleRetry = () => {
   font-size: 0.875rem;
   margin-top: 0.5rem;
   color: var(--color-text-tertiary);
+}
+
+.infiniteScrollTrigger {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loadingMore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.allLoaded {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  text-align: center;
+  font-size: 0.875rem;
+  padding: 1rem;
 }
 </style>

@@ -546,10 +546,11 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
          * @param {number} [limit] 取得する件数の上限
          * @param {number} [offset] 取得開始位置
          * @param {string} [traqId] 特定のユーザーのメッセージのみを取得
+         * @param {boolean} [includeReplies] 返信を含めるかどうか
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        messagesGet: async (limit?: number, offset?: number, traqId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        messagesGet: async (limit?: number, offset?: number, traqId?: string, includeReplies?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/messages`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -572,6 +573,10 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
 
             if (traqId !== undefined) {
                 localVarQueryParameter['traqId'] = traqId;
+            }
+
+            if (includeReplies !== undefined) {
+                localVarQueryParameter['includeReplies'] = includeReplies;
             }
 
 
@@ -754,11 +759,12 @@ export const MessagesApiFp = function(configuration?: Configuration) {
          * @param {number} [limit] 取得する件数の上限
          * @param {number} [offset] 取得開始位置
          * @param {string} [traqId] 特定のユーザーのメッセージのみを取得
+         * @param {boolean} [includeReplies] 返信を含めるかどうか
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async messagesGet(limit?: number, offset?: number, traqId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Message>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.messagesGet(limit, offset, traqId, options);
+        async messagesGet(limit?: number, offset?: number, traqId?: string, includeReplies?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Message>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.messagesGet(limit, offset, traqId, includeReplies, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MessagesApi.messagesGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -833,11 +839,12 @@ export const MessagesApiFactory = function (configuration?: Configuration, baseP
          * @param {number} [limit] 取得する件数の上限
          * @param {number} [offset] 取得開始位置
          * @param {string} [traqId] 特定のユーザーのメッセージのみを取得
+         * @param {boolean} [includeReplies] 返信を含めるかどうか
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        messagesGet(limit?: number, offset?: number, traqId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Message>> {
-            return localVarFp.messagesGet(limit, offset, traqId, options).then((request) => request(axios, basePath));
+        messagesGet(limit?: number, offset?: number, traqId?: string, includeReplies?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<Message>> {
+            return localVarFp.messagesGet(limit, offset, traqId, includeReplies, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -897,12 +904,13 @@ export class MessagesApi extends BaseAPI {
      * @param {number} [limit] 取得する件数の上限
      * @param {number} [offset] 取得開始位置
      * @param {string} [traqId] 特定のユーザーのメッセージのみを取得
+     * @param {boolean} [includeReplies] 返信を含めるかどうか
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MessagesApi
      */
-    public messagesGet(limit?: number, offset?: number, traqId?: string, options?: RawAxiosRequestConfig) {
-        return MessagesApiFp(this.configuration).messagesGet(limit, offset, traqId, options).then((request) => request(this.axios, this.basePath));
+    public messagesGet(limit?: number, offset?: number, traqId?: string, includeReplies?: boolean, options?: RawAxiosRequestConfig) {
+        return MessagesApiFp(this.configuration).messagesGet(limit, offset, traqId, includeReplies, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

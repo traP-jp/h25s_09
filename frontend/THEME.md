@@ -236,8 +236,7 @@ src/
 ├── composables/
 │   └── theme.ts                     # Vue 3 Composition API
 └── components/
-    ├── ThemeToggle.vue              # テーマ切り替えボタン
-    └── ThemeExample.vue             # 使用例デモ
+    └── ThemeToggle.vue              # テーマ切り替えボタン
 ```
 
 ## CSS Modulesのメリット

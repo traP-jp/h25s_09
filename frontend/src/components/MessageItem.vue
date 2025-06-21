@@ -3,18 +3,26 @@ import type { Message } from '@/lib/apis/generated'
 import { useAddReaction, useRemoveReaction } from '@/lib/composables'
 import { formatFullDateTime, formatRelativeTime } from '@/lib/utils/format'
 import { Icon } from '@iconify/vue'
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
+import { RouterLink } from 'vue-router'
+import ReplyModal from './ReplyModal.vue'
 import UserIcon from './UserIcon.vue'
 
 interface Props {
   /** メッセージデータ */
   message: Message
+  /** 返信メッセージかどうか */
+  isReply?: boolean
 }
 
 const props = defineProps<Props>()
 
-const router = useRouter()
+const emit = defineEmits<{
+  replySuccess: []
+}>()
+
+// リプライモーダルの表示状態
+const showReplyModal = ref(false)
 
 // リアクション機能
 const addReactionMutation = useAddReaction()
@@ -23,13 +31,35 @@ const removeReactionMutation = useRemoveReaction()
 // リアクション切り替え処理
 const toggleReaction = async () => {
   try {
+    // reactionsプロパティの存在チェック
+    if (!props.message.reactions || typeof props.message.reactions.myReaction !== 'boolean') {
+      console.error('Invalid reactions data:', props.message.reactions)
+      return
+    }
+
+    console.log(
+      'Toggling reaction for message:',
+      props.message.id,
+      'current myReaction:',
+      props.message.reactions.myReaction,
+    )
+
     if (props.message.reactions.myReaction) {
+      console.log('Removing reaction...')
       await removeReactionMutation.mutateAsync(props.message.id)
     } else {
+      console.log('Adding reaction...')
       await addReactionMutation.mutateAsync(props.message.id)
     }
+
+    console.log('Reaction toggle successful')
   } catch (error) {
     console.error('Failed to toggle reaction:', error)
+    // エラーの詳細をログに出力
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
   }
 }
 
@@ -37,24 +67,23 @@ const toggleReaction = async () => {
 const formattedCreatedAt = computed(() => formatRelativeTime(props.message.createdAt))
 const fullDateTime = computed(() => formatFullDateTime(props.message.createdAt))
 
-// メッセージ詳細ページへの遷移
-const goToDetail = () => {
-  router.push(`/messages/${props.message.id}`)
+// リプライ成功時の処理
+const handleReplySuccess = () => {
+  emit('replySuccess')
+  showReplyModal.value = false
 }
 
-// ユーザー詳細ページへの遷移
-const goToUserDetail = (traqId: string) => {
-  router.push(`/users/${traqId}`)
+// リプライエラー時の処理
+const handleReplyError = (error: Error) => {
+  console.error('Failed to create reply:', error)
+  // エラーハンドリング（トーストなどでユーザーに通知）
 }
 
-// メッセージ全体のクリックハンドラー
-const handleMessageClick = (event: Event) => {
-  // ボタンやリンクなどのインタラクティブ要素をクリックした場合は無視
-  const target = event.target as HTMLElement
-  if (target.tagName === 'BUTTON' || target.closest('button')) {
-    return
-  }
-  goToDetail()
+// リプライモーダルを開く
+const openReplyModal = (event: Event) => {
+  event.preventDefault()
+  event.stopPropagation()
+  showReplyModal.value = true
 }
 
 // 画像読み込みエラーハンドリング
@@ -66,96 +95,168 @@ const onImageError = (event: Event) => {
 </script>
 
 <template>
-  <article
-    :class="$style.messageItem"
-    role="article"
-    @click="handleMessageClick"
-    @keydown.enter="goToDetail"
-    @keydown.space.prevent="goToDetail"
-    tabindex="0"
-    :aria-label="`${message.author}のメッセージ: ${message.content.slice(0, 50)}${message.content.length > 50 ? '...' : ''}`"
-  >
-    <div :class="$style.messageHeader">
-      <UserIcon
-        :traq-id="message.author"
-        size="md"
-        clickable
-        @click="goToUserDetail"
-        :aria-label="`${message.author}のプロフィールを表示`"
-      />
-      <div :class="$style.messageInfo">
-        <button
-          :class="$style.authorName"
-          @click="goToUserDetail(message.author)"
+  <article :class="[$style.messageItem, { [$style.reply]: isReply }]" role="article">
+    <div v-if="isReply" :class="$style.replyIndicator">
+      <Icon icon="mdi:reply" :class="$style.replyIcon" />
+    </div>
+    <RouterLink
+      :to="`/messages/${message.id}`"
+      :class="$style.messageLink"
+      :aria-label="`${message.author}のメッセージ詳細を表示: ${message.content.slice(0, 50)}${message.content.length > 50 ? '...' : ''}`"
+    >
+      <div :class="$style.messageHeader">
+        <RouterLink
+          :to="`/users/${message.author}`"
+          :class="$style.userIconLink"
           :aria-label="`${message.author}のプロフィールを表示`"
+          @click.stop
         >
-          @{{ message.author }}
+          <UserIcon
+            :traq-id="message.author"
+            size="md"
+            :aria-label="`${message.author}のプロフィール`"
+          />
+        </RouterLink>
+        <div :class="$style.messageInfo">
+          <RouterLink
+            :to="`/users/${message.author}`"
+            :class="$style.authorName"
+            :aria-label="`${message.author}のプロフィールを表示`"
+            @click.stop
+          >
+            @{{ message.author }}
+          </RouterLink>
+          <time :class="$style.timestamp" :datetime="message.createdAt" :title="fullDateTime">
+            {{ formattedCreatedAt }}
+          </time>
+        </div>
+      </div>
+
+      <div :class="$style.messageContent">
+        <p :class="$style.messageText">
+          {{ message.content }}
+        </p>
+
+        <!-- 画像表示 -->
+        <div v-if="message.imageId" :class="$style.imageContainer">
+          <img
+            :src="`/api/images/${message.imageId}`"
+            :alt="'添付画像'"
+            :class="$style.messageImage"
+            loading="lazy"
+            @error="onImageError"
+          />
+        </div>
+      </div>
+
+      <div :class="$style.messageActions" role="group" aria-label="メッセージの操作">
+        <!-- リアクションボタン -->
+        <button
+          v-if="message.reactions"
+          :class="[
+            $style.actionButton,
+            $style.reactionButton,
+            { [$style.active]: message.reactions.myReaction },
+            {
+              [$style.error]:
+                addReactionMutation.isError.value || removeReactionMutation.isError.value,
+            },
+          ]"
+          @click.stop.prevent="toggleReaction"
+          :disabled="addReactionMutation.isPending.value || removeReactionMutation.isPending.value"
+          :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
+          :aria-pressed="message.reactions.myReaction"
+          :title="
+            addReactionMutation.isError.value || removeReactionMutation.isError.value
+              ? 'リアクションでエラーが発生しました'
+              : undefined
+          "
+        >
+          <Icon icon="mdi:heart" :class="$style.emoji" aria-hidden="true" />
+          <span :class="$style.count" aria-label="いいね数">
+            {{ message.reactions.count }}
+          </span>
         </button>
-        <time :class="$style.timestamp" :datetime="message.createdAt" :title="fullDateTime">
-          {{ formattedCreatedAt }}
-        </time>
+
+        <!-- 返信ボタン -->
+        <button
+          :class="[$style.actionButton, $style.replyButton]"
+          :aria-label="`返信する${message.replyCount > 0 ? ` (${message.replyCount} 件の返信)` : ''}`"
+          @click="openReplyModal"
+        >
+          <Icon icon="mdi:reply" :class="$style.icon" aria-hidden="true" />
+          <span v-if="message.replyCount > 0" :class="$style.count" aria-label="返信数">
+            {{ message.replyCount }}
+          </span>
+        </button>
       </div>
-    </div>
+    </RouterLink>
 
-    <div :class="$style.messageContent">
-      <p :class="$style.messageText">
-        {{ message.content }}
-      </p>
-
-      <!-- 画像表示 -->
-      <div v-if="message.imageId" :class="$style.imageContainer">
-        <img
-          :src="`/api/images/${message.imageId}`"
-          :alt="'添付画像'"
-          :class="$style.messageImage"
-          loading="lazy"
-          @error="onImageError"
-        />
-      </div>
-    </div>
-
-    <div :class="$style.messageActions" role="group" aria-label="メッセージの操作">
-      <!-- リアクションボタン -->
-      <button
-        :class="[
-          $style.actionButton,
-          $style.reactionButton,
-          { [$style.active]: message.reactions.myReaction },
-        ]"
-        @click="toggleReaction"
-        :disabled="addReactionMutation.isPending.value || removeReactionMutation.isPending.value"
-        :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
-        :aria-pressed="message.reactions.myReaction"
-      >
-        <Icon icon="mdi:heart" :class="$style.emoji" aria-hidden="true" />
-        <span :class="$style.count" aria-label="いいね数">
-          {{ message.reactions.count }}
-        </span>
-      </button>
-
-      <!-- 返信ボタン -->
-      <button
-        :class="[$style.actionButton, $style.replyButton]"
-        @click="goToDetail"
-        :aria-label="`返信する${message.replyCount > 0 ? ` (${message.replyCount} 件の返信)` : ''}`"
-      >
-        <Icon icon="mdi:reply" :class="$style.icon" aria-hidden="true" />
-        <span v-if="message.replyCount > 0" :class="$style.count" aria-label="返信数">
-          {{ message.replyCount }}
-        </span>
-      </button>
-    </div>
+    <!-- リプライモーダル -->
+    <ReplyModal
+      v-if="showReplyModal"
+      :message-id="message.id"
+      :message-content="message.content"
+      :message-author="message.author"
+      :is-open="showReplyModal"
+      @close="showReplyModal = false"
+      @success="handleReplySuccess"
+      @error="handleReplyError"
+    />
   </article>
 </template>
 
 <style lang="scss" module>
 .messageItem {
-  padding: 1rem;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-light);
-  transition: all 0.2s ease;
-  cursor: pointer;
   border-radius: 0.5rem;
+  position: relative;
+
+  &.reply {
+    margin-left: 2rem;
+    background-color: var(--color-surface-variant);
+    border-left: 3px solid var(--color-primary-300);
+
+    [data-theme='dark'] & {
+      background-color: var(--color-background-soft);
+      border-left-color: var(--color-primary-600);
+    }
+  }
+}
+
+.replyIndicator {
+  position: absolute;
+  top: 0.5rem;
+  left: -1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: var(--color-primary-100);
+  border-radius: 50%;
+
+  [data-theme='dark'] & {
+    background-color: var(--color-primary-800);
+  }
+}
+
+.replyIcon {
+  font-size: 0.75rem;
+  color: var(--color-primary-600);
+
+  [data-theme='dark'] & {
+    color: var(--color-primary-300);
+  }
+}
+
+.messageLink {
+  display: block;
+  padding: 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
 
   &:hover {
     background-color: var(--color-surface-variant);
@@ -183,6 +284,22 @@ const onImageError = (event: Event) => {
   margin-bottom: 0.5rem;
 }
 
+.userIconLink {
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+}
+
 .messageInfo {
   display: flex;
   flex-direction: column;
@@ -190,14 +307,10 @@ const onImageError = (event: Event) => {
 }
 
 .authorName {
-  background: none;
-  border: none;
-  padding: 0;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-primary-600);
-  cursor: pointer;
-  text-align: left;
+  text-decoration: none;
 
   &:hover {
     color: var(--color-primary-700);
@@ -251,6 +364,9 @@ const onImageError = (event: Event) => {
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
 
   &:hover {
     background-color: var(--color-surface-variant);
@@ -273,6 +389,18 @@ const onImageError = (event: Event) => {
       background-color: var(--color-primary-900);
       border-color: var(--color-primary-800);
       color: var(--color-primary-300);
+    }
+  }
+
+  &.error {
+    background-color: var(--color-error-50);
+    border-color: var(--color-error-200);
+    color: var(--color-error-700);
+
+    [data-theme='dark'] & {
+      background-color: var(--color-error-900);
+      border-color: var(--color-error-800);
+      color: var(--color-error-300);
     }
   }
 }

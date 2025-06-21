@@ -6,21 +6,22 @@ import { computed, ref, watch } from 'vue'
 
 interface Props {
   /** 返信先のメッセージID */
-  repliesTo?: string
+  repliesTo: string
   /** プレースホルダーテキスト */
   placeholder?: string
-  /** 送信ボタンのテキスト */
-  submitText?: string
+  /** 自動フォーカスを有効にするか */
+  autoFocus?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '今何してる？',
-  submitText: '投稿',
+  placeholder: '返信を入力してください...',
+  autoFocus: false,
 })
 
 const emit = defineEmits<{
   success: []
   error: [error: Error]
+  cancel: []
 }>()
 
 // 画像プレビューURL管理
@@ -77,13 +78,15 @@ const removeImage = () => {
   cleanupImagePreview()
 
   // file inputもリセット
-  const fileInput = document.getElementById('image-upload') as HTMLInputElement
+  const fileInput = document.getElementById(
+    `reply-image-upload-${props.repliesTo}`,
+  ) as HTMLInputElement
   if (fileInput) {
     fileInput.value = ''
   }
 }
 
-// メッセージ投稿処理
+// リプライ投稿処理
 const handleSubmit = async () => {
   if (!isFormValid.value) return
 
@@ -106,6 +109,20 @@ const handleSubmit = async () => {
   }
 }
 
+// キャンセル処理
+const handleCancel = () => {
+  resetForm()
+  cleanupImagePreview()
+  emit('cancel')
+}
+
+// Escキーでキャンセル
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    handleCancel()
+  }
+}
+
 // コンポーネントがアンマウントされる際のクリーンアップ
 watch(
   () => formData.value.image,
@@ -118,16 +135,17 @@ watch(
 </script>
 
 <template>
-  <form :class="$style.messageForm" @submit.prevent="handleSubmit">
+  <form :class="$style.replyForm" @submit.prevent="handleSubmit" @keydown="handleKeydown">
     <div :class="$style.formGroup">
-      <label for="message-content" class="sr-only">メッセージ内容</label>
+      <label :for="`reply-content-${repliesTo}`" class="sr-only">返信内容</label>
       <textarea
-        id="message-content"
+        :id="`reply-content-${repliesTo}`"
         v-model="formData.content"
         :class="$style.textarea"
         :placeholder="placeholder"
         rows="3"
         :disabled="isSubmitting"
+        :autofocus="autoFocus"
         :aria-describedby="isSubmitting ? 'submit-status' : undefined"
       />
     </div>
@@ -135,14 +153,14 @@ watch(
     <!-- 画像アップロード -->
     <div :class="$style.imageUpload">
       <input
-        id="image-upload"
+        :id="`reply-image-upload-${repliesTo}`"
         type="file"
         accept="image/*"
         :class="$style.fileInput"
         :disabled="isSubmitting"
         @change="handleImageChange"
       />
-      <label for="image-upload" :class="$style.imageUploadLabel">
+      <label :for="`reply-image-upload-${repliesTo}`" :class="$style.imageUploadLabel">
         <Icon icon="mdi:camera" />
         画像を選択
       </label>
@@ -164,39 +182,45 @@ watch(
 
     <div :class="$style.formActions">
       <button
+        type="button"
+        :class="$style.cancelButton"
+        :disabled="isSubmitting"
+        @click="handleCancel"
+      >
+        キャンセル
+      </button>
+      <button
         type="submit"
         :class="$style.submitButton"
         :disabled="isSubmitting || !isFormValid"
         :aria-describedby="isSubmitting ? 'submit-status' : undefined"
       >
         <span :class="$style.submitButtonContent">
-          {{ isSubmitting ? '投稿中...' : submitText }}
+          {{ isSubmitting ? '返信中...' : '返信する' }}
           <Icon v-if="!isSubmitting" icon="mdi:send" :class="$style.submitButtonIcon" />
           <Icon v-else icon="mdi:loading" :class="[$style.submitButtonIcon, $style.spinning]" />
         </span>
       </button>
-      <div v-if="isSubmitting" id="submit-status" class="sr-only">投稿処理中です</div>
+      <div v-if="isSubmitting" id="submit-status" class="sr-only">返信処理中です</div>
     </div>
   </form>
 </template>
 
 <style lang="scss" module>
-.messageForm {
+.replyForm {
   background-color: var(--color-surface);
   border-radius: 0.5rem;
   border: 1px solid var(--color-border-light);
-  box-shadow: 0 4px 6px var(--color-shadow-medium);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 1rem;
 }
 
 .formGroup {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .textarea {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.625rem;
   border: 1px solid var(--color-border-medium);
   border-radius: 0.375rem;
   background-color: var(--color-surface);
@@ -204,13 +228,13 @@ watch(
   font-size: 0.875rem;
   transition: border-color 0.15s ease-in-out;
   resize: vertical;
-  min-height: 80px;
+  min-height: 60px;
   font-family: inherit;
 
   &:focus {
     outline: none;
     border-color: var(--color-primary-500);
-    box-shadow: 0 0 0 3px var(--color-primary-200);
+    box-shadow: 0 0 0 2px var(--color-primary-200);
   }
 
   &::placeholder {
@@ -225,7 +249,7 @@ watch(
 }
 
 .imageUpload {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .fileInput {
@@ -243,13 +267,13 @@ watch(
 .imageUploadLabel {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
   background: var(--color-surface-variant);
   border: 1px solid var(--color-border-medium);
   border-radius: 0.375rem;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--color-text-secondary);
   transition: all 0.2s ease;
 
@@ -266,14 +290,14 @@ watch(
 
 .imagePreview {
   position: relative;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   display: inline-block;
 }
 
 .previewImage {
-  max-width: 200px;
-  max-height: 200px;
-  border-radius: 0.5rem;
+  max-width: 150px;
+  max-height: 150px;
+  border-radius: 0.375rem;
   border: 1px solid var(--color-border-light);
   object-fit: cover;
   display: block;
@@ -281,15 +305,15 @@ watch(
 
 .removeImageButton {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 24px;
-  height: 24px;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--color-error-600);
   color: white;
   border: none;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -318,11 +342,43 @@ watch(
   gap: 0.5rem;
 }
 
+.cancelButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  background-color: var(--color-surface-variant);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-medium);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-primary-300);
+    outline-offset: 2px;
+  }
+}
+
 .submitButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.875rem;
   border-radius: 0.375rem;
   font-weight: 500;
   font-size: 0.875rem;
@@ -362,7 +418,7 @@ watch(
 }
 
 .submitButtonIcon {
-  font-size: 1rem;
+  font-size: 0.875rem;
   flex-shrink: 0;
 }
 
@@ -390,5 +446,39 @@ watch(
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .replyForm {
+    padding: 0.75rem;
+  }
+
+  .textarea {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+
+  .formActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .imageUploadLabel {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .previewImage {
+    max-width: 120px;
+    max-height: 120px;
+  }
 }
 </style>

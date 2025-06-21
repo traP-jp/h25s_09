@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ErrorToast from '@/components/ErrorToast.vue'
+import PostModal from '@/components/PostModal.vue'
 import { useTheme } from '@/composables'
 import TheFooter from '@/layouts/footer/TheFooter.vue'
 import TheHeader from '@/layouts/header/TheHeader.vue'
@@ -10,10 +11,13 @@ import { RouterView } from 'vue-router'
 
 const breakpoints = useBreakpoints({
   mobile: 0,
-  tablet: 768,
+  compactSidebar: 900, // コンパクトサイドバー
+  fullSidebar: 1200, // フルサイドバー
 })
 
-const isDesktop = breakpoints.greaterOrEqual('tablet')
+const showFullSidebar = breakpoints.greaterOrEqual('fullSidebar')
+const showCompactSidebar = breakpoints.between('compactSidebar', 'fullSidebar')
+const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
 
 // テーマ初期化
 useTheme()
@@ -28,13 +32,27 @@ onMounted(() => {
   <div id="app" class="app-container">
     <TheHeader />
     <div class="app-layout">
-      <TheSidebar v-if="isDesktop" class="app-sidebar" />
-      <main class="app-main">
+      <TheSidebar
+        v-if="showSidebar"
+        class="app-sidebar"
+        :class="{
+          'app-sidebar--full': showFullSidebar,
+          'app-sidebar--compact': showCompactSidebar,
+        }"
+      />
+      <main
+        class="app-main"
+        :class="{
+          'app-main--full-sidebar': showFullSidebar,
+          'app-main--compact-sidebar': showCompactSidebar,
+        }"
+      >
         <RouterView />
       </main>
     </div>
-    <TheFooter v-if="!isDesktop" class="app-footer" />
+    <TheFooter v-if="!showSidebar" class="app-footer" />
     <ErrorToast />
+    <PostModal />
   </div>
 </template>
 
@@ -80,46 +98,104 @@ body {
 .app-layout {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  position: relative;
 }
 
 .app-sidebar {
-  flex-shrink: 0;
+  position: fixed;
+  top: 4rem; /* ヘッダーの高さ(4rem) */
+  left: 0;
+  bottom: 0;
+  z-index: 10;
+  background-color: var(--color-background);
+  border-right: 1px solid var(--color-border-light);
+  overflow-y: auto;
+}
+
+.app-sidebar--full {
+  width: 240px; /* フルサイドバーの固定幅 */
+}
+
+.app-sidebar--compact {
+  width: 100px; /* コンパクトサイドバーの固定幅を狭める */
 }
 
 .app-main {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+  padding-top: calc(4rem + 1rem); /* ヘッダーの高さ(4rem) + 通常のpadding(1rem) */
+  min-height: calc(100vh - 4rem); /* ヘッダーの高さ(4rem)を除く */
+}
+
+.app-main--full-sidebar {
+  margin-left: 300px; /* フルサイドバーの幅分マージン */
+}
+
+.app-main--compact-sidebar {
+  margin-left: 100px; /* コンパクトサイドバーの幅分マージン */
 }
 
 .app-footer {
   flex-shrink: 0;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 899px) {
   .app-main {
+    margin-left: 0; /* サイドバー非表示時はマージンなし */
     padding: 0.5rem;
+    padding-top: calc(4rem + 0.5rem); /* ヘッダーの高さ(4rem) + 通常のpadding(0.5rem) */
   }
 }
 
-// スクロールバーのスタイリング
+// スクロールバーのスタイリング（オーバーレイ表示でUIに影響しない）
+* {
+  scrollbar-width: thin; /* Firefox用 */
+  scrollbar-color: var(--color-border-medium) transparent; /* Firefox用 */
+}
+
+/* WebKit系ブラウザ用のオーバーレイスクロールバー */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+  background: transparent; /* 背景を透明に */
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-surface-variant);
+  background: transparent; /* トラックも透明に */
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-border-medium);
   border-radius: 4px;
+  background-clip: padding-box; /* パディング内でのみ表示 */
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-border-strong);
+}
+
+/* コンテナ要素にオーバーレイスクロールを適用 */
+.app-container,
+.app-main,
+.app-sidebar {
+  overflow: overlay; /* オーバーレイスクロールを使用 */
+}
+
+/* 代替案：スクロールバーを非表示にする場合 */
+@supports not (overflow: overlay) {
+  .app-container,
+  .app-main,
+  .app-sidebar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .app-container::-webkit-scrollbar,
+  .app-main::-webkit-scrollbar,
+  .app-sidebar::-webkit-scrollbar {
+    display: none; /* WebKit */
+  }
 }
 
 // フォーカスリングのスタイリング

@@ -11,3 +11,6 @@ linters:
     - nlreturn
     - wsl
     - mnd
+    - cyclop
+    - funlen
+    - gocognit
