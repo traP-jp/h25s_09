@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -15,9 +16,9 @@ func (h *handler) ReactionsGetter(c echo.Context) error {
 	}
 	//IDが存在しているか
 	_, err = h.repo.GetMessageByID(ID)
-	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "ID is not founded"})
-	}
+	if errors.Is(err, domain.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "id not found")
+		}
 	//リアクションの数の取得
 	var count int
 	s, _ := h.repo.GetReactionsToMessage(ID)
