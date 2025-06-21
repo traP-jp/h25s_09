@@ -1,5 +1,11 @@
 <script lang="ts" setup>
-import { useAddReaction, useCreateReply, useFormState, useMessageDetail } from '@/lib/composables'
+import {
+  useAddReaction,
+  useCreateMessage,
+  useFormState,
+  useMessageDetail,
+  useRemoveReaction,
+} from '@/lib/composables'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -13,10 +19,11 @@ const messageId = computed(() => route.params.id as string)
 const { data: message, isLoading, error } = useMessageDetail(messageId)
 
 // リプライ作成
-const createReplyMutation = useCreateReply()
+const createMessageMutation = useCreateMessage()
 
-// リアクション操作
+// リアクション機能
 const addReactionMutation = useAddReaction()
+const removeReactionMutation = useRemoveReaction()
 
 // リプライフォーム状態管理
 const {
@@ -28,6 +35,21 @@ const {
   content: '',
 })
 
+// リアクション切り替え処理
+const toggleReaction = async () => {
+  if (!messageId.value || !message.value) return
+
+  try {
+    if (message.value.reactions.myReaction) {
+      await removeReactionMutation.mutateAsync(messageId.value)
+    } else {
+      await addReactionMutation.mutateAsync(messageId.value)
+    }
+  } catch (error) {
+    console.error('Failed to toggle reaction:', error)
+  }
+}
+
 // リプライ投稿処理
 const handleReplySubmit = async () => {
   if (!replyForm.value.content.trim() || !messageId.value) return
@@ -35,9 +57,9 @@ const handleReplySubmit = async () => {
   setSubmitting(true)
 
   try {
-    await createReplyMutation.mutateAsync({
-      messageId: messageId.value,
+    await createMessageMutation.mutateAsync({
       content: replyForm.value.content,
+      repliesTo: messageId.value,
     })
     resetForm()
   } catch (error) {
@@ -47,23 +69,7 @@ const handleReplySubmit = async () => {
   }
 }
 
-// リアクション切り替え
-const toggleReaction = async (emoji: string) => {
-  if (!messageId.value || !message.value) return
-
-  // Reactionsは単一のオブジェクトで、emojiプロパティがないため、
-  // 実際のAPIの仕様に基づいて実装が必要です
-  console.log('Toggle reaction:', emoji)
-
-  try {
-    // とりあえずリアクション追加のAPIを呼び出す
-    await addReactionMutation.mutateAsync({ messageId: messageId.value, emoji })
-  } catch (error) {
-    console.error('Failed to toggle reaction:', error)
-  }
-}
-
-// 戻る処理
+// 戻る
 const goBack = () => {
   router.back()
 }
@@ -105,7 +111,7 @@ const goBack = () => {
             {{ message.content }}
           </div>
 
-          <!-- リアクション表示（APIの仕様に基づいて簡略化） -->
+          <!-- リアクション表示（読み取り専用） -->
           <div v-if="message.reactions && message.reactions.count > 0" :class="$style.reactions">
             <div :class="$style.reaction">
               👍 {{ message.reactions.count }}
@@ -115,21 +121,47 @@ const goBack = () => {
             </div>
           </div>
 
-          <!-- リアクション追加ボタン -->
+          <!-- リアクションボタン -->
           <div :class="$style.reactionActions">
             <button
-              v-for="emoji in ['👍', '❤️', '😂', '😮', '😢', '😡']"
-              :key="emoji"
-              :class="$style.emojiButton"
-              @click="toggleReaction(emoji)"
+              :class="[$style.reactionButton, { [$style.active]: message.reactions.myReaction }]"
+              @click="toggleReaction"
+              :disabled="
+                addReactionMutation.isPending.value || removeReactionMutation.isPending.value
+              "
             >
-              {{ emoji }}
+              👍 {{ message.reactions.myReaction ? 'リアクション済み' : 'リアクション' }}
             </button>
           </div>
         </div>
 
-        <!-- リプライ一覧 -->
-        <div v-if="message.replies && message.replies.length > 0" :class="$style.replies">
+        <!-- リプライフォーム -->
+        <div :class="$style.replyForm">
+          <h3>このメッセージにリプライ</h3>
+          <form @submit.prevent="handleReplySubmit">
+            <div :class="$style.formGroup">
+              <textarea
+                v-model="replyForm.content"
+                :class="$style.textarea"
+                placeholder="リプライ内容を入力..."
+                rows="3"
+                :disabled="isSubmitting"
+              />
+            </div>
+            <div :class="$style.formActions">
+              <button
+                type="submit"
+                :class="$style.submitButton"
+                :disabled="isSubmitting || !replyForm.content.trim()"
+              >
+                {{ isSubmitting ? 'リプライ中...' : 'リプライ' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- リプライ一覧（読み取り専用） -->
+        <div v-if="message?.replies && message.replies.length > 0" :class="$style.replies">
           <h3>リプライ ({{ message.replies.length }})</h3>
           <div v-for="reply in message.replies" :key="reply.id" :class="$style.reply">
             <div :class="$style.replyHeader">
@@ -143,28 +175,6 @@ const goBack = () => {
             </div>
           </div>
         </div>
-
-        <!-- リプライ投稿フォーム -->
-        <form :class="$style.replyForm" @submit.prevent="handleReplySubmit">
-          <div :class="$style.formGroup">
-            <textarea
-              v-model="replyForm.content"
-              :class="$style.textarea"
-              placeholder="リプライを入力..."
-              rows="3"
-              :disabled="isSubmitting"
-            />
-          </div>
-          <div :class="$style.formActions">
-            <button
-              type="submit"
-              :class="$style.submitButton"
-              :disabled="isSubmitting || !replyForm.content.trim()"
-            >
-              {{ isSubmitting ? 'リプライ中...' : 'リプライ' }}
-            </button>
-          </div>
-        </form>
       </div>
 
       <!-- メッセージが見つからない場合 -->

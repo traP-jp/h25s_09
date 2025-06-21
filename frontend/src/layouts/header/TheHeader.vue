@@ -6,7 +6,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
   <header :class="$style.header">
     <div :class="$style.headerContent">
       <div :class="$style.headerLeft">
-        <h1 :class="$style.headerTitle">App Title</h1>
+        <h1 :class="$style.headerTitle">TraQ Messages</h1>
       </div>
       <div :class="$style.headerRight">
         <ThemeToggle />

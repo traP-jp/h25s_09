@@ -4,11 +4,22 @@ import { delay, mswLog } from './utils'
 // 型定義
 interface Message {
   id: string
-  author: {
-    traqId: string
-  }
+  author: string // OpenAPI仕様に合わせてstringに変更
   content: string
-  images: string | null
+  imageId: string | null // OpenAPI仕様に合わせてimageIdに変更
+  reactions: {
+    count: number
+    myReaction: boolean
+  }
+  replyCount: number // OpenAPI仕様に合わせて追加
+  createdAt: string
+}
+
+interface Reply {
+  id: string
+  author: string
+  content: string
+  images: string | null // OpenAPI仕様に合わせてimagesフィールド
   reactions: {
     count: number
     myReaction: boolean
@@ -16,49 +27,55 @@ interface Message {
   createdAt: string
 }
 
-interface MessageDetail extends Message {
-  replies: Message[]
+interface MessageDetail {
+  id: string
+  author: string
+  content: string
+  imageId: string | null
+  reactions: {
+    count: number
+    myReaction: boolean
+  }
+  replies: Reply[]
+  createdAt: string
 }
 
 // モックデータ
 const mockMessages: Message[] = [
   {
     id: '550e8400-e29b-41d4-a716-446655440001',
-    author: {
-      traqId: 'testuser1',
-    },
+    author: 'rei',
     content: 'こんにちは！これは最初のテストメッセージです。',
-    images: null,
+    imageId: null,
     reactions: {
       count: 3,
       myReaction: true,
     },
+    replyCount: 1,
     createdAt: '2025-06-21T10:00:00Z',
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440002',
-    author: {
-      traqId: 'testuser2',
-    },
+    author: 'rei',
     content: 'こんにちは！画像付きのメッセージです。',
-    images: '550e8400-e29b-41d4-a716-446655440010',
+    imageId: '550e8400-e29b-41d4-a716-446655440010',
     reactions: {
       count: 1,
       myReaction: false,
     },
+    replyCount: 0,
     createdAt: '2025-06-21T10:30:00Z',
   },
   {
     id: '550e8400-e29b-41d4-a716-446655440003',
-    author: {
-      traqId: 'testuser3',
-    },
+    author: 'rei',
     content: 'これは返信メッセージの例です。',
-    images: null,
+    imageId: null,
     reactions: {
       count: 0,
       myReaction: false,
     },
+    replyCount: 0,
     createdAt: '2025-06-21T11:00:00Z',
   },
 ]
@@ -66,11 +83,9 @@ const mockMessages: Message[] = [
 const mockMessageDetails: MessageDetail[] = [
   {
     id: '550e8400-e29b-41d4-a716-446655440001',
-    author: {
-      traqId: 'testuser1',
-    },
+    author: 'rei',
     content: 'こんにちは！これは最初のテストメッセージです。',
-    images: null,
+    imageId: null,
     reactions: {
       count: 3,
       myReaction: true,
@@ -79,9 +94,7 @@ const mockMessageDetails: MessageDetail[] = [
     replies: [
       {
         id: '550e8400-e29b-41d4-a716-446655440004',
-        author: {
-          traqId: 'testuser2',
-        },
+        author: 'rei',
         content: 'このメッセージへの返信です！',
         images: null,
         reactions: {
@@ -128,7 +141,7 @@ export const handlers = [
     let filteredMessages = mockMessages
 
     if (traqId) {
-      filteredMessages = mockMessages.filter((message) => message.author.traqId === traqId)
+      filteredMessages = mockMessages.filter((message) => message.author === traqId)
       mswLog('info', `ユーザー ${traqId} のメッセージをフィルタリング`)
     }
 
@@ -143,29 +156,88 @@ export const handlers = [
     const formData = await request.formData()
     const message = formData.get('message') as string
     const image = formData.get('image') as File
+    const repliesTo = formData.get('repliesTo') as string
 
     if (!message || message.trim() === '') {
       return HttpResponse.json({ message: 'メッセージ本文が空です' }, { status: 400 })
     }
 
-    const newMessage: Message = {
-      id: `550e8400-e29b-41d4-a716-${Date.now()}`,
-      author: {
-        traqId: 'currentuser',
-      },
-      content: message,
-      images: image ? `image-${Date.now()}` : null,
-      reactions: {
-        count: 0,
-        myReaction: false,
-      },
-      createdAt: new Date().toISOString(),
+    // /me APIで取得されるcurrentUserのtraqId（モック環境では固定値）
+    const currentUserTraqId = 'rei'
+
+    const newMessageId = `550e8400-e29b-41d4-a716-${Date.now()}`
+
+    if (repliesTo) {
+      // リプライの場合はMessageDetailのrepliesに追加
+      const parentMessage = mockMessageDetails.find((msg) => msg.id === repliesTo)
+      if (!parentMessage) {
+        return HttpResponse.json({ message: '返信先のメッセージが見つかりません' }, { status: 400 })
+      }
+
+      const newReply: Reply = {
+        id: newMessageId,
+        author: currentUserTraqId,
+        content: message,
+        images: image ? `image-${Date.now()}` : null,
+        reactions: {
+          count: 0,
+          myReaction: false,
+        },
+        createdAt: new Date().toISOString(),
+      }
+
+      parentMessage.replies.push(newReply)
+
+      // 親メッセージのreplyCountを更新
+      const parentInMessages = mockMessages.find((msg) => msg.id === repliesTo)
+      if (parentInMessages) {
+        parentInMessages.replyCount += 1
+      }
+
+      // MessageDetailを返却
+      const newMessageDetail: MessageDetail = {
+        id: newMessageId,
+        author: currentUserTraqId,
+        content: message,
+        imageId: image ? `image-${Date.now()}` : null,
+        reactions: {
+          count: 0,
+          myReaction: false,
+        },
+        replies: [],
+        createdAt: new Date().toISOString(),
+      }
+
+      mswLog('info', `リプライメッセージを作成: ${newMessageId}`)
+      return HttpResponse.json(newMessageDetail, { status: 201 })
+    } else {
+      // 通常のメッセージ投稿
+      const newMessage: Message = {
+        id: newMessageId,
+        author: currentUserTraqId,
+        content: message,
+        imageId: image ? `image-${Date.now()}` : null,
+        reactions: {
+          count: 0,
+          myReaction: false,
+        },
+        replyCount: 0,
+        createdAt: new Date().toISOString(),
+      }
+
+      // モックデータに追加
+      mockMessages.unshift(newMessage)
+
+      // MessageDetailも作成
+      const newMessageDetail: MessageDetail = {
+        ...newMessage,
+        replies: [],
+      }
+      mockMessageDetails.unshift(newMessageDetail)
+
+      mswLog('info', `新しいメッセージを作成: ${newMessageId}`)
+      return HttpResponse.json(newMessageDetail, { status: 201 })
     }
-
-    // モックデータに追加
-    mockMessages.unshift(newMessage)
-
-    return HttpResponse.json(newMessage, { status: 201 })
   }),
 
   // メッセージ詳細の取得
@@ -180,58 +252,21 @@ export const handlers = [
     return HttpResponse.json(messageDetail)
   }),
 
-  // リアクションの追加/削除
-  http.post('/api/messages/:id/reactions', ({ params }) => {
-    const { id } = params
-    const message = mockMessages.find((msg) => msg.id === id)
-
-    if (!message) {
-      return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
-    }
-
-    // リアクションの状態を切り替え
-    if (message.reactions.myReaction) {
-      message.reactions.count -= 1
-      message.reactions.myReaction = false
-    } else {
-      message.reactions.count += 1
-      message.reactions.myReaction = true
-    }
-
-    return HttpResponse.json({ success: true })
-  }),
-
-  // 画像のアップロード
-  http.post('/api/images', async ({ request }) => {
-    const formData = await request.formData()
-    const image = formData.get('image') as File
-
-    if (!image) {
-      return HttpResponse.json({ message: '画像が指定されていません' }, { status: 400 })
-    }
-
-    return HttpResponse.json({ imageId: `image-${Date.now()}` }, { status: 201 })
-  }),
-
   // 画像の取得
   http.get('/api/images/:id', ({ params }) => {
     const { id } = params
 
     // 実際のプロジェクトでは、適切な画像データを返す
-    return HttpResponse.json({ url: `https://via.placeholder.com/400x300?text=Image+${id}` })
-  }),
-
-  // 実績一覧の取得
-  http.get('/api/achievements', ({ request }) => {
-    const url = new URL(request.url)
-    const traqId = url.searchParams.get('traqId')
-
-    if (traqId && traqId !== 'currentuser') {
-      // 他のユーザーの実績を返す（少なめ）
-      return HttpResponse.json([mockAchievements[0]])
-    }
-
-    return HttpResponse.json(mockAchievements)
+    // モック環境では画像URLを返す
+    return new Response(
+      JSON.stringify({ url: `https://via.placeholder.com/400x300?text=Image+${id}` }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
   }),
 
   // 実績達成の試行
@@ -255,18 +290,85 @@ export const handlers = [
 
     mockAchievements.push(newAchievement)
 
-    return HttpResponse.json({ success: true })
+    // OpenAPI仕様に合わせてdispatchedフィールドを返す
+    return HttpResponse.json({ dispatched: true })
   }),
 
-  // ユーザー情報の取得
-  http.get('/api/user', () => {
+  // 実績一覧の取得
+  http.get('/api/achievements', ({ request }) => {
+    const url = new URL(request.url)
+    const traqId = url.searchParams.get('traqId')
+
+    // /me APIで取得されるcurrentUserのtraqId（モック環境では固定値）
+    const currentUserTraqId = 'rei'
+
+    if (traqId && traqId !== currentUserTraqId) {
+      // 他のユーザーの実績を返す（少なめ）
+      return HttpResponse.json([mockAchievements[0]])
+    }
+
+    return HttpResponse.json(mockAchievements)
+  }),
+
+  // 自身の情報を取得
+  http.get('/api/me', () => {
     return HttpResponse.json({
-      traqId: 'currentuser',
+      traqId: 'rei',
     })
   }),
 
-  // ヘルスチェック
-  http.get('/api/health', () => {
-    return HttpResponse.json({ status: 'ok' })
+  // リアクション追加
+  http.post('/api/messages/:id/reactions', ({ params }) => {
+    const { id } = params
+    const messageDetail = mockMessageDetails.find((msg) => msg.id === id)
+
+    if (!messageDetail) {
+      return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
+    }
+
+    // リアクションを追加/切り替え
+    if (messageDetail.reactions.myReaction) {
+      // 既にリアクション済みの場合は削除
+      messageDetail.reactions.count = Math.max(0, messageDetail.reactions.count - 1)
+      messageDetail.reactions.myReaction = false
+    } else {
+      // リアクションを追加
+      messageDetail.reactions.count += 1
+      messageDetail.reactions.myReaction = true
+    }
+
+    // 対応するMessageも更新
+    const message = mockMessages.find((msg) => msg.id === id)
+    if (message) {
+      message.reactions = { ...messageDetail.reactions }
+    }
+
+    mswLog('info', `メッセージ ${id} のリアクションを切り替え`)
+    return HttpResponse.json(messageDetail.reactions, { status: 201 })
+  }),
+
+  // リアクション削除
+  http.delete('/api/messages/:id/reactions', ({ params }) => {
+    const { id } = params
+    const messageDetail = mockMessageDetails.find((msg) => msg.id === id)
+
+    if (!messageDetail) {
+      return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
+    }
+
+    // リアクションを削除
+    if (messageDetail.reactions.myReaction) {
+      messageDetail.reactions.count = Math.max(0, messageDetail.reactions.count - 1)
+      messageDetail.reactions.myReaction = false
+
+      // 対応するMessageも更新
+      const message = mockMessages.find((msg) => msg.id === id)
+      if (message) {
+        message.reactions = { ...messageDetail.reactions }
+      }
+    }
+
+    mswLog('info', `メッセージ ${id} のリアクションを削除`)
+    return HttpResponse.json(messageDetail.reactions)
   }),
 ]
