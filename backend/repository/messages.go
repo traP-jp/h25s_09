@@ -27,18 +27,22 @@ func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUI
 		Author:    author,
 		Content:   content,
 		ParentID:  parentID,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
 	}
 
 	// データベースに保存
-	_, err := r.db.Exec("INSERT INTO messages (id, author, message, replies_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-		message.ID, message.Author, message.Content, message.ParentID, message.CreatedAt, message.UpdatedAt,
+	_, err := r.db.Exec("INSERT INTO messages (id, author, message, replies_id, created_at, updated_at) VALUES (?, ?, ?, ?)",
+		message.ID, message.Author, message.Content, message.ParentID,
 	)
 	
 	if err != nil {
 		return nil, err
 	}
+	message, err = r.GetMessageByID(message.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return message, nil
 }
 
