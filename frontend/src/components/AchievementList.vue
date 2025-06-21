@@ -1,19 +1,17 @@
 <script lang="ts" setup>
-import type { Message } from '@/lib/apis/generated'
-import { useMessages, useInfiniteMessages } from '@/lib/composables'
+import type { Achievement } from '@/lib/apis/generated'
+import { useAchievements, useInfiniteAchievements } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
 import { computed, ref } from 'vue'
-import MessageItem from './MessageItem.vue'
+import AchievementItem from '@/pages/UserDetail/pages/Achievements/components/AchievementItem.vue'
 
 interface Props {
-  /** 表示するメッセージ配列（外部から渡される場合） */
-  messages?: Message[]
+  /** 表示する実績配列（外部から渡される場合） */
+  achievements?: Achievement[]
   /** ローディング状態（外部から渡される場合） */
   loading?: boolean
   /** エラー状態（外部から渡される場合） */
   error?: Error | null
-  /** 返信を含めるかどうか */
-  includeReplies?: boolean
   /** infinite scrollを使用するかどうか */
   useInfiniteScroll?: boolean
 }
@@ -22,11 +20,9 @@ const props = defineProps<Props>()
 
 // infinite scrollを使用する場合
 const infiniteScrollData = props.useInfiniteScroll
-  ? useInfiniteMessages({
-      includeReplies: props.includeReplies || false,
-    })
+  ? useInfiniteAchievements()
   : {
-      messages: computed(() => [] as Message[]),
+      achievements: computed(() => [] as Achievement[]),
       isLoading: computed(() => false),
       error: computed(() => null as Error | null),
       hasNextPage: computed(() => false),
@@ -37,19 +33,17 @@ const infiniteScrollData = props.useInfiniteScroll
 
 // 通常のAPIクエリを使用する場合
 const {
-  data: internalMessages,
+  data: internalAchievements,
   isLoading: internalLoading,
   error: internalError,
   refetch,
-} = useMessages({
-  includeReplies: props.includeReplies || false,
-})
+} = useAchievements()
 
 // 表示用のデータを決定
-const displayMessages = computed(() => {
-  if (props.messages) return props.messages
-  if (props.useInfiniteScroll) return infiniteScrollData.messages.value
-  return internalMessages.value || []
+const displayAchievements = computed(() => {
+  if (props.achievements) return props.achievements
+  if (props.useInfiniteScroll) return infiniteScrollData.achievements.value
+  return internalAchievements.value || []
 })
 
 const isLoading = computed(() => {
@@ -82,40 +76,19 @@ const handleRetry = () => {
     refetch()
   }
 }
-
-// 返信メッセージかどうかを判定する関数
-const isReplyMessage = (message: Message, index: number): boolean => {
-  // includeRepliesがfalseまたは未定義の場合は返信として扱わない
-  if (!props.includeReplies) return false
-
-  // replyCountが0の場合は返信の可能性が高い
-  // また、前のメッセージのreplyCountが1以上で、現在のメッセージが直後にある場合
-  if (message.replyCount === 0 && index > 0) {
-    const prevMessage = displayMessages.value[index - 1]
-    if (prevMessage && prevMessage.replyCount > 0) {
-      return true
-    }
-  }
-
-  return false
-}
 </script>
 
 <template>
-  <div :class="$style.messageListContainer">
+  <div :class="$style.achievementListContainer">
     <!-- エラー表示 -->
     <div v-if="displayError" :class="$style.error" role="alert">
       <div :class="$style.errorContent">
         <Icon icon="mdi:alert" :class="$style.errorIcon" aria-hidden="true" />
         <div :class="$style.errorMessage">
-          <strong>メッセージの取得に失敗しました</strong>
+          <strong>実績の取得に失敗しました</strong>
           <p>{{ displayError.message }}</p>
         </div>
-        <button
-          :class="$style.retryButton"
-          @click="handleRetry"
-          aria-label="メッセージの再読み込み"
-        >
+        <button :class="$style.retryButton" @click="handleRetry" aria-label="実績の再読み込み">
           再試行
         </button>
       </div>
@@ -124,16 +97,15 @@ const isReplyMessage = (message: Message, index: number): boolean => {
     <!-- ローディング表示 -->
     <div v-else-if="isLoading" :class="$style.loading" role="status" aria-live="polite">
       <div :class="$style.loadingSpinner" aria-hidden="true"></div>
-      <p>読み込み中...</p>
+      <p>実績を読み込み中...</p>
     </div>
 
-    <!-- メッセージ一覧 -->
-    <div v-else-if="displayMessages.length > 0" :class="$style.messageList">
-      <MessageItem
-        v-for="(message, index) in displayMessages"
-        :key="message.id"
-        :message="message"
-        :is-reply="isReplyMessage(message, index)"
+    <!-- 実績一覧 -->
+    <div v-else-if="displayAchievements.length > 0" :class="$style.achievementList">
+      <AchievementItem
+        v-for="achievement in displayAchievements"
+        :key="achievement.id"
+        :achievement="achievement"
       />
 
       <!-- infinite scroll用のトリガー要素 -->
@@ -154,22 +126,22 @@ const isReplyMessage = (message: Message, index: number): boolean => {
 
         <!-- すべて読み込み完了の表示 -->
         <div v-else-if="!hasNextPage" :class="$style.allLoaded">
-          <p>すべてのメッセージを読み込みました</p>
+          <p>すべての実績を読み込みました</p>
         </div>
       </div>
     </div>
 
     <!-- 空状態 -->
     <div v-else :class="$style.empty" role="status">
-      <Icon icon="mdi:message-text" :class="$style.emptyIcon" aria-hidden="true" />
-      <p>まだメッセージがありません</p>
-      <p :class="$style.emptySubtext">最初のメッセージを投稿してみませんか？</p>
+      <Icon icon="mdi:trophy-outline" :class="$style.emptyIcon" aria-hidden="true" />
+      <p>まだ実績がありません</p>
+      <p :class="$style.emptySubtext">活動を始めて実績を獲得しましょう！</p>
     </div>
   </div>
 </template>
 
 <style lang="scss" module>
-.messageListContainer {
+.achievementListContainer {
   width: 100%;
 }
 
@@ -278,11 +250,11 @@ const isReplyMessage = (message: Message, index: number): boolean => {
   }
 }
 
-.messageList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
+.achievementList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
   border-radius: 0.5rem;
   border: 1px solid var(--color-border-light);
   background-color: var(--color-background);
@@ -315,6 +287,7 @@ const isReplyMessage = (message: Message, index: number): boolean => {
 }
 
 .infiniteScrollTrigger {
+  grid-column: 1 / -1;
   padding: 1rem;
   display: flex;
   justify-content: center;
