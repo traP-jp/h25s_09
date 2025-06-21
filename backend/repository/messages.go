@@ -27,7 +27,7 @@ type Message struct {
 
 func (r *repositoryImpl) GetMessages(limit, offset int64, username string, includeReplies bool) ([]domain.Message, error) {
 	var messages []Message
-	query := "SELECT id, author, message, replies_id, created_at, updated_at FROM messages"
+	query := "SELECT id, author, message, replies_to, created_at, updated_at FROM messages"
 	args := []any{}
 
 	if username != "" && includeReplies {
@@ -76,7 +76,7 @@ func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUI
 	}
 
 	// データベースに保存
-	_, err := r.db.Exec("INSERT INTO messages (id, author, message, replies_id) VALUES (?, ?, ?, ?)",
+	_, err := r.db.Exec("INSERT INTO messages (id, author, message, replies_to) VALUES (?, ?, ?, ?)",
 		message.ID, message.Author, message.Content, message.ParentID,
 	)
 	if err != nil {
@@ -90,7 +90,7 @@ func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 	var message Message
 
 	// データベースからメッセージを取得しmessageに格納
-	err := r.db.Get(&message, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages WHERE id = ?", id)
+	err := r.db.Get(&message, "SELECT id, author, message, replies_to, created_at, updated_at FROM messages WHERE id = ?", id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domain.ErrNotFound
