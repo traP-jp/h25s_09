@@ -58,7 +58,7 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		ImageID, err := h.repo.GetMessageImageIDByMessageID(msg.ID)
 		if err != nil {
 			if !errors.Is(err, domain.ErrNotFound) {
-			  ctx.Logger().Error("Failed to retrieve image ID for message:", msg.ID, err)
+				ctx.Logger().Error("Failed to retrieve image ID for message:", msg.ID, err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			ImageID = uuid.Nil
