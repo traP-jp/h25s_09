@@ -104,7 +104,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 	parentID := uuid.Nil
 	if parentIDString != "" {
 		var err error
-		parentID, err = uuid.Parse(c.FormValue("parent_id"))
+		parentID, err = uuid.Parse(parentIDString)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid parent ID")
 		}
