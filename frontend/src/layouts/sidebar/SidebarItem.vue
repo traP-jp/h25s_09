@@ -4,7 +4,7 @@
     :to="`${props.path}`"
     :title="props.name"
   >
-    <Icon :icon="`${iconPath}`" height="40px" width="40px" :class="$style.icon" />
+    <Icon :icon="`${iconPath}`" height="32px" width="32px" :class="$style.icon" />
     <span :class="$style.text">{{ props.name }}</span>
   </RouterLink>
 </template>
@@ -38,10 +38,10 @@ const iconPath = computed(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 15px 10px; /* パディングを調整 */
+  padding: 12px 10px; /* パディングを少し小さく */
   color: inherit;
   font-weight: normal;
-  font-size: 150%;
+  font-size: 120%; /* フォントサイズを小さく */
   text-decoration: none;
   min-width: 0; /* flexアイテムの縮小を許可 */
 
@@ -63,6 +63,20 @@ const iconPath = computed(() => {
 
 .current {
   font-weight: bold;
+}
+
+/* フルサイドバー用のスタイル（300px幅） */
+@container (min-width: 250px) {
+  .sidebar__link {
+    padding: 10px 12px; /* さらにコンパクト */
+    gap: 8px;
+    font-size: 110%; /* さらに小さなフォントサイズ */
+  }
+
+  .icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
 }
 
 /* コンパクトサイドバー用のスタイル（100px幅） */
