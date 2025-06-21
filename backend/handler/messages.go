@@ -49,7 +49,8 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	// Fetch messages from the repository
 	messages, err = h.repo.GetMessages(limit, offset, traqID, includeReplies)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve messages: "+err.Error())
+		ctx.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	jsonMessages := make([]message, len(messages))
@@ -64,12 +65,14 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		}
 		Replies, err := h.repo.GetRepliesByMessageID(msg.ID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve replies count: "+err.Error())
+			ctx.Logger().Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		RepliesCount := int64(len(Replies))
 		Reactions, err := h.repo.GetReactionsToMessage(msg.ID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reactions: "+err.Error())
+			ctx.Logger().Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		ReactionsCount := int64(len(Reactions))
 		MyReaction := slices.ContainsFunc(Reactions, func(r *domain.MessageReaction) bool {
@@ -89,7 +92,6 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 			CreatedAt:  msg.CreatedAt,
 		}
 	}
-
 	return ctx.JSON(http.StatusOK, jsonMessages)
 }
 
