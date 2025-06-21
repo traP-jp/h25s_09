@@ -12,6 +12,7 @@ import (
 type MessageRepository interface {
 	CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error)
 	GetMessageByID(id uuid.UUID) (*domain.Message, error)
+	GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error)
 }
 
 type Message struct {
@@ -56,11 +57,37 @@ func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 
 	// domain.Messageに変換して返す
 	return &domain.Message{
-		ID:       message.ID,
-		Author:   message.Author,
-		Content:  message.Content,
-		ParentID: message.ParentID,
+		ID:        message.ID,
+		Author:    message.Author,
+		Content:   message.Content,
+		ParentID:  message.ParentID,
 		CreatedAt: message.CreatedAt,
 		UpdatedAt: message.UpdatedAt,
 	}, nil
+}
+
+func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error) {
+	var replies []*Message
+	err := r.db.Select(&replies, "SELECT * FROM messages ORDER BY created_at DESC WHERE replies_to = ?", messageID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, err // エラーが発生した場合はnilを返す
+	}
+
+	// Messageをdomain.Messageに変換
+	domainReplies := make([]*domain.Message, len(replies))
+	for i := range replies {
+		domainReplies = append(domainReplies, &domain.Message{
+			ID:        replies[i].ID,
+			Author:    replies[i].Author,
+			Content:   replies[i].Content,
+			ParentID:  replies[i].ParentID,
+			CreatedAt: replies[i].CreatedAt,
+			UpdatedAt: replies[i].UpdatedAt,
+		})
+	}
+
+	return domainReplies, nil
 }
