@@ -16,10 +16,10 @@ const tools = [
   <header>
     <nav :class="$style.sidebar">
       <div v-for="tool in tools" :key="tool.name" :class="$style.sidebar__item">
-        <router-link :class="$style.sidebar__link" :to="tool.path">
-          <icon :icon="tool.icon" height="40px" width="40px" :class="$style.sidebar__icon" />
+        <RouterLink :class="$style.sidebar__link" :to="tool.path">
+          <Icon :icon="tool.icon" height="40px" width="40px" :class="$style.sidebar__icon" />
           <span>{{ tool.name }}</span>
-        </router-link>
+        </RouterLink>
       </div>
     </nav>
   </header>
