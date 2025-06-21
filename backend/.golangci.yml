@@ -5,3 +5,7 @@ run:
   allow-parallel-runners: true
 linters:
   default: fast
+  disable:
+    - depguard
+    - lll
+    - nlreturn
