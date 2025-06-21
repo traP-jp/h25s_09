@@ -14,11 +14,11 @@ type MessageReactionRepository interface {
 	DeleteMessageReaction(messageID uuid.UUID) (error)
 }
 
-func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID) (*domain.GetMessageReactionResponse, error) {
+func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID) (domain.GetMessageReactionResponse, error) {
 	var count int
 	err := r.db.Get(&count, "SELECT COUNT(*)  FROM message_reactions WHERE Message_id = ?", messageID)
 	if err != nil {
-		return nil, err
+		return domain.GetMessageReactionResponse{},err
 	}
  
 
@@ -26,10 +26,10 @@ func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID) (*domain.GetMes
 	var exists bool
 	err = r.db.Get(&exists, "SELECT EXISTS (SELECT 1 FROM message_reactions WHERE message_id = ?)", messageID)
 	if err != nil {
-		return nil,err
+		return domain.GetMessageReactionResponse{},err
 	}
 
-	res := &domain.GetMessageReactionResponse{
+	res := domain.GetMessageReactionResponse{
 		Count:count,
 		UserAlreadyReacted:exists,
 	}
