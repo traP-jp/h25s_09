@@ -10,3 +10,4 @@ linters:
     - lll
     - nlreturn
     - wsl
+    - mnd
