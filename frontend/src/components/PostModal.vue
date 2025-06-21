@@ -4,6 +4,12 @@ import { useGlobalError } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
 import { onMounted, ref } from 'vue'
 
+// ToggleEvent型の定義
+interface ToggleEvent extends Event {
+  newState: 'open' | 'closed'
+  oldState: 'open' | 'closed'
+}
+
 const { setError } = useGlobalError()
 
 const popoverRef = ref<HTMLElement | null>(null)
@@ -51,7 +57,8 @@ onMounted(() => {
   if (popoverRef.value) {
     // ポップオーバーが開かれた時のイベント
     popoverRef.value.addEventListener('toggle', (event) => {
-      const isOpen = (event as any).newState === 'open'
+      const toggleEvent = event as ToggleEvent
+      const isOpen = toggleEvent.newState === 'open'
       if (isOpen) {
         // モーダルが開いた時にキーボードイベントリスナーを追加
         document.addEventListener('keydown', handleKeydown)
