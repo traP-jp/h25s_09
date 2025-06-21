@@ -20,9 +20,9 @@ func (h *handler) ReactionsGetter(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "ID is not founded"})
 	}
-//リアクションの数の取得
+	//リアクションの数の取得
 	var count int
-	s,_:= h.repo.GetReactionsToMessage(ID)
+	s, _ := h.repo.GetReactionsToMessage(ID)
 	count = len(s)
 
 	//ユーザーネームの取得
@@ -32,8 +32,7 @@ func (h *handler) ReactionsGetter(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 	}
 
- 
-	myreaction := contains(s,username)
+	myreaction := contains(s, username)
 
 	res := map[string]interface{}{
 		"count":      count,
