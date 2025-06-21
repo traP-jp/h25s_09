@@ -21,8 +21,10 @@ func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID) (*domain.GetMes
 		return nil, err
 	}
  
+
+
 	var exists bool
-	err = r.db.Get(&exists, "SELECT EXISTS (SELECT 1 FROM message_reactions WHERE message_id = ? AND username = ?)", messageID, username)
+	err = r.db.Get(&exists, "SELECT EXISTS (SELECT 1 FROM message_reactions WHERE message_id = ?)", messageID)
 	if err != nil {
 		return nil,err
 	}
