@@ -2,6 +2,8 @@ package repository
 
 import (
 	"time"
+	"database/sql"
+	"errors"
 
 	"github.com/traP-jp/h25s_09/domain"
 )
@@ -45,6 +47,9 @@ func (r *repositoryImpl) InsertUserAchievement(username string, achievementID in
 	var achievement userAchievement
 	err = r.db.Get(&achievement, "SELECT * FROM achievements WHERE id = ? AND username = ?", achievementID, username)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
 		return nil, err
 	}
 
