@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"h25s_09/backend/domain"
-
 	"github.com/google/uuid"
+
+	"github.com/traP-jp/h25s_09/domain"
 )
 
 type MessageRepository interface {
