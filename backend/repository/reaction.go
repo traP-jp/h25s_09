@@ -4,42 +4,68 @@ import (
 	"fmt"
 	"log"
 
+	"time"
 	"github.com/google/uuid"
 	"github.com/traP-jp/h25s_09/domain"
 )
 
 type MessageReactionRepository interface {
-	GetMessageReaction(messageID uuid.UUID) (int, error)
-	InsertMessageReaction(messageID uuid.UUID,username string) (*domain.MessageReaction, error)
+	GetMessageReaction(messageID uuid.UUID) (domain.GetMessageReactionResponse, error)
+	InsertMessageReaction(messageID uuid.UUID, username string) (*domain.MessageReaction, error)
 	DeleteMessageReaction(messageID uuid.UUID) (*domain.MessageReaction, error)
 }
 
-func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID) (int, error) {
+func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID,username string) (*domain.GetMessageReactionResponse, error) {
 	var count int
-	err := r.db.Get(&count,"SELECT COUNT(*)  FROM message_reactions WHERE Message_id = ?",messageID)
+	err := r.db.Get(&count, "SELECT COUNT(*)  FROM message_reactions WHERE Message_id = ?", messageID)
 	if err != nil {
-		return 0 ,err
+		return nil, err
 	}
-	return count,nil
-}
-
-func (r *repositoryImpl) InsertMessageReaction(messageID uuid.UUID,username string) (*domain.MessageReaction, error) {
-	res,err := r.db.Exec("INSERT INTO message_reactions (message_id,username,created_at)VLUES(?,?,0)",messageID,username)
-	if err != nil || res == nil{
+ 
+	var exists bool
+	err = r.db.Get(&exists, "SELECT EXISTS (SELECT 1 FROM message_reactions WHERE message_id = ? AND username = ?)", messageID, username)
+	if err != nil {
 		return nil,err
 	}
-	return nil, domain.ErrNotImplemented
+
+	res := &domain.GetMessageReactionResponse{
+		Count:count,
+		UserAlreadyReacted:exists,
+	}
+	return res, nil
 }
 
-func (r *repositoryImpl) DeleteMessageReaction(messageID uuid.UUID) (*domain.MessageReaction, error) {
-	res, err := r.db.Exec("DELETE FROM message_reactions WHERE message_id = ?",messageID)
+func (r *repositoryImpl) InsertMessageReaction(messageID uuid.UUID, username string) (domain.InsertMessageReactionResponce, error) {
+	now := time.Now()
+	_, err := r.db.Exec("INSERT INTO message_reactions (message_id,username,created_at)VALUES(?,?,?)", messageID, username,now)
+	if err != nil  {
+		return  domain.InsertMessageReactionResponce{},err}
+
+	var count int	
+	err = r.db.Get(&count, "SELECT * FROM message_reactions WHERE Message_id = ?",messageID)
 	if err != nil {
-    log.Fatal(err)  
-}
-rowsAffected, err := res.RowsAffected()  
-if err != nil {
-    log.Fatal(err) 
-}
-fmt.Println("Rows Affected:", rowsAffected)
-return nil,nil
+		return domain.InsertMessageReactionResponce{},err
+	}
+	res := domain.InsertMessageReactionResponce{
+		MessageID: messageID,
+		UserName:  username,
+		CreatedAt: now,
+		GetMessageReactionResponse: domain.GetMessageReactionResponse{
+			Count: count,
+		}}
+		return res,nil
 } 
+
+
+func (r *repositoryImpl) DeleteMessageReaction(messageID uuid.UUID) (*domain.MessageReaction, error) {
+	res, err := r.db.Exec("DELETE FROM message_reactions WHERE message_id = ?", messageID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Rows Affected:", rowsAffected)
+	return nil, nil
+}
