@@ -2,6 +2,7 @@
 import type { Message } from '@/lib/apis/generated'
 import { useAddReaction, useRemoveReaction } from '@/lib/composables'
 import { formatFullDateTime, formatRelativeTime } from '@/lib/utils/format'
+import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import UserIcon from './UserIcon.vue'
@@ -126,7 +127,7 @@ const onImageError = (event: Event) => {
         :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
         :aria-pressed="message.reactions.myReaction"
       >
-        <span :class="$style.emoji" aria-hidden="true">👍</span>
+        <Icon icon="mdi:thumb-up" :class="$style.emoji" aria-hidden="true" />
         <span :class="$style.count" aria-label="いいね数">
           {{ message.reactions.count }}
         </span>
@@ -138,7 +139,7 @@ const onImageError = (event: Event) => {
         @click="goToDetail"
         :aria-label="`返信する${message.replyCount > 0 ? ` (${message.replyCount} 件の返信)` : ''}`"
       >
-        <span :class="$style.icon" aria-hidden="true">💬</span>
+        <Icon icon="mdi:reply" :class="$style.icon" aria-hidden="true" />
         <span v-if="message.replyCount > 0" :class="$style.count" aria-label="返信数">
           {{ message.replyCount }}
         </span>

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import UserIcon from '@/components/UserIcon.vue'
 import { useMessageDetail } from '@/lib/composables'
+import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -41,7 +42,10 @@ const goBack = () => {
     <div :class="$style.container">
       <!-- ヘッダー -->
       <header :class="$style.header">
-        <button :class="$style.backButton" @click="goBack">← 戻る</button>
+        <button :class="$style.backButton" @click="goBack">
+          <Icon icon="mdi:arrow-left" />
+          戻る
+        </button>
         <h1 :class="$style.title">メッセージ詳細</h1>
       </header>
 
@@ -53,14 +57,14 @@ const goBack = () => {
 
       <!-- エラー状態 -->
       <div v-else-if="error" :class="$style.error">
-        <div :class="$style.errorIcon">⚠️</div>
+        <Icon icon="mdi:alert-circle" :class="$style.errorIcon" />
         <h2>メッセージの取得に失敗しました</h2>
         <p>しばらく待ってから再度お試しください。</p>
       </div>
 
       <!-- メッセージが見つからない -->
       <div v-else-if="!message" :class="$style.notFound">
-        <div :class="$style.errorIcon">📭</div>
+        <Icon icon="mdi:message-off-outline" :class="$style.errorIcon" />
         <h2>メッセージが見つかりません</h2>
         <p>指定されたメッセージは削除されたか、存在しません。</p>
       </div>
@@ -107,7 +111,7 @@ const goBack = () => {
             <div
               :class="[$style.reactionItem, { [$style.myReaction]: message.reactions.myReaction }]"
             >
-              <span :class="$style.emoji">👍</span>
+              <Icon icon="mdi:thumb-up" :class="$style.emoji" />
               <span :class="$style.count">{{ message.reactions.count }}</span>
             </div>
           </div>
@@ -159,7 +163,7 @@ const goBack = () => {
                     { [$style.myReaction]: reply.reactions.myReaction },
                   ]"
                 >
-                  <span :class="$style.emoji">👍</span>
+                  <Icon icon="mdi:thumb-up" :class="$style.emoji" />
                   <span :class="$style.count">{{ reply.reactions.count }}</span>
                 </div>
               </div>
@@ -193,6 +197,9 @@ const goBack = () => {
 }
 
 .backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   background: none;
   border: none;
   color: var(--color-primary-600);

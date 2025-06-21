@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import MessageItem from '@/components/MessageItem.vue'
 import { useUserMessages } from '@/lib/composables'
+import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -23,7 +24,7 @@ const { data: messages, isLoading, error } = useUserMessages(userId)
 
     <!-- エラー状態 -->
     <div v-else-if="error" :class="$style.error">
-      <div :class="$style.errorIcon">⚠️</div>
+      <Icon icon="mdi:alert-circle" :class="$style.errorIcon" />
       <h2>メッセージの取得に失敗しました</h2>
       <p>しばらく待ってから再度お試しください。</p>
     </div>
@@ -35,7 +36,7 @@ const { data: messages, isLoading, error } = useUserMessages(userId)
 
     <!-- 空の状態 -->
     <div v-else :class="$style.empty">
-      <div :class="$style.emptyIcon">📝</div>
+      <Icon icon="mdi:message-text-outline" :class="$style.emptyIcon" />
       <h2>メッセージがありません</h2>
       <p>@{{ userId }}さんはまだメッセージを投稿していません。</p>
     </div>
