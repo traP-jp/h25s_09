@@ -39,13 +39,15 @@ func (h *handler) TryAchieveHandler(ctx echo.Context) error {
 
 	hasAchievement, err := h.hasUserAchievement(username, ID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user achievements")
+		ctx.Logger().Error("Failed to check user achievements:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	if !hasAchievement {
 		_, err = h.repo.InsertUserAchievement(username, ID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to insert achievement")
+			ctx.Logger().Error("Failed to insert user achievement:", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 	}
 
