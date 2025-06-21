@@ -2,6 +2,8 @@ package repository
 
 import (
 	"time"
+	"database/sql"
+	"errors"
 	"github.com/google/uuid"
 
 	"github.com/traP-jp/h25s_09/domain"
@@ -46,6 +48,9 @@ func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 	// データベースからメッセージを取得しmessageに格納
 	err := r.db.Get(&message, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages WHERE id = ?", id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
 		return nil, err // エラーが発生した場合はnilを返す
 	}
 
