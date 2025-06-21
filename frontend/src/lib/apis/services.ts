@@ -1,4 +1,4 @@
-import type { Achievement, Message, MessageDetail, Reply, UserInfo } from './generated'
+import type { Achievement, Message, MessageDetail, Reactions, UserInfo } from './generated'
 import httpClient from './http-client'
 
 // Messages API
@@ -11,40 +11,51 @@ export const messagesService = {
     return httpClient.get<MessageDetail>(`/messages/${id}`)
   },
 
-  async createMessage(content: string): Promise<Message> {
-    return httpClient.post<Message>('/messages', { content })
+  async createMessage(content: string, image?: File, repliesTo?: string): Promise<MessageDetail> {
+    const formData = new FormData()
+    formData.append('message', content)
+
+    if (image) {
+      formData.append('image', image)
+    }
+
+    if (repliesTo) {
+      formData.append('repliesTo', repliesTo)
+    }
+
+    return httpClient.post<MessageDetail>('/messages', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
   },
 
   async deleteMessage(id: string): Promise<void> {
     return httpClient.delete(`/messages/${id}`)
   },
 
-  async createReply(messageId: string, content: string): Promise<Reply> {
-    return httpClient.post<Reply>(`/messages/${messageId}/replies`, { content })
+  async addReaction(messageId: string): Promise<Reactions> {
+    return httpClient.post<Reactions>(`/messages/${messageId}/reactions`)
   },
 
-  async addReaction(messageId: string, emoji: string): Promise<void> {
-    return httpClient.post(`/messages/${messageId}/reactions`, { emoji })
-  },
-
-  async removeReaction(messageId: string, emoji: string): Promise<void> {
-    return httpClient.delete(`/messages/${messageId}/reactions/${emoji}`)
+  async removeReaction(messageId: string): Promise<Reactions> {
+    return httpClient.delete<Reactions>(`/messages/${messageId}/reactions`)
   },
 }
 
 // User API
 export const userService = {
   async getUserInfo(): Promise<UserInfo> {
-    return httpClient.get<UserInfo>('/user')
+    return httpClient.get<UserInfo>('/me')
   },
 
-  async getUserMessages(userId?: string): Promise<Message[]> {
-    const endpoint = userId ? `/user/${userId}/messages` : '/user/messages'
-    return httpClient.get<Message[]>(endpoint)
+  async getUserMessages(userId: string): Promise<Message[]> {
+    // OpenAPI仕様では/messagesエンドポイントでtraqIdパラメータを使用
+    return httpClient.get<Message[]>(`/messages?traqId=${userId}`)
   },
 
   async updateUserInfo(userInfo: Partial<UserInfo>): Promise<UserInfo> {
-    return httpClient.patch<UserInfo>('/user', userInfo)
+    return httpClient.patch<UserInfo>('/me', userInfo)
   },
 }
 
@@ -54,27 +65,20 @@ export const achievementsService = {
     return httpClient.get<Achievement[]>('/achievements')
   },
 
-  async getUserAchievements(userId?: string): Promise<Achievement[]> {
-    const endpoint = userId ? `/user/${userId}/achievements` : '/user/achievements'
-    return httpClient.get<Achievement[]>(endpoint)
+  async getUserAchievements(userId: string): Promise<Achievement[]> {
+    // OpenAPI仕様では/achievementsエンドポイントでtraqIdパラメータを使用
+    return httpClient.get<Achievement[]>(`/achievements?traqId=${userId}`)
   },
 
-  async tryAchieve(achievementId: string): Promise<{ success: boolean; message: string }> {
-    return httpClient.post(`/achievements/${achievementId}/try`)
+  async tryAchieve(achievementId: string): Promise<{ dispatched: boolean }> {
+    return httpClient.post(`/try-achieve/${achievementId}`)
   },
 }
 
 // Images API
 export const imagesService = {
-  async uploadImage(file: File): Promise<{ url: string }> {
-    const formData = new FormData()
-    formData.append('image', file)
-
-    return httpClient.post<{ url: string }>('/images', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+  async getImage(imageId: string): Promise<{ url: string }> {
+    return httpClient.get<{ url: string }>(`/images/${imageId}`)
   },
 }
 

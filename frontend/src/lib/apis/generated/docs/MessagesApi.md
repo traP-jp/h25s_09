@@ -6,6 +6,8 @@ All URIs are relative to */api*
 |------------- | ------------- | -------------|
 |[**messagesGet**](#messagesget) | **GET** /messages | メッセージ一覧の取得|
 |[**messagesIdGet**](#messagesidget) | **GET** /messages/{id} | 指定されたIDのメッセージの詳細を取得|
+|[**messagesIdReactionsDelete**](#messagesidreactionsdelete) | **DELETE** /messages/{id}/reactions | メッセージからリアクションを削除|
+|[**messagesIdReactionsPost**](#messagesidreactionspost) | **POST** /messages/{id}/reactions | メッセージにリアクションを追加|
 |[**messagesPost**](#messagespost) | **POST** /messages | メッセージの投稿|
 
 # **messagesGet**
@@ -111,6 +113,108 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | メッセージの詳細 |  -  |
+|**404** | 指定されたIDのメッセージが見つからない |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **messagesIdReactionsDelete**
+> Reactions messagesIdReactionsDelete()
+
+
+### Example
+
+```typescript
+import {
+    MessagesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new MessagesApi(configuration);
+
+let id: string; //メッセージID (default to undefined)
+
+const { status, data } = await apiInstance.messagesIdReactionsDelete(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | メッセージID | defaults to undefined|
+
+
+### Return type
+
+**Reactions**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | リアクションが削除された |  -  |
+|**404** | 指定されたIDのメッセージが見つからない |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **messagesIdReactionsPost**
+> Reactions messagesIdReactionsPost()
+
+
+### Example
+
+```typescript
+import {
+    MessagesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new MessagesApi(configuration);
+
+let id: string; //メッセージID (default to undefined)
+
+const { status, data } = await apiInstance.messagesIdReactionsPost(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | メッセージID | defaults to undefined|
+
+
+### Return type
+
+**Reactions**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | リアクションが追加された |  -  |
 |**404** | 指定されたIDのメッセージが見つからない |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -28,6 +28,7 @@ func Start() {
 	{
 		g.GET("/health", h.GetHealthHandler)
 		g.GET("/images/:id", h.GetMessageImageHandler)
+		g.GET("/me", h.GetMeHandler)
 	}
 
 	e.Logger.Fatal(e.Start(":8080"))
