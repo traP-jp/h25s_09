@@ -23,13 +23,35 @@ const removeReactionMutation = useRemoveReaction()
 // リアクション切り替え処理
 const toggleReaction = async () => {
   try {
+    // reactionsプロパティの存在チェック
+    if (!props.message.reactions || typeof props.message.reactions.myReaction !== 'boolean') {
+      console.error('Invalid reactions data:', props.message.reactions)
+      return
+    }
+
+    console.log(
+      'Toggling reaction for message:',
+      props.message.id,
+      'current myReaction:',
+      props.message.reactions.myReaction,
+    )
+
     if (props.message.reactions.myReaction) {
+      console.log('Removing reaction...')
       await removeReactionMutation.mutateAsync(props.message.id)
     } else {
+      console.log('Adding reaction...')
       await addReactionMutation.mutateAsync(props.message.id)
     }
+
+    console.log('Reaction toggle successful')
   } catch (error) {
     console.error('Failed to toggle reaction:', error)
+    // エラーの詳細をログに出力
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
   }
 }
 
@@ -103,15 +125,25 @@ const onImageError = (event: Event) => {
       <div :class="$style.messageActions" role="group" aria-label="メッセージの操作">
         <!-- リアクションボタン -->
         <button
+          v-if="message.reactions"
           :class="[
             $style.actionButton,
             $style.reactionButton,
             { [$style.active]: message.reactions.myReaction },
+            {
+              [$style.error]:
+                addReactionMutation.isError.value || removeReactionMutation.isError.value,
+            },
           ]"
-          @click.stop="toggleReaction"
+          @click.stop.prevent="toggleReaction"
           :disabled="addReactionMutation.isPending.value || removeReactionMutation.isPending.value"
           :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
           :aria-pressed="message.reactions.myReaction"
+          :title="
+            addReactionMutation.isError.value || removeReactionMutation.isError.value
+              ? 'リアクションでエラーが発生しました'
+              : undefined
+          "
         >
           <Icon icon="mdi:heart" :class="$style.emoji" aria-hidden="true" />
           <span :class="$style.count" aria-label="いいね数">
@@ -295,6 +327,8 @@ const onImageError = (event: Event) => {
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
+  position: relative;
+  z-index: 1;
 
   &:hover {
     background-color: var(--color-surface-variant);
@@ -317,6 +351,18 @@ const onImageError = (event: Event) => {
       background-color: var(--color-primary-900);
       border-color: var(--color-primary-800);
       color: var(--color-primary-300);
+    }
+  }
+
+  &.error {
+    background-color: var(--color-error-50);
+    border-color: var(--color-error-200);
+    color: var(--color-error-700);
+
+    [data-theme='dark'] & {
+      background-color: var(--color-error-900);
+      border-color: var(--color-error-800);
+      color: var(--color-error-300);
     }
   }
 }
