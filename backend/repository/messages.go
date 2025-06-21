@@ -12,7 +12,7 @@ import (
 type MessageRepository interface {
 	CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error)
 	GetMessageByID(id uuid.UUID) (*domain.Message, error)
-	GetRepliesByMessageID(messageID uuid.UUID) ([]domain.Message, error)
+	GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error)
 }
 
 type Message struct {
@@ -66,8 +66,8 @@ func (r *repositoryImpl) GetMessageByID(id uuid.UUID) (*domain.Message, error) {
 	}, nil
 }
 
-func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]domain.Message, error) {
-	var replies []domain.Message
+func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error) {
+	var replies []*domain.Message
 	err := r.db.Select(&replies, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages ORDER BY created_at DESC WHERE replies_id = ?", messageID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
