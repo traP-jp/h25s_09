@@ -171,16 +171,8 @@ watch(
       >
         <span :class="$style.submitButtonContent">
           {{ isSubmitting ? '投稿中...' : submitText }}
-          <Icon 
-            v-if="!isSubmitting" 
-            icon="mdi:send" 
-            :class="$style.submitButtonIcon" 
-          />
-          <Icon 
-            v-else 
-            icon="mdi:loading" 
-            :class="[$style.submitButtonIcon, $style.spinning]" 
-          />
+          <Icon v-if="!isSubmitting" icon="mdi:send" :class="$style.submitButtonIcon" />
+          <Icon v-else icon="mdi:loading" :class="[$style.submitButtonIcon, $style.spinning]" />
         </span>
       </button>
       <div v-if="isSubmitting" id="submit-status" class="sr-only">投稿処理中です</div>
