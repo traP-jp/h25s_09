@@ -169,7 +169,19 @@ watch(
         :disabled="isSubmitting || !isFormValid"
         :aria-describedby="isSubmitting ? 'submit-status' : undefined"
       >
-        {{ isSubmitting ? '投稿中...' : submitText }}
+        <span :class="$style.submitButtonContent">
+          {{ isSubmitting ? '投稿中...' : submitText }}
+          <Icon 
+            v-if="!isSubmitting" 
+            icon="mdi:send" 
+            :class="$style.submitButtonIcon" 
+          />
+          <Icon 
+            v-else 
+            icon="mdi:loading" 
+            :class="[$style.submitButtonIcon, $style.spinning]" 
+          />
+        </span>
       </button>
       <div v-if="isSubmitting" id="submit-status" class="sr-only">投稿処理中です</div>
     </div>
@@ -348,6 +360,30 @@ watch(
   &:active:not(:disabled) {
     background-color: var(--color-primary-800);
     border-color: var(--color-primary-800);
+  }
+}
+
+.submitButtonContent {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.submitButtonIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 

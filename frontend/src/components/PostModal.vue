@@ -96,7 +96,7 @@ const handleOutsideClick = (event: Event) => {
     aria-label="新しい投稿を作成"
     title="新しい投稿を作成"
   >
-    <Icon icon="mdi:plus" :class="$style.buttonIcon" />
+    <Icon icon="mdi:feather" :class="$style.buttonIcon" />
   </button>
 
   <!-- 投稿モーダル -->
