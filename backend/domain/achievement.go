@@ -1,9 +1,12 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type UserAchievement struct {
 	AchievementID	int64  `json:"id"`
 	UUID			uuid.UUID `json:"uuid"`
-	AchivedAt      	string `json:"achived_at"`
+	AchievedAt      	time.Time `json:"achieved_at"`
 }
