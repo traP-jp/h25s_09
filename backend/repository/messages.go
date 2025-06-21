@@ -19,8 +19,8 @@ type MessageRepository interface {
 type Message struct {
     ID        uuid.UUID `db:"id"`
     Author    string    `db:"author"`
-    Content   string    `db:"content"`
-    ParentID  uuid.UUID `db:"parent_id"`
+    Content   string    `db:"message"`
+    ParentID  uuid.UUID `db:"replies_to"`
     CreatedAt time.Time `db:"created_at"`
     UpdatedAt time.Time `db:"updated_at"`
 }
