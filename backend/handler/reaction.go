@@ -16,9 +16,14 @@ func (h *handler) ReactionsGetter(c echo.Context) error {
 	}
 	//IDが存在しているか
 	_, err = h.repo.GetMessageByID(ID)
-	if errors.Is(err, domain.ErrNotFound) {
+	if err != nil{
+		if errors.Is(err, domain.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "id not found")
 		}
+		c.Logger().Error("Failed to retrieve id:", err)
+		return 	echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve id")
+		
+	}
 	//リアクションの数の取得
 	var count int
 	s, _ := h.repo.GetReactionsToMessage(ID)
