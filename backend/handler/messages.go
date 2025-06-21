@@ -43,11 +43,11 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	if err != nil || offset < 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid offset parameter")
 	}
-	traqId := ctx.QueryParam("traqId")
+	traqID := ctx.QueryParam("traqId")
 	includeReplies := ctx.QueryParam("includeReplies") == "true"
 
 	// Fetch messages from the repository
-	messages, err = h.repo.GetMessages(limit, offset, traqId, includeReplies)
+	messages, err = h.repo.GetMessages(limit, offset, traqID, includeReplies)
 	if err != nil {
 		ctx.Logger().Error("Failed to retrieve messages:", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
@@ -57,8 +57,11 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	for i, msg := range messages {
 		ImageID, err := h.repo.GetMessageImageIDByMessageID(msg.ID)
 		if err != nil {
-			ctx.Logger().Error("Failed to retrieve image ID for message:", msg.ID, err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
+			if !errors.Is(err, domain.ErrNotFound) {
+				ctx.Logger().Error("Failed to retrieve image ID for message:", msg.ID, err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			ImageID = uuid.Nil
 		}
 		Replies, err := h.repo.GetRepliesByMessageID(msg.ID)
 		if err != nil {
@@ -89,7 +92,6 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 			CreatedAt:  msg.CreatedAt,
 		}
 	}
-
 	return ctx.JSON(http.StatusOK, jsonMessages)
 }
 
