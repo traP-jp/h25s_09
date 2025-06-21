@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Message } from '@/lib/apis/generated'
 import { useAddReaction, useRemoveReaction } from '@/lib/composables'
+import { formatFullDateTime, formatRelativeTime } from '@/lib/utils/format'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import UserIcon from './UserIcon.vue'
@@ -32,23 +33,8 @@ const toggleReaction = async () => {
 }
 
 // フォーマット済み作成日時
-const formattedCreatedAt = computed(() => {
-  const date = new Date(props.message.createdAt)
-  const now = new Date()
-  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-
-  if (diffInHours < 24) {
-    return date.toLocaleTimeString('ja-JP', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } else {
-    return date.toLocaleDateString('ja-JP', {
-      month: 'short',
-      day: 'numeric',
-    })
-  }
-})
+const formattedCreatedAt = computed(() => formatRelativeTime(props.message.createdAt))
+const fullDateTime = computed(() => formatFullDateTime(props.message.createdAt))
 
 // メッセージ詳細ページへの遷移
 const goToDetail = () => {
@@ -59,17 +45,34 @@ const goToDetail = () => {
 const goToUserDetail = (traqId: string) => {
   router.push(`/users/${traqId}`)
 }
+
+// 画像読み込みエラーハンドリング
+const onImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.style.display = 'none'
+  console.warn('Failed to load image:', img.src)
+}
 </script>
 
 <template>
-  <article :class="$style.messageItem">
+  <article :class="$style.messageItem" role="article">
     <div :class="$style.messageHeader">
-      <UserIcon :traq-id="message.author" size="md" clickable @click="goToUserDetail" />
+      <UserIcon
+        :traq-id="message.author"
+        size="md"
+        clickable
+        @click="goToUserDetail"
+        :aria-label="`${message.author}のプロフィールを表示`"
+      />
       <div :class="$style.messageInfo">
-        <button :class="$style.authorName" @click="goToUserDetail(message.author)">
+        <button
+          :class="$style.authorName"
+          @click="goToUserDetail(message.author)"
+          :aria-label="`${message.author}のプロフィールを表示`"
+        >
           @{{ message.author }}
         </button>
-        <time :class="$style.timestamp" :datetime="message.createdAt">
+        <time :class="$style.timestamp" :datetime="message.createdAt" :title="fullDateTime">
           {{ formattedCreatedAt }}
         </time>
       </div>
@@ -87,11 +90,12 @@ const goToUserDetail = (traqId: string) => {
           :alt="'添付画像'"
           :class="$style.messageImage"
           loading="lazy"
+          @error="onImageError"
         />
       </div>
     </div>
 
-    <div :class="$style.messageActions">
+    <div :class="$style.messageActions" role="group" aria-label="メッセージの操作">
       <!-- リアクションボタン -->
       <button
         :class="[
@@ -101,17 +105,23 @@ const goToUserDetail = (traqId: string) => {
         ]"
         @click="toggleReaction"
         :disabled="addReactionMutation.isPending.value || removeReactionMutation.isPending.value"
+        :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
+        :aria-pressed="message.reactions.myReaction"
       >
-        <span :class="$style.emoji">👍</span>
-        <span :class="$style.count">
+        <span :class="$style.emoji" aria-hidden="true">👍</span>
+        <span :class="$style.count" aria-label="いいね数">
           {{ message.reactions.count }}
         </span>
       </button>
 
       <!-- 返信ボタン -->
-      <button :class="[$style.actionButton, $style.replyButton]" @click="goToDetail">
-        <span :class="$style.icon">💬</span>
-        <span v-if="message.replyCount > 0" :class="$style.count">
+      <button
+        :class="[$style.actionButton, $style.replyButton]"
+        @click="goToDetail"
+        :aria-label="`返信する${message.replyCount > 0 ? ` (${message.replyCount} 件の返信)` : ''}`"
+      >
+        <span :class="$style.icon" aria-hidden="true">💬</span>
+        <span v-if="message.replyCount > 0" :class="$style.count" aria-label="返信数">
           {{ message.replyCount }}
         </span>
       </button>
