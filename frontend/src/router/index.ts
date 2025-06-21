@@ -19,16 +19,24 @@ const router = createRouter({
       component: () => import('@/pages/MessageDetail/MessageDetailPage.vue'),
     },
     {
-      path: '/users/:id/messages',
-      name: 'user-messages',
-      props: true,
-      component: () => import('@/pages/UserDetail/pages/Messages/UserMessagesPage.vue'),
-    },
-    {
-      path: '/users/:id/achievements',
-      name: 'user-achievements',
-      props: true,
-      component: () => import('@/pages/UserDetail/pages/Achievements/UserAchievementsPage.vue'),
+      path: '/users/:traqId',
+      component: () => import('@/pages/UserDetail/UserDetailFrame.vue'),
+      children: [
+        {
+          path: '',
+          redirect: (to) => `/users/${to.params.traqId}/messages`,
+        },
+        {
+          path: 'messages',
+          name: 'user-messages',
+          component: () => import('@/pages/UserDetail/pages/Messages/UserMessagesPage.vue'),
+        },
+        {
+          path: 'achievements',
+          name: 'user-achievements',
+          component: () => import('@/pages/UserDetail/pages/Achievements/UserAchievementsPage.vue'),
+        },
+      ],
     },
   ],
 })
