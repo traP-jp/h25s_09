@@ -1,26 +1,20 @@
 <script lang="ts" setup>
-import { Icon } from '@iconify/vue'
 import { userService } from '@/lib/apis/services.ts'
+import { onMounted, ref } from 'vue'
+import SidebarItem from '@/layouts/sidebar/SidebarItem.vue'
 
-const userInfo = await userService.getUserInfo()
-const userId = userInfo.traqId
-
-const tools = [
-  { name: 'タイムライン', path: '/timeline', icon: 'mdi:home' },
-  { name: 'プロフィール', path: `/user/${userId}/messages`, icon: 'mdi:account' },
-  { name: '実績', path: '/achievements', icon: 'mdi:achievement' },
-]
+const userId = ref<string | null>(null)
+onMounted(async () => {
+  userId.value = (await userService.getUserInfo()).traqId
+})
 </script>
 
 <template>
   <header>
     <nav :class="$style.sidebar">
-      <div v-for="tool in tools" :key="tool.name" :class="$style.sidebar__item">
-        <RouterLink :class="$style.sidebar__link" :to="tool.path">
-          <Icon :icon="tool.icon" height="40px" width="40px" :class="$style.sidebar__icon" />
-          <span>{{ tool.name }}</span>
-        </RouterLink>
-      </div>
+      <SidebarItem name="ホーム" path="/timeline" icon="mdi:home" />
+      <SidebarItem name="プロフィール" :path="`/user/${userId}/messages`" icon="mdi:account" />
+      <SidebarItem name="実績" path="/achievements" icon="mdi:achievement" />
     </nav>
   </header>
 </template>
@@ -39,15 +33,5 @@ const tools = [
   &:hover {
     background-color: var(--color-shadow-light);
   }
-}
-.sidebar__link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 20px;
-  color: inherit;
-  font-weight: bold;
-  font-size: 150%;
-  text-decoration: none;
 }
 </style>
