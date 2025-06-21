@@ -44,18 +44,30 @@ interface MessageDetail {
 const generateMockMessages = (count: number): Message[] => {
   const messages: Message[] = []
   for (let i = 1; i <= count; i++) {
-    messages.push({
+    const reactions = {
+      count: Math.floor(Math.random() * 10),
+      myReaction: Math.random() > 0.5,
+    }
+
+    const message: Message = {
       id: `550e8400-e29b-41d4-a716-${i.toString().padStart(12, '0')}`,
       author: 'rei',
       content: `これは${i}番目のテストメッセージです。Infinite scrollのテストに使用されます。`,
       imageId: i % 5 === 0 ? `image-${i}` : null, // 5個おきに画像を追加
-      reactions: {
-        count: Math.floor(Math.random() * 10),
-        myReaction: Math.random() > 0.5,
-      },
+      reactions,
       replyCount: Math.floor(Math.random() * 3),
       createdAt: new Date(Date.now() - (count - i) * 60000).toISOString(), // 1分ずつ古い時刻
-    })
+    }
+
+    // デバッグ用ログ - 特定のメッセージのリアクション状態を確認
+    if (i <= 5) {
+      console.log(`Generated message ${i}:`, {
+        id: message.id,
+        reactions: message.reactions,
+      })
+    }
+
+    messages.push(message)
   }
   return messages
 }
@@ -349,24 +361,22 @@ export const handlers = [
       return HttpResponse.json({ message: 'メッセージが見つかりません' }, { status: 404 })
     }
 
-    // リアクションを追加/切り替え
-    if (messageDetail.reactions.myReaction) {
-      // 既にリアクション済みの場合は削除
-      messageDetail.reactions.count = Math.max(0, messageDetail.reactions.count - 1)
-      messageDetail.reactions.myReaction = false
-    } else {
-      // リアクションを追加
+    // リアクションを追加
+    if (!messageDetail.reactions.myReaction) {
       messageDetail.reactions.count += 1
       messageDetail.reactions.myReaction = true
+
+      // 対応するMessageも更新
+      const message = mockMessages.find((msg) => msg.id === id)
+      if (message) {
+        message.reactions = { ...messageDetail.reactions }
+      }
+
+      mswLog('info', `メッセージ ${id} にリアクションを追加`)
+    } else {
+      mswLog('warn', `メッセージ ${id} は既にリアクション済み`)
     }
 
-    // 対応するMessageも更新
-    const message = mockMessages.find((msg) => msg.id === id)
-    if (message) {
-      message.reactions = { ...messageDetail.reactions }
-    }
-
-    mswLog('info', `メッセージ ${id} のリアクションを切り替え`)
     return HttpResponse.json(messageDetail.reactions, { status: 201 })
   }),
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import UserIcon from '@/components/UserIcon.vue'
-import { useMessageDetail } from '@/lib/composables'
+import { useMessageDetail, useAddReaction, useRemoveReaction } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
@@ -12,6 +12,38 @@ const messageId = computed(() => route.params.id as string)
 
 // メッセージ詳細取得
 const { data: message, isLoading, error } = useMessageDetail(messageId)
+
+// リアクション機能
+const addReactionMutation = useAddReaction()
+const removeReactionMutation = useRemoveReaction()
+
+// メインメッセージのリアクション切り替え処理
+const toggleMainReaction = async () => {
+  if (!message.value) return
+
+  try {
+    if (message.value.reactions.myReaction) {
+      await removeReactionMutation.mutateAsync(message.value.id)
+    } else {
+      await addReactionMutation.mutateAsync(message.value.id)
+    }
+  } catch (error) {
+    console.error('Failed to toggle reaction:', error)
+  }
+}
+
+// 返信のリアクション切り替え処理
+const toggleReplyReaction = async (replyId: string, myReaction: boolean) => {
+  try {
+    if (myReaction) {
+      await removeReactionMutation.mutateAsync(replyId)
+    } else {
+      await addReactionMutation.mutateAsync(replyId)
+    }
+  } catch (error) {
+    console.error('Failed to toggle reply reaction:', error)
+  }
+}
 
 // フォーマット済み作成日時
 const formatDate = (dateString: string) => {
@@ -92,14 +124,20 @@ const formatDate = (dateString: string) => {
             </div>
           </div>
 
-          <!-- リアクション表示（読み取り専用） -->
-          <div v-if="message.reactions.count > 0" :class="$style.reactions">
-            <div
-              :class="[$style.reactionItem, { [$style.myReaction]: message.reactions.myReaction }]"
+          <!-- リアクションボタン -->
+          <div :class="$style.messageActions">
+            <button
+              v-if="message.reactions"
+              :class="[$style.reactionButton, { [$style.active]: message.reactions.myReaction }]"
+              @click="toggleMainReaction"
+              :disabled="
+                addReactionMutation.isPending.value || removeReactionMutation.isPending.value
+              "
+              :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
             >
               <Icon icon="mdi:heart" :class="$style.emoji" />
               <span :class="$style.count">{{ message.reactions.count }}</span>
-            </div>
+            </button>
           </div>
         </article>
 
@@ -138,17 +176,20 @@ const formatDate = (dateString: string) => {
                 </div>
               </div>
 
-              <!-- 返信のリアクション表示（読み取り専用） -->
-              <div v-if="reply.reactions.count > 0" :class="$style.reactions">
-                <div
-                  :class="[
-                    $style.reactionItem,
-                    { [$style.myReaction]: reply.reactions.myReaction },
-                  ]"
+              <!-- 返信のリアクションボタン -->
+              <div :class="$style.messageActions">
+                <button
+                  v-if="reply.reactions"
+                  :class="[$style.reactionButton, { [$style.active]: reply.reactions.myReaction }]"
+                  @click="toggleReplyReaction(reply.id, reply.reactions.myReaction)"
+                  :disabled="
+                    addReactionMutation.isPending.value || removeReactionMutation.isPending.value
+                  "
+                  :aria-label="`${reply.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${reply.reactions.count} 件)`"
                 >
                   <Icon icon="mdi:heart" :class="$style.emoji" />
                   <span :class="$style.count">{{ reply.reactions.count }}</span>
-                </div>
+                </button>
               </div>
             </article>
           </div>
@@ -341,6 +382,49 @@ const formatDate = (dateString: string) => {
   max-height: 20rem;
   border-radius: 0.5rem;
   border: 1px solid var(--color-border-light);
+}
+
+.messageActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.reactionButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-surface-variant);
+  border: 1px solid var(--color-border-light);
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-200);
+    color: var(--color-primary-600);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-200);
+    color: var(--color-primary-700);
+
+    [data-theme='dark'] & {
+      background-color: var(--color-primary-900);
+      border-color: var(--color-primary-800);
+      color: var(--color-primary-300);
+    }
+  }
 }
 
 .reactions {
