@@ -115,9 +115,11 @@ const handleOutsideClick = (event: Event) => {
       </button>
     </div>
 
-    <div :class="$style.modalContent">
-      <MessageForm @success="handlePostSuccess" @error="handlePostError" />
-    </div>
+    <MessageForm
+      :class="$style.modalContent"
+      @success="handlePostSuccess"
+      @error="handlePostError"
+    />
   </div>
 </template>
 
@@ -212,7 +214,7 @@ const handleOutsideClick = (event: Event) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 1.5rem 0;
+  padding: 1.5rem 1.5rem 0.5rem;
   border-bottom: 1px solid var(--color-border-light);
   margin-bottom: 1rem;
 }
@@ -252,11 +254,8 @@ const handleOutsideClick = (event: Event) => {
   padding: 0 1.5rem 1.5rem;
   overflow-y: auto;
   max-height: calc(80vh - 4rem);
-
-  // MessageFormのmargin-bottomを調整
-  :global(.messageForm) {
-    margin-bottom: 0;
-  }
+  margin-bottom: 0;
+  border: transparent;
 }
 
 // モバイル対応
