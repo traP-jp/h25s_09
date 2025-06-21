@@ -3,8 +3,34 @@ import httpClient from './http-client'
 
 // Messages API
 export const messagesService = {
-  async getMessages(): Promise<Message[]> {
-    return httpClient.get<Message[]>('/messages')
+  async getMessages(options?: {
+    limit?: number
+    offset?: number
+    traqId?: string
+    includeReplies?: boolean
+  }): Promise<Message[]> {
+    const params = new URLSearchParams()
+
+    if (options?.limit !== undefined) {
+      params.append('limit', options.limit.toString())
+    }
+    if (options?.offset !== undefined) {
+      params.append('offset', options.offset.toString())
+    }
+    if (options?.traqId) {
+      params.append('traqId', options.traqId)
+    }
+    // includeRepliesは明示的にfalseの場合も送信する
+    if (options?.includeReplies !== undefined) {
+      params.append('includeReplies', options.includeReplies.toString())
+    }
+
+    const queryString = params.toString()
+    const url = queryString ? `/messages?${queryString}` : '/messages'
+
+    console.log('API Request URL:', url) // デバッグ用
+
+    return httpClient.get<Message[]>(url)
   },
 
   async getMessageDetail(id: string): Promise<MessageDetail> {
@@ -49,9 +75,13 @@ export const userService = {
     return httpClient.get<UserInfo>('/me')
   },
 
-  async getUserMessages(userId: string): Promise<Message[]> {
+  async getUserMessages(userId: string, includeReplies?: boolean): Promise<Message[]> {
     // OpenAPI仕様では/messagesエンドポイントでtraqIdパラメータを使用
-    return httpClient.get<Message[]>(`/messages?traqId=${userId}`)
+    const params = new URLSearchParams({ traqId: userId })
+    if (includeReplies !== undefined) {
+      params.append('includeReplies', includeReplies.toString())
+    }
+    return httpClient.get<Message[]>(`/messages?${params.toString()}`)
   },
 
   async updateUserInfo(userInfo: Partial<UserInfo>): Promise<UserInfo> {

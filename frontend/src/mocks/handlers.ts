@@ -137,12 +137,51 @@ export const handlers = [
     const limit = Number(url.searchParams.get('limit')) || 20
     const offset = Number(url.searchParams.get('offset')) || 0
     const traqId = url.searchParams.get('traqId')
+    const includeReplies = url.searchParams.get('includeReplies') === 'true'
+
+    // デバッグログ
+    mswLog(
+      'info',
+      `Parameters: limit=${limit}, offset=${offset}, traqId=${traqId}, includeReplies=${includeReplies}`,
+    )
 
     let filteredMessages = mockMessages
 
     if (traqId) {
       filteredMessages = mockMessages.filter((message) => message.author === traqId)
       mswLog('info', `ユーザー ${traqId} のメッセージをフィルタリング`)
+    }
+
+    // includeRepliesがtrueの場合は、返信も含めたメッセージを返す
+    if (includeReplies) {
+      // 返信も含めたメッセージ配列を作成
+      const messagesWithReplies: Message[] = []
+
+      filteredMessages.forEach((message) => {
+        messagesWithReplies.push(message)
+
+        // 対応するMessageDetailから返信を取得
+        const messageDetail = mockMessageDetails.find((md) => md.id === message.id)
+        if (messageDetail && messageDetail.replies.length > 0) {
+          // 返信をMessageの形式に変換して追加
+          messageDetail.replies.forEach((reply) => {
+            const replyAsMessage: Message = {
+              id: reply.id,
+              author: reply.author,
+              content: reply.content,
+              imageId: reply.images,
+              reactions: reply.reactions,
+              replyCount: 0, // 返信の返信は現在サポートしていない
+              createdAt: reply.createdAt,
+            }
+            messagesWithReplies.push(replyAsMessage)
+          })
+        }
+      })
+
+      const paginatedMessages = messagesWithReplies.slice(offset, offset + limit)
+      mswLog('info', `${paginatedMessages.length}件のメッセージ（返信含む）を返却`)
+      return HttpResponse.json(paginatedMessages)
     }
 
     const paginatedMessages = filteredMessages.slice(offset, offset + limit)

@@ -10,6 +10,8 @@ import UserIcon from './UserIcon.vue'
 interface Props {
   /** メッセージデータ */
   message: Message
+  /** 返信メッセージかどうか */
+  isReply?: boolean
 }
 
 const props = defineProps<Props>()
@@ -44,7 +46,10 @@ const onImageError = (event: Event) => {
 </script>
 
 <template>
-  <article :class="$style.messageItem" role="article">
+  <article :class="[$style.messageItem, { [$style.reply]: isReply }]" role="article">
+    <div v-if="isReply" :class="$style.replyIndicator">
+      <Icon icon="mdi:reply" :class="$style.replyIcon" />
+    </div>
     <RouterLink
       :to="`/messages/${message.id}`"
       :class="$style.messageLink"
@@ -136,6 +141,44 @@ const onImageError = (event: Event) => {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: 0.5rem;
+  position: relative;
+
+  &.reply {
+    margin-left: 2rem;
+    background-color: var(--color-surface-variant);
+    border-left: 3px solid var(--color-primary-300);
+
+    [data-theme='dark'] & {
+      background-color: var(--color-background-soft);
+      border-left-color: var(--color-primary-600);
+    }
+  }
+}
+
+.replyIndicator {
+  position: absolute;
+  top: 0.5rem;
+  left: -1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: var(--color-primary-100);
+  border-radius: 50%;
+
+  [data-theme='dark'] & {
+    background-color: var(--color-primary-800);
+  }
+}
+
+.replyIcon {
+  font-size: 0.75rem;
+  color: var(--color-primary-600);
+
+  [data-theme='dark'] & {
+    color: var(--color-primary-300);
+  }
 }
 
 .messageLink {
