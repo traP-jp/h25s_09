@@ -1,9 +1,15 @@
 <script lang="ts" setup>
 
 import { Icon } from "@iconify/vue";
+// import type { UserInfo } from "@/lib/apis";
+import { userService } from "@/lib/apis/services.ts";
+
+const userInfo = await userService.getUserInfo();
+const userId = userInfo.traqId;
+
 const tools = [
   { name: 'タイムライン', path: '/timeline', icon: 'mdi:home' },
-  { name: 'プロフィール', path: '/messages', icon: 'mdi:account' },
+  { name: 'プロフィール', path: `/user/${userId}/messages`, icon: 'mdi:account' },
   { name: '実績', path: '/achievements', icon: 'mdi:achievement' }
 ];
 
@@ -36,7 +42,7 @@ const tools = [
   margin:10px;
   border-radius: 30px;
   &:hover {
-    background-color: #f0f0f0;
+    background-color: var(--color-shadow-light);
   }
 }
 .sidebar__link {
