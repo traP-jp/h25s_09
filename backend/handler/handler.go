@@ -30,6 +30,7 @@ func Start() {
 		g.GET("/images/:id", h.GetMessageImageHandler)
 		g.GET("/me", h.GetMeHandler)
 		g.GET("/try-achieve/:id", h.TryAchieveHandler)
+		g.GET("/messages/:id/reaction",h.ReactionsGetter)
 	}
 
 	e.Logger.Fatal(e.Start(":8080"))
