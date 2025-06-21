@@ -153,11 +153,29 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create message")
 	}
-	_, err = h.repo.CreateMessageImage(msg.ID, imageData, file.Header.Get("Content-Type"))
+	img, err := h.repo.CreateMessageImage(msg.ID, imageData, file.Header.Get("Content-Type"))
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save image")
 	}
 
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, &messageDetail{
+		ID:        msg.ID,
+		Author:    msg.Author,
+		Content:   msg.Content,
+		ImageID:   img.ID,
+		Reactions: reactions{Count: 0, MyReaction: false},
+		Replies:   []any{},
+		CreatedAt: msg.CreatedAt,
+	})
+}
+
+type messageDetail struct {
+	ID        uuid.UUID `json:"id"`
+	Author    string    `json:"author"`
+	Content   string    `json:"content"`
+	ImageID   uuid.UUID `json:"imageId,omitempty"`
+	Reactions reactions `json:"reactions"`
+	Replies   []any     `json:"replies"`
+	CreatedAt time.Time `json:"createdAt"`
 }
