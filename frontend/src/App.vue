@@ -16,7 +16,7 @@ const breakpoints = useBreakpoints({
 const isDesktop = breakpoints.greaterOrEqual('tablet')
 
 // テーマ初期化
-const { currentTheme } = useTheme()
+useTheme()
 
 onMounted(() => {
   // 初期テーマ設定
