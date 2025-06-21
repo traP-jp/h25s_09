@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -15,7 +16,7 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 	}
 	image, err := h.repo.GetMessageImage(imageID)
 	if err != nil {
-		if err == domain.ErrNotFound {
+		if errors.Is(err, domain.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "image not found")
 		}
 		ctx.Logger().Error("Failed to retrieve image:", err)
