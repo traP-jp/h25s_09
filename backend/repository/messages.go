@@ -13,7 +13,7 @@ type MessageRepository interface {
 	CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error)
 	GetMessageByID(id uuid.UUID) (*domain.Message, error)
 	GetMessages(limit, offset int64, username string) ([]domain.Message, error)
-	GetRepliesByMessageID(messageID uuid.UUID) ([]domain.Message, error)
+	GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error)
 }
 
 type Message struct {
