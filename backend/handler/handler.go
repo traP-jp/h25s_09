@@ -8,6 +8,9 @@ import (
 	"github.com/traP-jp/h25s_09/repository"
 )
 
+type Handler struct {
+}
+
 func Start() {
 	e := echo.New()
 	e.Use(middleware.Logger(), middleware.Recover())
