@@ -101,7 +101,7 @@ body {
 
 .app-sidebar {
   position: fixed;
-  top: 64px; /* ヘッダーの高さ分オフセット */
+  top: 4rem; /* ヘッダーの高さ(4rem) */
   left: 0;
   bottom: 0;
   z-index: 10;
@@ -122,7 +122,8 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
-  min-height: calc(100vh - 64px); /* ヘッダーの高さを除く */
+  padding-top: calc(4rem + 1rem); /* ヘッダーの高さ(4rem) + 通常のpadding(1rem) */
+  min-height: calc(100vh - 4rem); /* ヘッダーの高さ(4rem)を除く */
 }
 
 .app-main--full-sidebar {
@@ -141,6 +142,7 @@ body {
   .app-main {
     margin-left: 0; /* サイドバー非表示時はマージンなし */
     padding: 0.5rem;
+    padding-top: calc(4rem + 0.5rem); /* ヘッダーの高さ(4rem) + 通常のpadding(0.5rem) */
   }
 }
 

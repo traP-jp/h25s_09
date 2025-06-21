@@ -31,9 +31,11 @@ const { data: userInfo, isLoading } = useUserInfo()
 
 <style lang="scss" module>
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 50;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   width: 100%;
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border-light);
