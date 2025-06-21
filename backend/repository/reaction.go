@@ -10,7 +10,7 @@ import (
 
 type MessageReactionRepository interface {
 	GetMessageReaction(messageID uuid.UUID) (domain.GetMessageReactionResponse, error)
-	InsertMessageReaction(messageID uuid.UUID, username string) (*domain.MessageReaction, error)
+	InsertMessageReaction(messageID uuid.UUID, username string) (domain.InsertMessageReactionResponce, error)
 	DeleteMessageReaction(messageID uuid.UUID) (error)
 }
 
