@@ -12,6 +12,8 @@ interface Props {
   loading?: boolean
   /** エラー状態（外部から渡される場合） */
   error?: Error | null
+  /** 返信を含めるかどうか */
+  includeReplies?: boolean
 }
 
 const props = defineProps<Props>()
@@ -22,7 +24,9 @@ const {
   isLoading: internalLoading,
   error: internalError,
   refetch,
-} = useMessages()
+} = useMessages({
+  includeReplies: props.includeReplies || false,
+})
 
 // 表示用のデータを決定
 const displayMessages = computed(() => props.messages || internalMessages.value || [])
@@ -32,6 +36,23 @@ const displayError = computed(() => props.error ?? internalError.value)
 // エラー時の再試行
 const handleRetry = () => {
   refetch()
+}
+
+// 返信メッセージかどうかを判定する関数
+const isReplyMessage = (message: Message, index: number): boolean => {
+  // includeRepliesがfalseまたは未定義の場合は返信として扱わない
+  if (!props.includeReplies) return false
+
+  // replyCountが0の場合は返信の可能性が高い
+  // また、前のメッセージのreplyCountが1以上で、現在のメッセージが直後にある場合
+  if (message.replyCount === 0 && index > 0) {
+    const prevMessage = displayMessages.value[index - 1]
+    if (prevMessage && prevMessage.replyCount > 0) {
+      return true
+    }
+  }
+
+  return false
 }
 </script>
 
@@ -63,7 +84,12 @@ const handleRetry = () => {
 
     <!-- メッセージ一覧 -->
     <div v-else-if="displayMessages.length > 0" :class="$style.messageList">
-      <MessageItem v-for="message in displayMessages" :key="message.id" :message="message" />
+      <MessageItem
+        v-for="(message, index) in displayMessages"
+        :key="message.id"
+        :message="message"
+        :is-reply="isReplyMessage(message, index)"
+      />
     </div>
 
     <!-- 空状態 -->

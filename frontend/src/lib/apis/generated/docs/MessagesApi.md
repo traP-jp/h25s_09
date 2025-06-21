@@ -28,11 +28,13 @@ const apiInstance = new MessagesApi(configuration);
 let limit: number; //取得する件数の上限 (optional) (default to 20)
 let offset: number; //取得開始位置 (optional) (default to 0)
 let traqId: string; //特定のユーザーのメッセージのみを取得 (optional) (default to undefined)
+let includeReplies: boolean; //返信を含めるかどうか (optional) (default to false)
 
 const { status, data } = await apiInstance.messagesGet(
     limit,
     offset,
-    traqId
+    traqId,
+    includeReplies
 );
 ```
 
@@ -43,6 +45,7 @@ const { status, data } = await apiInstance.messagesGet(
 | **limit** | [**number**] | 取得する件数の上限 | (optional) defaults to 20|
 | **offset** | [**number**] | 取得開始位置 | (optional) defaults to 0|
 | **traqId** | [**string**] | 特定のユーザーのメッセージのみを取得 | (optional) defaults to undefined|
+| **includeReplies** | [**boolean**] | 返信を含めるかどうか | (optional) defaults to false|
 
 
 ### Return type
