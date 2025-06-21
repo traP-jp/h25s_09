@@ -187,10 +187,11 @@ const handleRetry = () => {
 .messageList {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
   border-radius: 0.5rem;
   border: 1px solid var(--color-border-light);
-  background-color: var(--color-surface);
-  overflow: hidden;
+  background-color: var(--color-background);
   box-shadow: 0 1px 3px var(--color-shadow-light);
 }
 
