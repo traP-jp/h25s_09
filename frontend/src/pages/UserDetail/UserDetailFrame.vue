@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import UserIcon from '@/components/UserIcon.vue'
 import { computed } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 
 const route = useRoute()
 
@@ -30,7 +30,6 @@ const currentTab = computed(() => {
         <UserIcon :traq-id="userId" size="lg" />
         <div :class="$style.userDetails">
           <h1 :class="$style.userName">@{{ userId }}</h1>
-          <p :class="$style.userDescription">traQ ID: {{ userId }}</p>
         </div>
       </div>
     </header>
@@ -85,11 +84,6 @@ const currentTab = computed(() => {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-text-primary);
-}
-
-.userDescription {
-  margin: 0;
-  color: var(--color-text-secondary);
 }
 
 .tabNavigation {
