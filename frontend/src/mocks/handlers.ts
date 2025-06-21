@@ -352,9 +352,8 @@ export const handlers = [
     const { id } = params
 
     // まずメインメッセージから検索
-    let messageDetail = mockMessageDetails.find((msg) => msg.id === id)
+    const messageDetail = mockMessageDetails.find((msg) => msg.id === id)
     let targetReply: Reply | null = null
-    let parentMessage: MessageDetail | null = null
 
     // メインメッセージが見つからない場合、リプライから検索
     if (!messageDetail) {
@@ -362,7 +361,6 @@ export const handlers = [
         const reply = msg.replies.find((r) => r.id === id)
         if (reply) {
           targetReply = reply
-          parentMessage = msg
           break
         }
       }
@@ -410,9 +408,8 @@ export const handlers = [
     const { id } = params
 
     // まずメインメッセージから検索
-    let messageDetail = mockMessageDetails.find((msg) => msg.id === id)
+    const messageDetail = mockMessageDetails.find((msg) => msg.id === id)
     let targetReply: Reply | null = null
-    let parentMessage: MessageDetail | null = null
 
     // メインメッセージが見つからない場合、リプライから検索
     if (!messageDetail) {
@@ -420,7 +417,6 @@ export const handlers = [
         const reply = msg.replies.find((r) => r.id === id)
         if (reply) {
           targetReply = reply
-          parentMessage = msg
           break
         }
       }
