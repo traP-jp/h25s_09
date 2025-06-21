@@ -1,0 +1,363 @@
+openapi: 3.0.3
+info:
+  title: Messages API
+  description: メッセージとリアクション、画像、実績を管理するAPI
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: API サーバー
+
+paths:
+  /messages:
+    get:
+      tags:
+        - Messages
+      summary: メッセージ一覧の取得
+      parameters:
+        - name: limit
+          in: query
+          description: 取得する件数の上限
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: 取得開始位置
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: traqId
+          in: query
+          description: 特定のユーザーのメッセージのみを取得
+          schema:
+            type: string
+      responses:
+        "200":
+          description: メッセージ一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+
+    post:
+      tags:
+        - Messages
+      summary: メッセージの投稿
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: メッセージ本文
+                repliesTo:
+                  type: string
+                  format: uuid
+                  description: 返信先のメッセージID
+                image:
+                  type: string
+                  format: binary
+                  description: 添付画像
+              required:
+                - message
+      responses:
+        "201":
+          description: メッセージが正常に作成された
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageDetail"
+        "400":
+          description: リクエストが不正（メッセージ本文が空、または返信先のメッセージが見つからない）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  "/messages/{id}":
+    get:
+      tags:
+        - Messages
+      summary: 指定されたIDのメッセージの詳細を取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: メッセージID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: メッセージの詳細
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageDetail"
+        "404":
+          description: 指定されたIDのメッセージが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  "/images/{id}":
+    get:
+      tags:
+        - Images
+      summary: 指定されたIDの画像を取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 画像ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: 画像データ
+          content:
+            "image/*":
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: 指定されたIDの画像が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  "/try-achieve/{id}":
+    post:
+      tags:
+        - Achievements
+      summary: 確率に応じてイベントが発火するかどうか決める
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: イベントID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: イベント処理結果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dispatched:
+                    type: boolean
+                    description: イベントが発火したかどうか
+                required:
+                  - dispatched
+        "404":
+          description: 指定されたIDのイベントが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /achievements:
+    get:
+      tags:
+        - Achievements
+      summary: 実績一覧の取得
+      parameters:
+        - name: traqId
+          in: query
+          description: 特定のユーザーの実績のみを取得
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 実績一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Achievement"
+
+  /me:
+    get:
+      tags:
+        - User
+      summary: 自身の情報を取得
+      responses:
+        "200":
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: メッセージID
+        author:
+          type: string
+          description: 投稿者のtraqID
+        content:
+          type: string
+          description: メッセージ本文
+        imageId:
+          type: string
+          format: uuid
+          nullable: true
+          description: 添付画像のID
+        reactions:
+          $ref: "#/components/schemas/Reactions"
+        replyCount:
+          type: integer
+          description: 返信数
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+      required:
+        - id
+        - author
+        - content
+        - imageId
+        - reactions
+        - replyCount
+        - createdAt
+
+    MessageDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: メッセージID
+        author:
+          type: string
+          description: 投稿者のtraqID
+        content:
+          type: string
+          description: メッセージ本文
+        imageId:
+          type: string
+          format: uuid
+          nullable: true
+          description: 添付画像のID
+        reactions:
+          $ref: "#/components/schemas/Reactions"
+        replies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Reply"
+          description: 返信一覧
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+      required:
+        - id
+        - author
+        - content
+        - imageId
+        - reactions
+        - replies
+        - createdAt
+
+    Reply:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 返信ID
+        author:
+          type: string
+          description: 投稿者のtraqID
+        content:
+          type: string
+          description: 返信本文
+        images:
+          type: string
+          format: uuid
+          nullable: true
+          description: 添付画像のID
+        reactions:
+          $ref: "#/components/schemas/Reactions"
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+      required:
+        - id
+        - author
+        - content
+        - images
+        - reactions
+        - createdAt
+
+    Reactions:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: リアクション数
+        myReaction:
+          type: boolean
+          description: 自分がリアクションしているかどうか
+      required:
+        - count
+        - myReaction
+
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 実績ID
+        name:
+          type: string
+          description: 実績名
+        achievedAt:
+          type: string
+          format: date-time
+          description: 実績達成日時
+      required:
+        - id
+        - name
+        - achievedAt
+
+    UserInfo:
+      type: object
+      properties:
+        traqId:
+          type: string
+          description: ユーザーのtraqID
+      required:
+        - traqId
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: エラーメッセージ
+      required:
+        - message
