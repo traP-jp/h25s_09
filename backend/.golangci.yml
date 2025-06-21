@@ -12,3 +12,5 @@ linters:
     - wsl
     - mnd
     - cyclop
+    - funlen
+    - gocognit
