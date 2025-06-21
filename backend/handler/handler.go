@@ -18,11 +18,11 @@ func Start() {
 	if err != nil {
 		e.Logger.Fatal("Failed to connect to the database:", err)
 	}
-	h := &handler{
-		repo: repository.NewRepository(db),
-	}
 
-	g := e.Group("/api")
+	var (
+		h = &handler{repo: repository.NewRepository(db)}
+		g = e.Group("/api")
+	)
 	{
 		g.GET("/health", h.GetHealthHandler)
 	}
