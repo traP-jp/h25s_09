@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/traP-jp/h25s_09/repository"
@@ -18,7 +20,7 @@ func Start() {
 	g := e.Group("/api")
 	{
 		g.GET("/health", func(c echo.Context) error {
-			return c.JSON(200, map[string]string{"status": "ok"})
+			return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 		})
 	}
 
