@@ -54,10 +54,10 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve message image ID: "+err.Error())
 		}
 		Replies, err := h.repo.GetRepliesByMessageID(msg.ID)
-		RepliesCount := int64(len(Replies))
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve replies count: "+err.Error())
 		}
+		RepliesCount := int64(len(Replies))
 		Reactions, err := h.repo.GetReactionsToMessage(msg.ID)
 		ReactionsCount := int64(len(Reactions))
 		MyReaction := slices.ContainsFunc(Reactions, func(r domain.MessageReaction) bool {
