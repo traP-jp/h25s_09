@@ -8,9 +8,9 @@ import (
 )
 
 func (h *handler) GetMeHandler(ctx echo.Context) error {
-	result := ctx.Get(m.UsernameKey).(string)
-	if result == "" {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
+	result, ok := ctx.Get(m.UsernameKey).(string)
+	if !ok || result == "" {
+		return echo.NewHTTPError(http.StatusUnauthorized)
 	}
 	return ctx.JSON(http.StatusOK, map[string]string{"traqId": result})
 }
