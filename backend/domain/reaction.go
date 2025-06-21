@@ -7,7 +7,7 @@ import (
 )
 
 type MessageReaction struct {
-	MessageId uuid.UUID
+	MessageID uuid.UUID
 	UserName   uuid.UUID
 	CreatedAt time.Time
 }
