@@ -30,7 +30,7 @@ const currentTab = computed(() => {
         <UserIcon :traq-id="userId" size="lg" />
         <div :class="$style.userDetails">
           <h1 :class="$style.userName">@{{ userId }}</h1>
-          <p :class="$style.userDescription">TraQ ID: {{ userId }}</p>
+          <p :class="$style.userDescription">traQ ID: {{ userId }}</p>
         </div>
       </div>
     </header>
