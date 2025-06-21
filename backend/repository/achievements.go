@@ -11,9 +11,20 @@ type AchievementsRepository interface {
 }
 
 func (r *repositoryImpl) GetUserAchievements(userID uuid.UUID) ([]domain.UserAchievement, error) {
-	return nil, domain.ErrNotImplemented
+	var achievements []domain.UserAchievement
+	err := r.db.Select(&achievements, "SELECT * FROM achievements WHERE username = ?", userID)
+	if err != nil {
+		return nil, err
+	}
+	return achievements, nil
 }
 
 func (r *repositoryImpl) InsertUserAchievement(userID uuid.UUID, achievementID int64) (*domain.UserAchievement, error) {
-	return nil, domain.ErrNotImplemented
+	_, err := r.db.Exec("INSERT INTO achievements (id, username) VALUES (?, ?)", achievementID, userID)
+	if err != nil {
+		return nil, err
+	}
+	var achievement domain.UserAchievement
+	r.db.Get(&achievement, "SELECT * FROM achievements WHERE id = ? AND username = ?", achievementID, userID)
+	return &achievement, nil
 }
