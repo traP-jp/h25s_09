@@ -196,34 +196,34 @@ const goBack = () => {
 
   h1 {
     margin: 0;
-    color: #333;
+    color: var(--color-text-primary);
   }
 }
 
 .backButton {
   background: none;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-medium);
   border-radius: 4px;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  color: #007bff;
+  color: var(--color-primary-600);
 
   &:hover {
-    background: #f8f9fa;
+    background: var(--color-surface-variant);
   }
 }
 
 .error,
 .notFound {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--color-error-50);
+  color: var(--color-error-700);
   padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
 
   button {
-    background: #dc3545;
-    color: white;
+    background: var(--color-error-600);
+    color: var(--color-text-inverse);
     border: none;
     border-radius: 4px;
     padding: 0.5rem 1rem;
@@ -231,7 +231,7 @@ const goBack = () => {
     cursor: pointer;
 
     &:hover {
-      background: #c82333;
+      background: var(--color-error-700);
     }
   }
 }
@@ -239,7 +239,7 @@ const goBack = () => {
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #6c757d;
+  color: var(--color-text-secondary);
 }
 
 .content {
@@ -249,10 +249,10 @@ const goBack = () => {
 }
 
 .mainMessage {
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--color-shadow-light);
 }
 
 .messageHeader {
@@ -266,7 +266,7 @@ const goBack = () => {
 }
 
 .timestamp {
-  color: #6c757d;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
 }
 
@@ -284,8 +284,8 @@ const goBack = () => {
 }
 
 .reaction {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background: var(--color-surface-variant);
+  border: 1px solid var(--color-border-light);
   border-radius: 20px;
   padding: 0.25rem 0.75rem;
   font-size: 0.875rem;
@@ -295,13 +295,13 @@ const goBack = () => {
   gap: 0.5rem;
 
   &:hover {
-    background: #e9ecef;
+    background: var(--color-surface);
   }
 }
 
 .myReaction {
   font-size: 0.75rem;
-  color: #007bff;
+  color: var(--color-primary-600);
   font-style: italic;
 }
 
@@ -327,12 +327,12 @@ const goBack = () => {
 .replies {
   h3 {
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--color-text-primary);
   }
 }
 
 .reply {
-  background: #f8f9fa;
+  background: var(--color-surface-variant);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -351,10 +351,10 @@ const goBack = () => {
 }
 
 .replyForm {
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--color-shadow-light);
 }
 
 .formGroup {
@@ -363,20 +363,22 @@ const goBack = () => {
 
 .textarea {
   width: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-medium);
   border-radius: 4px;
   padding: 0.75rem;
   font-size: 1rem;
   resize: vertical;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
 
   &:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 2px var(--color-primary-200);
   }
 
   &:disabled {
-    background-color: #f8f9fa;
+    background-color: var(--color-surface-variant);
     cursor: not-allowed;
   }
 }
@@ -387,8 +389,8 @@ const goBack = () => {
 }
 
 .submitButton {
-  background: #007bff;
-  color: white;
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
   border: none;
   border-radius: 4px;
   padding: 0.5rem 1.5rem;
@@ -397,12 +399,25 @@ const goBack = () => {
   transition: background-color 0.2s;
 
   &:hover:not(:disabled) {
-    background: #0056b3;
+    background: var(--color-primary-700);
   }
 
   &:disabled {
-    background: #6c757d;
+    background: var(--color-gray-500);
     cursor: not-allowed;
+  }
+}
+
+.reactionButton {
+  background: none;
+  border: 1px solid var(--color-border-medium);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-variant);
   }
 }
 </style>

@@ -34,10 +34,10 @@ const { error, isErrorVisible, clearError } = useGlobalError()
   right: 1rem;
   z-index: 9999;
   max-width: 400px;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
+  background: var(--color-error-50);
+  border: 1px solid var(--color-error-200);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--color-shadow-strong);
   cursor: pointer;
 }
 
@@ -51,7 +51,7 @@ const { error, isErrorVisible, clearError } = useGlobalError()
 .errorIcon {
   font-size: 1.5rem;
   flex-shrink: 0;
-  color: #721c24;
+  color: var(--color-error-700);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,7 +59,7 @@ const { error, isErrorVisible, clearError } = useGlobalError()
 
 .errorMessage {
   flex: 1;
-  color: #721c24;
+  color: var(--color-error-700);
 
   strong {
     display: block;
@@ -75,7 +75,7 @@ const { error, isErrorVisible, clearError } = useGlobalError()
   small {
     display: block;
     margin-top: 0.25rem;
-    color: #856464;
+    color: var(--color-error-600);
     font-size: 0.75rem;
   }
 }
@@ -83,7 +83,7 @@ const { error, isErrorVisible, clearError } = useGlobalError()
 .closeButton {
   background: none;
   border: none;
-  color: #721c24;
+  color: var(--color-error-700);
   font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
@@ -96,7 +96,7 @@ const { error, isErrorVisible, clearError } = useGlobalError()
   flex-shrink: 0;
 
   &:hover {
-    background: rgba(114, 28, 36, 0.1);
+    background: var(--color-error-100);
     border-radius: 50%;
   }
 }

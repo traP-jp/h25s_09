@@ -93,10 +93,11 @@ const handleSubmit = async () => {
 }
 
 .messageForm {
-  background: white;
-  border-radius: 8px;
+  background-color: var(--color-surface);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 4px 6px var(--color-shadow-medium);
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .formGroup {
@@ -105,21 +106,28 @@ const handleSubmit = async () => {
 
 .textarea {
   width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 4px;
   padding: 0.75rem;
-  font-size: 1rem;
+  border: 1px solid var(--color-border-medium);
+  border-radius: 0.375rem;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease-in-out;
   resize: vertical;
   min-height: 80px;
 
   &:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px var(--color-primary-200);
+  }
+
+  &::placeholder {
+    color: var(--color-text-tertiary);
   }
 
   &:disabled {
-    background-color: #f8f9fa;
+    background-color: var(--color-surface-variant);
     cursor: not-allowed;
   }
 }
@@ -130,43 +138,67 @@ const handleSubmit = async () => {
 }
 
 .submitButton {
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1.5rem;
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover:not(:disabled) {
-    background: #0056b3;
-  }
+  transition: all 0.15s ease-in-out;
+  background-color: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary-600);
 
   &:disabled {
-    background: #6c757d;
+    opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-700);
+    border-color: var(--color-primary-700);
+  }
+
+  &:active {
+    background-color: var(--color-primary-800);
+    border-color: var(--color-primary-800);
   }
 }
 
 .error {
-  background: #f8d7da;
-  color: #721c24;
+  background-color: var(--color-error-50);
+  color: var(--color-error-700);
   padding: 1rem;
-  border-radius: 4px;
-  border: 1px solid #f5c6cb;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-error-200);
 
   button {
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.25rem 0.75rem;
-    margin-top: 0.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border: 1px solid transparent;
     cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    background-color: var(--color-error-600);
+    color: var(--color-text-inverse);
+    margin-top: 0.5rem;
 
-    &:hover {
-      background: #c82333;
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-error-700);
     }
   }
 }
@@ -174,7 +206,7 @@ const handleSubmit = async () => {
 .loading {
   text-align: center;
   padding: 2rem;
-  color: #6c757d;
+  color: var(--color-text-secondary);
 }
 
 .messageList {
@@ -186,7 +218,13 @@ const handleSubmit = async () => {
 .empty {
   text-align: center;
   padding: 3rem;
-  color: #6c757d;
+  color: var(--color-text-secondary);
   font-style: italic;
+}
+
+:global([data-theme='dark']) .error {
+  background-color: var(--color-error-900);
+  color: var(--color-error-200);
+  border-color: var(--color-error-800);
 }
 </style>
