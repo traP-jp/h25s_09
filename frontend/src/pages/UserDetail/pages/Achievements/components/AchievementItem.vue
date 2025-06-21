@@ -28,7 +28,7 @@ const achievementIcon = computed(() => {
 
   if (name.includes('first') || name.includes('初')) return 'mdi:trophy-award'
   if (name.includes('message') || name.includes('メッセージ')) return 'mdi:chat'
-  if (name.includes('reaction') || name.includes('リアクション')) return 'mdi:thumb-up'
+  if (name.includes('reaction') || name.includes('リアクション')) return 'mdi:heart'
   if (name.includes('reply') || name.includes('返信')) return 'mdi:reply'
   if (name.includes('image') || name.includes('画像')) return 'mdi:image'
   if (name.includes('login') || name.includes('ログイン')) return 'mdi:key'

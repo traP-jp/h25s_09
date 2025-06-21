@@ -111,7 +111,7 @@ const goBack = () => {
             <div
               :class="[$style.reactionItem, { [$style.myReaction]: message.reactions.myReaction }]"
             >
-              <Icon icon="mdi:thumb-up" :class="$style.emoji" />
+              <Icon icon="mdi:heart" :class="$style.emoji" />
               <span :class="$style.count">{{ message.reactions.count }}</span>
             </div>
           </div>
@@ -163,7 +163,7 @@ const goBack = () => {
                     { [$style.myReaction]: reply.reactions.myReaction },
                   ]"
                 >
-                  <Icon icon="mdi:thumb-up" :class="$style.emoji" />
+                  <Icon icon="mdi:heart" :class="$style.emoji" />
                   <span :class="$style.count">{{ reply.reactions.count }}</span>
                 </div>
               </div>

@@ -127,7 +127,7 @@ const onImageError = (event: Event) => {
         :aria-label="`${message.reactions.myReaction ? 'いいねを取り消す' : 'いいねする'} (現在 ${message.reactions.count} 件)`"
         :aria-pressed="message.reactions.myReaction"
       >
-        <Icon icon="mdi:thumb-up" :class="$style.emoji" aria-hidden="true" />
+        <Icon icon="mdi:heart" :class="$style.emoji" aria-hidden="true" />
         <span :class="$style.count" aria-label="いいね数">
           {{ message.reactions.count }}
         </span>
