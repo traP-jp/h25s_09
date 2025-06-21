@@ -13,3 +13,4 @@ linters:
     - mnd
     - cyclop
     - funlen
+    - gocognit
