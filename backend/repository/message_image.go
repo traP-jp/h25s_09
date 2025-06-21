@@ -25,7 +25,7 @@ type repoMessageImage struct {
 
 func (r *repositoryImpl) GetMessageImage(imageID uuid.UUID) (*domain.MessageImage, error) {
 	var img repoMessageImage
-	err := r.db.Get(&img, "SELECT * FROM message_images WHERE id=? LIMIT 2", imageID)
+	err := r.db.Get(&img, "SELECT * FROM message_images WHERE id=?", imageID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domain.ErrNotFound
