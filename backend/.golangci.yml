@@ -14,4 +14,4 @@ formatters:
   exclusions:
     paths:
       - db/**
-      - handler/achievements.go
+      - backend/handler/achievements.go
