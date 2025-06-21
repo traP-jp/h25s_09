@@ -12,7 +12,7 @@ func NewDB() (*sqlx.DB, error) {
 		Net:                  "tcp",
 		User:                 os.Getenv("NS_MARIADB_USER"),
 		Passwd:               os.Getenv("NS_MARIADB_PASSWORD"),
-		Addr:                 os.Getenv("NS_MARIADB_HOST") + ":" + os.Getenv("NS_MARIADB_PORT"),
+		Addr:                 os.Getenv("NS_MARIADB_HOSTNAME") + ":" + os.Getenv("NS_MARIADB_PORT"),
 		DBName:               os.Getenv("NS_MARIADB_DATABASE"),
 		ParseTime:            true,
 		AllowNativePasswords: true,
