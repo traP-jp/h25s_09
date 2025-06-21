@@ -8,6 +8,6 @@ import (
 
 type MessageReaction struct {
 	MessageID uuid.UUID
-	UserName   uuid.UUID
+	UserName   string
 	CreatedAt time.Time
 }
