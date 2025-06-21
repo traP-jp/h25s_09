@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import ReplyForm from '@/components/ReplyForm.vue'
 import UserIcon from '@/components/UserIcon.vue'
-import { useMessageDetail, useAddReaction, useRemoveReaction } from '@/lib/composables'
+import { useAddReaction, useMessageDetail, useRemoveReaction } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
-import { computed } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { computed, ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 
 const route = useRoute()
 
@@ -11,7 +12,10 @@ const route = useRoute()
 const messageId = computed(() => route.params.id as string)
 
 // メッセージ詳細取得
-const { data: message, isLoading, error } = useMessageDetail(messageId)
+const { data: message, isLoading, error, refetch } = useMessageDetail(messageId)
+
+// リプライフォーム表示状態
+const showReplyForm = ref(false)
 
 // リアクション機能
 const addReactionMutation = useAddReaction()
@@ -43,6 +47,19 @@ const toggleReplyReaction = async (replyId: string, myReaction: boolean) => {
   } catch (error) {
     console.error('Failed to toggle reply reaction:', error)
   }
+}
+
+// リプライ成功時の処理
+const handleReplySuccess = () => {
+  showReplyForm.value = false
+  // メッセージ詳細を再取得してリプライを反映
+  refetch()
+}
+
+// リプライエラー時の処理
+const handleReplyError = (error: Error) => {
+  console.error('Failed to create reply:', error)
+  // エラーハンドリング（トーストなどでユーザーに通知）
 }
 
 // フォーマット済み作成日時
@@ -138,8 +155,33 @@ const formatDate = (dateString: string) => {
               <Icon icon="mdi:heart" :class="$style.emoji" />
               <span :class="$style.count">{{ message.reactions.count }}</span>
             </button>
+
+            <!-- リプライボタン -->
+            <button
+              :class="[$style.replyToggleButton, { [$style.active]: showReplyForm }]"
+              @click="showReplyForm = !showReplyForm"
+              :aria-label="showReplyForm ? 'リプライを閉じる' : 'リプライする'"
+            >
+              <Icon icon="mdi:reply" :class="$style.icon" />
+              <span>リプライ</span>
+            </button>
           </div>
         </article>
+
+        <!-- リプライフォーム -->
+        <section v-if="showReplyForm" :class="$style.replyFormSection">
+          <h3 :class="$style.replyFormTitle">
+            <Icon icon="mdi:reply" :class="$style.replyIcon" />
+            返信を書く
+          </h3>
+          <ReplyForm
+            :replies-to="message.id"
+            :auto-focus="true"
+            @success="handleReplySuccess"
+            @error="handleReplyError"
+            @cancel="showReplyForm = false"
+          />
+        </section>
 
         <!-- 返信一覧 -->
         <section v-if="message.replies && message.replies.length > 0" :class="$style.replies">
@@ -491,6 +533,75 @@ const formatDate = (dateString: string) => {
   border-left: 3px solid var(--color-primary-200);
 }
 
+.replyToggleButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-surface-variant);
+  border: 1px solid var(--color-border-light);
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-200);
+    color: var(--color-primary-600);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-200);
+    color: var(--color-primary-700);
+
+    [data-theme='dark'] & {
+      background-color: var(--color-primary-900);
+      border-color: var(--color-primary-800);
+      color: var(--color-primary-300);
+    }
+  }
+}
+
+.replyFormSection {
+  background-color: var(--color-surface);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px var(--color-shadow-light);
+  border: 1px solid var(--color-border-light);
+}
+
+.replyFormTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.replyIcon {
+  font-size: 1.25rem;
+  color: var(--color-primary-600);
+}
+
+.icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.replyFormSection {
+  margin-top: 2rem;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .container {
@@ -498,12 +609,27 @@ const formatDate = (dateString: string) => {
   }
 
   .mainMessage,
-  .reply {
+  .reply,
+  .replyFormSection {
     padding: 1rem;
   }
 
   .reply {
     margin-left: 0.5rem;
+  }
+
+  .messageActions {
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .replyToggleButton {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  .replyFormTitle {
+    font-size: 1rem;
   }
 }
 </style>

@@ -92,6 +92,16 @@ const handleRetry = () => {
   }
 }
 
+// リプライ成功時の処理
+const handleReplySuccess = () => {
+  // メッセージ一覧を再取得してリプライを反映
+  if (props.useInfiniteScroll) {
+    infiniteScrollData.refetch()
+  } else {
+    refetch()
+  }
+}
+
 // 返信メッセージかどうかを判定する関数
 const isReplyMessage = (message: Message, index: number): boolean => {
   // includeRepliesがfalseまたは未定義の場合は返信として扱わない
@@ -143,6 +153,7 @@ const isReplyMessage = (message: Message, index: number): boolean => {
         :key="message.id"
         :message="message"
         :is-reply="isReplyMessage(message, index)"
+        @reply-success="handleReplySuccess"
       />
 
       <!-- infinite scroll用のトリガー要素 -->
