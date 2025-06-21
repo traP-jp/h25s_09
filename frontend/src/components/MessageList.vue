@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Message } from '@/lib/apis/generated'
 import { useMessages } from '@/lib/composables'
+import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 import MessageItem from './MessageItem.vue'
 
@@ -39,7 +40,7 @@ const handleRetry = () => {
     <!-- エラー表示 -->
     <div v-if="displayError" :class="$style.error" role="alert">
       <div :class="$style.errorContent">
-        <div :class="$style.errorIcon" aria-hidden="true">⚠️</div>
+        <Icon icon="mdi:alert" :class="$style.errorIcon" aria-hidden="true" />
         <div :class="$style.errorMessage">
           <strong>メッセージの取得に失敗しました</strong>
           <p>{{ displayError.message }}</p>
@@ -67,7 +68,7 @@ const handleRetry = () => {
 
     <!-- 空状態 -->
     <div v-else :class="$style.empty" role="status">
-      <div :class="$style.emptyIcon" aria-hidden="true">💬</div>
+      <Icon icon="mdi:message-text" :class="$style.emptyIcon" aria-hidden="true" />
       <p>まだメッセージがありません</p>
       <p :class="$style.emptySubtext">最初のメッセージを投稿してみませんか？</p>
     </div>

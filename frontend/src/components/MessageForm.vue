@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useCreateMessage, useFormState } from '@/lib/composables'
 import { validateImageFile } from '@/lib/utils/format'
+import { Icon } from '@iconify/vue'
 import { computed, ref, watch } from 'vue'
 
 interface Props {
@@ -141,7 +142,10 @@ watch(
         :disabled="isSubmitting"
         @change="handleImageChange"
       />
-      <label for="image-upload" :class="$style.imageUploadLabel"> 📷 画像を選択 </label>
+      <label for="image-upload" :class="$style.imageUploadLabel">
+        <Icon icon="mdi:camera" />
+        画像を選択
+      </label>
 
       <!-- 選択された画像のプレビュー -->
       <div v-if="formData.image && imagePreviewUrl" :class="$style.imagePreview">
@@ -153,7 +157,7 @@ watch(
           @click="removeImage"
           aria-label="画像を削除"
         >
-          ✕
+          <Icon icon="mdi:close" />
         </button>
       </div>
     </div>

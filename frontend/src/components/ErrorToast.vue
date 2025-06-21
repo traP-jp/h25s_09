@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useGlobalError } from '@/lib/composables'
+import { Icon } from '@iconify/vue'
 import { onMounted, ref } from 'vue'
 
 const { error, isErrorVisible, clearError } = useGlobalError()
@@ -51,7 +52,7 @@ onMounted(() => {
         @click="handleManualClose"
       >
         <div :class="$style.errorContent">
-          <div :class="$style.errorIcon" aria-hidden="true">⚠️</div>
+          <Icon icon="mdi:alert" :class="$style.errorIcon" aria-hidden="true" />
           <div :class="$style.errorMessage">
             <strong>エラーが発生しました</strong>
             <p>{{ error.message }}</p>
@@ -62,7 +63,7 @@ onMounted(() => {
             @click.stop="handleManualClose"
             aria-label="エラーメッセージを閉じる"
           >
-            ✕
+            <Icon icon="mdi:close" />
           </button>
         </div>
         <div :class="$style.progressBar"></div>
