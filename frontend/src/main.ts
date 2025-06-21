@@ -5,10 +5,29 @@ import { createApp } from 'vue'
 import App from '@/App.vue'
 import router from '@/router'
 
-const app = createApp(App)
+// グローバルテーマ変数をインポート
+import '@/assets/styles/variables.scss'
 
-app.use(createPinia())
-app.use(router)
-app.use(VueQueryPlugin)
+// MSWを開発環境で有効にする
+async function enableMocking() {
+  if (import.meta.env.MODE !== 'development' || import.meta.env.VITE_ENABLE_MSW !== 'true') {
+    return
+  }
 
-app.mount('#app')
+  const { worker } = await import('@/mocks')
+
+  // Service Worker を開始
+  return worker.start({
+    onUnhandledRequest: 'warn',
+  })
+}
+
+enableMocking().then(() => {
+  const app = createApp(App)
+
+  app.use(createPinia())
+  app.use(router)
+  app.use(VueQueryPlugin)
+
+  app.mount('#app')
+})
