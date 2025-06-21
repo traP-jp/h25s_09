@@ -113,7 +113,7 @@ body {
 }
 
 .app-sidebar--full {
-  width: 300px; /* フルサイドバーの固定幅 */
+  width: 240px; /* フルサイドバーの固定幅 */
 }
 
 .app-sidebar--compact {

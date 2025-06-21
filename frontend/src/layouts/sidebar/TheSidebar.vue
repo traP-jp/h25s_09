@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import SidebarItem from '@/layouts/sidebar/SidebarItem.vue'
 import { userService } from '@/lib/apis/services.ts'
 import { onMounted, ref } from 'vue'
-import SidebarItem from '@/layouts/sidebar/SidebarItem.vue'
 
 const userId = ref<string | null>(null)
 onMounted(async () => {
