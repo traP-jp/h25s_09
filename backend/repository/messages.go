@@ -12,7 +12,7 @@ import (
 type MessageRepository interface {
 	CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error)
 	GetMessageByID(id uuid.UUID) (*domain.Message, error)
-	GetMessages(limit, offset int64, username string) ([]domain.Message, error)
+	GetMessages(limit, offset int64, username string, includeReplies bool) ([]domain.Message, error)
 	GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.Message, error)
 }
 
@@ -25,19 +25,30 @@ type Message struct {
     UpdatedAt time.Time `db:"updated_at"`
 }
 
-func (r *repositoryImpl) GetMessages(limit, offset int64, username string) ([]domain.Message, error) {
+func (r *repositoryImpl) GetMessages(limit, offset int64, username string, includeReplies bool) ([]domain.Message, error) {
 	var messages []Message
+	query := "SELECT id, author, message, replies_id, created_at, updated_at FROM messages"
+	args := []any{}
 
-	if username == "" {
-		err := r.db.Select(&messages, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages ORDER BY created_at DESC LIMIT ? OFFSET ?", limit, offset)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		err := r.db.Select(&messages, "SELECT id, author, message, replies_id, created_at, updated_at FROM messages WHERE author = ? ORDER BY created_at DESC LIMIT ? OFFSET ?", username, limit, offset)	
-		if err != nil {
-			return nil, err
-		}
+	if username != "" && includeReplies {
+		query += " WHERE author = ?"
+		args = append(args, username)
+	}
+	if username != "" && !includeReplies {
+		query += " WHERE author = ? AND replies_to IS NULL"
+		args = append(args, username)
+	}
+	if includeReplies {
+		query += " WHERE replies_to IS NULL"
+	}
+
+
+	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
+	
+	err := r.db.Select(&messages, query, args...)
+	if err != nil {
+		return nil, err
 	}
 
 	// domain.Messageに変換して返す

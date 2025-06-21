@@ -40,9 +40,10 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid offset parameter")
 	}
 	traqId := ctx.QueryParam("traqId")
+	includeReplies := ctx.QueryParam("includeReplies") == "true"
 
 	// Fetch messages from the repository
-	messages, err = h.repo.GetMessages(limit, offset, traqId)
+	messages, err = h.repo.GetMessages(limit, offset, traqId, includeReplies)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve messages: "+err.Error())
 	}
@@ -59,6 +60,9 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		}
 		RepliesCount := int64(len(Replies))
 		Reactions, err := h.repo.GetReactionsToMessage(msg.ID)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reactions: "+err.Error())
+		}
 		ReactionsCount := int64(len(Reactions))
 		MyReaction := slices.ContainsFunc(Reactions, func(r domain.MessageReaction) bool {
 			return r.Username == ctx.Get("username").(string)
