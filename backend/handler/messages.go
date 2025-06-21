@@ -49,23 +49,27 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	// Fetch messages from the repository
 	messages, err = h.repo.GetMessages(limit, offset, traqId, includeReplies)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve messages: "+err.Error())
+		ctx.Logger().Error("Failed to retrieve messages:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	jsonMessages := make([]message, len(messages))
 	for i, msg := range messages {
 		ImageID, err := h.repo.GetMessageImageIDByMessageID(msg.ID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve message image ID: "+err.Error())
+			ctx.Logger().Error("Failed to retrieve image ID for message:", msg.ID, err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		Replies, err := h.repo.GetRepliesByMessageID(msg.ID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve replies count: "+err.Error())
+			ctx.Logger().Error("Failed to retrieve replies for message:", msg.ID, err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		RepliesCount := int64(len(Replies))
 		Reactions, err := h.repo.GetReactionsToMessage(msg.ID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reactions: "+err.Error())
+			ctx.Logger().Error("Failed to retrieve reactions for message:", msg.ID, err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		ReactionsCount := int64(len(Reactions))
 		MyReaction := slices.ContainsFunc(Reactions, func(r *domain.MessageReaction) bool {
