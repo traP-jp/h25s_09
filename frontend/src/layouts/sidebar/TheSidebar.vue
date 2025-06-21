@@ -12,9 +12,9 @@ onMounted(async () => {
 <template>
   <header>
     <nav :class="$style.sidebar">
-      <SidebarItem name="ホーム" path="/timeline" icon="mdi:home" />
-      <SidebarItem name="プロフィール" :path="`/user/${userId}/messages`" icon="mdi:account" />
-      <SidebarItem name="実績" path="/achievements" icon="mdi:achievement" />
+      <SidebarItem name="ホーム" path="/timeline" icon="home" />
+      <SidebarItem name="プロフィール" :path="`/users/${userId}/messages`" icon="account-circle" />
+      <SidebarItem name="実績" :path="`/users/${userId}/achievements`" icon="trophy" />
     </nav>
   </header>
 </template>
