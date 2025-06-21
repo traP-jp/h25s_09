@@ -1,4 +1,4 @@
-// 便利な型定義とユーティリティのエクスポート
+// 型定義のエクスポート
 export type {
   // 実績関連
   Achievement,
@@ -13,8 +13,15 @@ export type {
   UserInfo,
 } from './generated'
 
-// APIクライアント
-export { achievementsApi, apiClient, imagesApi, messagesApi, userApi } from './client'
+// HTTPクライアント
+export { httpClient } from './http-client'
+export type { ApiError as HttpApiError } from './http-client'
 
-// Configuration（カスタム設定用）
-export { Configuration } from './generated'
+// サービス層
+export {
+  achievementsService,
+  apiService,
+  imagesService,
+  messagesService,
+  userService,
+} from './services'

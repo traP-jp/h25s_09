@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ErrorToast from '@/components/ErrorToast.vue'
 import TheFooter from '@/layouts/footer/TheFooter.vue'
 import TheHeader from '@/layouts/header/TheHeader.vue'
 import TheSidebar from '@/layouts/sidebar/TheSidebar.vue'
@@ -18,4 +19,5 @@ const isDesktop = breakpoints.greaterOrEqual('tablet')
   <TheSidebar v-if="isDesktop" />
   <TheFooter v-else />
   <RouterView />
+  <ErrorToast />
 </template>
