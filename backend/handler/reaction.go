@@ -33,9 +33,12 @@ func (h *handler) ReactionsAdder(c echo.Context) error {
 	//リアクションを追加
 	_, err = h.repo.InsertMessageReaction(ID, username)
 	if err != nil {
+		if errors.Is(err, domain.ErrConflict) {
+			return echo.NewHTTPError(http.StatusConflict, "already reacted")
+		} //409
 		c.Logger().Error("failed to insert reaction:", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to insert reaction")
-	}
+	} //409以外
 	//リアクションの数の取得
 	s, err := h.repo.GetReactionsToMessage(ID)
 	if err != nil {
