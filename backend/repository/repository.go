@@ -5,7 +5,7 @@ import "github.com/jmoiron/sqlx"
 type Repository interface {
 	AchievementsRepository
 	MessageRepository
-	MessageRactionRepository
+	MessageReactionRepository
 	MessageImageRepository
 }
 

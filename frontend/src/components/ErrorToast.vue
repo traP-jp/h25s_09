@@ -1,27 +1,72 @@
 <script lang="ts" setup>
 import { useGlobalError } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
+import { onMounted, ref } from 'vue'
 
 const { error, isErrorVisible, clearError } = useGlobalError()
+
+// 自動消失のタイマー
+const autoHideTimer = ref<number | null>(null)
+
+// 自動消失機能（5秒後）
+const startAutoHide = () => {
+  if (autoHideTimer.value) {
+    clearTimeout(autoHideTimer.value)
+  }
+  autoHideTimer.value = window.setTimeout(() => {
+    clearError()
+  }, 5000)
+}
+
+// エラーが表示されたら自動消失タイマーを開始
+const handleErrorShow = () => {
+  if (isErrorVisible.value) {
+    startAutoHide()
+  }
+}
+
+// クリックで手動で消す
+const handleManualClose = () => {
+  if (autoHideTimer.value) {
+    clearTimeout(autoHideTimer.value)
+  }
+  clearError()
+}
+
+onMounted(() => {
+  // エラーが表示されたら自動消失タイマーを開始
+  if (isErrorVisible.value) {
+    startAutoHide()
+  }
+})
 </script>
 
 <template>
   <Teleport to="body">
-    <Transition name="error-toast">
-      <div v-if="isErrorVisible && error" :class="$style.errorToast" @click="clearError">
+    <Transition name="error-toast" @after-enter="handleErrorShow">
+      <div
+        v-if="isErrorVisible && error"
+        :class="$style.errorToast"
+        role="alert"
+        aria-live="assertive"
+        @click="handleManualClose"
+      >
         <div :class="$style.errorContent">
-          <div :class="$style.errorIcon">
-            <Icon icon="material-symbols:error" />
-          </div>
+          <Icon icon="mdi:alert" :class="$style.errorIcon" aria-hidden="true" />
           <div :class="$style.errorMessage">
             <strong>エラーが発生しました</strong>
             <p>{{ error.message }}</p>
             <small v-if="error.status">Status: {{ error.status }}</small>
           </div>
-          <button :class="$style.closeButton" @click="clearError">
-            <Icon icon="material-symbols:close" />
+          <button
+            :class="$style.closeButton"
+            @click.stop="handleManualClose"
+            aria-label="エラーメッセージを閉じる"
+          >
+            <Icon icon="mdi:close" />
           </button>
         </div>
+        <div :class="$style.progressBar"></div>
       </div>
     </Transition>
   </Teleport>
@@ -34,11 +79,18 @@ const { error, isErrorVisible, clearError } = useGlobalError()
   right: 1rem;
   z-index: 9999;
   max-width: 400px;
+  min-width: 300px;
   background: var(--color-error-50);
   border: 1px solid var(--color-error-200);
   border-radius: 8px;
   box-shadow: 0 4px 12px var(--color-shadow-strong);
   cursor: pointer;
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: var(--color-error-900);
+    border-color: var(--color-error-800);
+  }
 }
 
 .errorContent {
@@ -51,7 +103,6 @@ const { error, isErrorVisible, clearError } = useGlobalError()
 .errorIcon {
   font-size: 1.5rem;
   flex-shrink: 0;
-  color: var(--color-error-700);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,6 +111,10 @@ const { error, isErrorVisible, clearError } = useGlobalError()
 .errorMessage {
   flex: 1;
   color: var(--color-error-700);
+
+  [data-theme='dark'] & {
+    color: var(--color-error-200);
+  }
 
   strong {
     display: block;
@@ -77,6 +132,10 @@ const { error, isErrorVisible, clearError } = useGlobalError()
     margin-top: 0.25rem;
     color: var(--color-error-600);
     font-size: 0.75rem;
+
+    [data-theme='dark'] & {
+      color: var(--color-error-400);
+    }
   }
 }
 
@@ -94,10 +153,43 @@ const { error, isErrorVisible, clearError } = useGlobalError()
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+
+  [data-theme='dark'] & {
+    color: var(--color-error-200);
+  }
 
   &:hover {
     background: var(--color-error-100);
-    border-radius: 50%;
+
+    [data-theme='dark'] & {
+      background: var(--color-error-800);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-error-300);
+    outline-offset: 2px;
+  }
+}
+
+.progressBar {
+  height: 3px;
+  background: var(--color-error-600);
+  animation: progress 5s linear forwards;
+
+  [data-theme='dark'] & {
+    background: var(--color-error-400);
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
   }
 }
 

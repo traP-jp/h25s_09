@@ -35,6 +35,12 @@ paths:
           description: 特定のユーザーのメッセージのみを取得
           schema:
             type: string
+        - name: includeReplies
+          in: query
+          description: 返信を含めるかどうか
+          schema:
+            type: boolean
+            default: false
       responses:
         "200":
           description: メッセージ一覧

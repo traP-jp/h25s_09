@@ -15,10 +15,15 @@ export const queryKeys = {
 }
 
 // Messages API Hooks
-export function useMessages() {
+export function useMessages(options?: {
+  limit?: number
+  offset?: number
+  traqId?: string
+  includeReplies?: boolean
+}) {
   return useQuery({
-    queryKey: queryKeys.messages,
-    queryFn: apiService.messages.getMessages,
+    queryKey: [...queryKeys.messages, options],
+    queryFn: () => apiService.messages.getMessages(options),
     staleTime: 1000 * 60 * 5, // 5分間キャッシュ
   })
 }
@@ -73,13 +78,16 @@ export function useUserInfo() {
   })
 }
 
-export function useUserMessages(userId?: MaybeRefOrGetter<string>) {
+export function useUserMessages(
+  userId?: MaybeRefOrGetter<string>,
+  includeReplies?: MaybeRefOrGetter<boolean>,
+) {
   return useQuery({
-    queryKey: computed(() => queryKeys.userMessages(toValue(userId))),
+    queryKey: computed(() => [...queryKeys.userMessages(toValue(userId)), toValue(includeReplies)]),
     queryFn: () => {
       const id = toValue(userId)
       if (!id) throw new Error('userId is required')
-      return apiService.user.getUserMessages(id)
+      return apiService.user.getUserMessages(id, toValue(includeReplies))
     },
     enabled: computed(() => !!toValue(userId)),
   })

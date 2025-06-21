@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useUserAchievements } from '@/lib/composables'
+import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import AchievementItem from './components/AchievementItem.vue'
@@ -38,7 +39,7 @@ const achievementStats = computed(() => {
 
     <!-- エラー状態 -->
     <div v-else-if="error" :class="$style.error">
-      <div :class="$style.errorIcon">⚠️</div>
+      <Icon icon="mdi:alert-circle" :class="$style.errorIcon" />
       <h2>実績の取得に失敗しました</h2>
       <p>しばらく待ってから再度お試しください。</p>
     </div>
@@ -72,7 +73,7 @@ const achievementStats = computed(() => {
 
     <!-- 空の状態 -->
     <div v-else :class="$style.empty">
-      <div :class="$style.emptyIcon">🏆</div>
+      <Icon icon="mdi:trophy-outline" :class="$style.emptyIcon" />
       <h2>実績がありません</h2>
       <p>@{{ userId }}さんはまだ実績を達成していません。</p>
     </div>

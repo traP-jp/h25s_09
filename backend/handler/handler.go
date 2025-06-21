@@ -27,7 +27,10 @@ func Start() {
 	g := e.Group("/api")
 	{
 		g.GET("/health", h.GetHealthHandler)
+		g.GET("/images/:id", h.GetMessageImageHandler)
 		g.GET("/me", h.GetMeHandler)
+		g.GET("/try-achieve/:id", h.TryAchieveHandler)
+		g.GET("/messages", h.GetMessagesHandler)
 	}
 
 	e.Logger.Fatal(e.Start(":8080"))

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Achievement } from '@/lib/apis/generated'
+import { Icon } from '@iconify/vue'
 import { computed } from 'vue'
 
 interface Props {
@@ -21,29 +22,29 @@ const formattedAchievedAt = computed(() => {
   })
 })
 
-// 実績のアイコンを取得（名前に基づいて簡単なアイコンを返す）
+// 実績のアイコンを取得（名前に基づいてIconifyのアイコンを返す）
 const achievementIcon = computed(() => {
   const name = props.achievement.name.toLowerCase()
 
-  if (name.includes('first') || name.includes('初')) return '🥇'
-  if (name.includes('message') || name.includes('メッセージ')) return '💬'
-  if (name.includes('reaction') || name.includes('リアクション')) return '👍'
-  if (name.includes('reply') || name.includes('返信')) return '💭'
-  if (name.includes('image') || name.includes('画像')) return '📸'
-  if (name.includes('login') || name.includes('ログイン')) return '🔑'
-  if (name.includes('streak') || name.includes('連続')) return '🔥'
-  if (name.includes('time') || name.includes('時間')) return '⏰'
-  if (name.includes('friend') || name.includes('友達')) return '👥'
-  if (name.includes('star') || name.includes('スター')) return '⭐'
+  if (name.includes('first') || name.includes('初')) return 'mdi:trophy-award'
+  if (name.includes('message') || name.includes('メッセージ')) return 'mdi:chat'
+  if (name.includes('reaction') || name.includes('リアクション')) return 'mdi:heart'
+  if (name.includes('reply') || name.includes('返信')) return 'mdi:reply'
+  if (name.includes('image') || name.includes('画像')) return 'mdi:image'
+  if (name.includes('login') || name.includes('ログイン')) return 'mdi:key'
+  if (name.includes('streak') || name.includes('連続')) return 'mdi:fire'
+  if (name.includes('time') || name.includes('時間')) return 'mdi:clock'
+  if (name.includes('friend') || name.includes('友達')) return 'mdi:account-group'
+  if (name.includes('star') || name.includes('スター')) return 'mdi:star'
 
-  return '🏆' // デフォルトアイコン
+  return 'mdi:trophy' // デフォルトアイコン
 })
 </script>
 
 <template>
   <div :class="$style.achievementItem">
     <div :class="$style.iconContainer">
-      <span :class="$style.icon">{{ achievementIcon }}</span>
+      <Icon :icon="achievementIcon" :class="$style.icon" />
     </div>
 
     <div :class="$style.content">

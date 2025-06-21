@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { ref } from 'vue'
+
 interface Props {
   /** ユーザーのtraqID */
   traqId: string
@@ -17,10 +19,21 @@ const emit = defineEmits<{
   click: [traqId: string]
 }>()
 
+// 画像の読み込みエラー状態
+const imageError = ref(false)
+
 const handleClick = () => {
   if (props.clickable) {
     emit('click', props.traqId)
   }
+}
+
+const handleImageError = () => {
+  imageError.value = true
+}
+
+const handleImageLoad = () => {
+  imageError.value = false
 }
 </script>
 
@@ -28,13 +41,21 @@ const handleClick = () => {
   <div
     :class="[$style.userIcon, $style[`size-${size}`], { [$style.clickable]: clickable }]"
     @click="handleClick"
+    :role="clickable ? 'button' : undefined"
+    :tabindex="clickable ? 0 : undefined"
+    :aria-label="clickable ? `${traqId}のプロフィールを表示` : undefined"
+    @keydown.enter="handleClick"
+    @keydown.space.prevent="handleClick"
   >
     <img
+      v-if="!imageError"
       :src="`https://q.trap.jp/api/v3/public/icon/${traqId}`"
       :alt="`${traqId}のアイコン`"
       :class="$style.avatar"
+      @load="handleImageLoad"
+      @error="handleImageError"
     />
-    <div :class="$style.fallback">
+    <div :class="$style.fallback" :aria-hidden="!imageError">
       {{ traqId.charAt(0).toUpperCase() }}
     </div>
   </div>
@@ -81,6 +102,11 @@ const handleClick = () => {
   &:active {
     transform: scale(0.95);
   }
+
+  &:focus {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
 }
 
 .avatar {
@@ -88,6 +114,8 @@ const handleClick = () => {
   height: 100%;
   object-fit: cover;
   display: block;
+  z-index: 1;
+  position: relative;
 }
 
 .fallback {
@@ -102,7 +130,7 @@ const handleClick = () => {
   font-weight: 600;
   color: var(--color-text-secondary);
   background-color: var(--color-surface-variant);
-  z-index: -1;
+  z-index: 0;
 }
 
 // 画像が読み込まれない場合のフォールバック

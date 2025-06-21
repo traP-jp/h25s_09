@@ -16,11 +16,11 @@ type MessageImageRepository interface {
 }
 
 type repoMessageImage struct {
-	id        uuid.UUID `db:"id"`
-	messageID uuid.UUID `db:"message_id"`
-	data      []byte    `db:"data"`
-	mime      string    `db:"mime"`
-	createdAt time.Time `db:"created_at"`
+	ID        uuid.UUID `db:"id"`
+	MessageID uuid.UUID `db:"message_id"`
+	Data      []byte    `db:"data"`
+	Mime      string    `db:"mime"`
+	CreatedAt time.Time `db:"created_at"`
 }
 
 func (r *repositoryImpl) GetMessageImage(imageID uuid.UUID) (*domain.MessageImage, error) {
@@ -34,20 +34,20 @@ func (r *repositoryImpl) GetMessageImage(imageID uuid.UUID) (*domain.MessageImag
 		}
 	}
 	return &domain.MessageImage{
-		ID:        img.id,
-		MessageID: img.messageID,
-		Data:      img.data,
-		Mime:      img.mime,
-		CreatedAt: img.createdAt,
+		ID:        img.ID,
+		MessageID: img.MessageID,
+		Data:      img.Data,
+		Mime:      img.Mime,
+		CreatedAt: img.CreatedAt,
 	}, nil
 }
 
 func (r *repositoryImpl) CreateMessageImage(messageID uuid.UUID, data []byte, mime string) (*domain.MessageImage, error) {
 	img := repoMessageImage{
-		id:        uuid.Must(uuid.NewV7()),
-		messageID: messageID,
-		data:      data,
-		mime:      mime,
+		ID:        uuid.Must(uuid.NewV7()),
+		MessageID: messageID,
+		Data:      data,
+		Mime:      mime,
 	}
 	res, err := r.db.NamedExec("INSERT INTO message_images (id, message_id, data, mime) VALUES (:id, :message_id, :data, :mime)", img)
 	if err != nil {
@@ -56,7 +56,7 @@ func (r *repositoryImpl) CreateMessageImage(messageID uuid.UUID, data []byte, mi
 	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
 		return nil, errors.New("no rows affected")
 	}
-	return r.GetMessageImage(img.id)
+	return r.GetMessageImage(img.ID)
 }
 
 func (r *repositoryImpl) GetMessageImageIDByMessageID(messageID uuid.UUID) (uuid.UUID, error) {
