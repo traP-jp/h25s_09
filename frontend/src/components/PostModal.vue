@@ -2,7 +2,7 @@
 import MessageForm from '@/components/MessageForm.vue'
 import { useGlobalError } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const { setError } = useGlobalError()
 
@@ -38,6 +38,42 @@ const closeModal = () => {
     popoverRef.value.hidePopover()
   }
 }
+
+// バックドロップクリックを防ぐ
+const handleBackdropClick = (event: Event) => {
+  // モーダル内のクリックは無視
+  if (event.target === popoverRef.value) {
+    closeModal()
+  }
+}
+
+// Escキーでモーダルを閉じる
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    closeModal()
+  }
+}
+
+// コンポーネントマウント時にイベントリスナーを設定
+onMounted(() => {
+  if (popoverRef.value) {
+    // ポップオーバーが開かれた時のイベント
+    popoverRef.value.addEventListener('toggle', (event) => {
+      const isOpen = (event as any).newState === 'open'
+      if (isOpen) {
+        // モーダルが開いた時にキーボードイベントリスナーを追加
+        document.addEventListener('keydown', handleKeydown)
+        // 背景のスクロールを無効化
+        document.body.style.overflow = 'hidden'
+      } else {
+        // モーダルが閉じた時にキーボードイベントリスナーを削除
+        document.removeEventListener('keydown', handleKeydown)
+        // 背景のスクロールを有効化
+        document.body.style.overflow = ''
+      }
+    })
+  }
+})
 </script>
 
 <template>
@@ -54,20 +90,21 @@ const closeModal = () => {
   <!-- 投稿モーダル -->
   <div
     ref="popoverRef"
-    popover="auto"
+    popover="manual"
     :class="$style.postModal"
     role="dialog"
     aria-labelledby="modal-title"
     aria-modal="true"
+    @click="handleBackdropClick"
   >
-    <div :class="$style.modalHeader">
+    <div :class="$style.modalHeader" @click.stop>
       <h2 id="modal-title" :class="$style.modalTitle">新しい投稿</h2>
       <button :class="$style.closeButton" @click="closeModal" aria-label="モーダルを閉じる">
         <Icon icon="mdi:close" />
       </button>
     </div>
 
-    <div :class="$style.modalContent">
+    <div :class="$style.modalContent" @click.stop>
       <MessageForm @success="handlePostSuccess" @error="handlePostError" />
     </div>
   </div>
@@ -131,11 +168,20 @@ const closeModal = () => {
   &::backdrop {
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
+    /* バックドロップクリックを無効化 */
+    pointer-events: auto;
   }
 
-  // ポップオーバーが開いている時のスタイル
+  /* ポップオーバーが開いている時のスタイル */
   &:popover-open {
     animation: modalFadeIn 0.2s ease-out;
+    /* モーダル全体でクリックイベントを受け取る */
+    pointer-events: auto;
+  }
+
+  /* モーダルコンテンツ内のクリックイベントを保持 */
+  & > * {
+    pointer-events: auto;
   }
 
   // アニメーション
