@@ -14,7 +14,7 @@ type MessageReactionRepository interface {
 	DeleteMessageReaction(messageID uuid.UUID) (error)
 }
 
-func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID,username string) (*domain.GetMessageReactionResponse, error) {
+func (r *repositoryImpl) GetMessageReaction(messageID uuid.UUID) (*domain.GetMessageReactionResponse, error) {
 	var count int
 	err := r.db.Get(&count, "SELECT COUNT(*)  FROM message_reactions WHERE Message_id = ?", messageID)
 	if err != nil {
