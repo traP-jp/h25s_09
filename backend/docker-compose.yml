@@ -9,6 +9,9 @@ services:
       - .:/src
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: mariadb:latest
     volumes:
@@ -22,6 +25,12 @@ services:
       MARIADB_ROOT_PASSWORD: qwerty
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "-h", "$NS_MARIADB_HOSTNAME", "-P", "$NS_MARIADB_PORT", "-u", "$NS_MARIADB_USER", "-p$NS_MARIADB_PASSWORD", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 1s
 
   adminer:
     image: adminer:latest
