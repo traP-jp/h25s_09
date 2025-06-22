@@ -37,7 +37,7 @@ const { formData, resetForm, setSubmitting, isSubmitting } = useFormState({
 
 // フォームの有効性チェック
 const isFormValid = computed(() => {
-  return formData.value.content.trim().length > 0
+  return formData.value.content.trim().length > 0 || formData.value.image !== null
 })
 
 // 画像のクリーンアップ
