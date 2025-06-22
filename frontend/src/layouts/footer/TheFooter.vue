@@ -10,15 +10,24 @@ const userId = ref<string | null>(null)
 onMounted(async () => {
   userId.value = (await userService.getUserInfo()).traqId
 })
+
 const navItems = computed(() => [
-  { to: '/timeline', icon: 'mdi:home', label: 'ホーム' },
-  { to: `/users/${userId.value}/achievements`, icon: 'mdi:trophy', label: 'アチーブメント' },
-  { to: `/users/${userId.value}/messages`, icon: 'mdi:account', label: 'プロフィール' },
+  { to: '/timeline', icon: 'home', label: 'ホーム' },
+  { to: `/users/${userId.value}/achievements`, icon: 'trophy', label: 'アチーブメント' },
+  { to: `/users/${userId.value}/messages`, icon: 'account-circle', label: 'プロフィール' },
 ])
+
 const route = useRoute()
-const isCurrent = computed(() => {
-  return route.path === '/timeline' || route.path.startsWith('/users/')
-})
+
+// 各ナビゲーションアイテムが現在のルートと一致するかチェック
+const isCurrentRoute = (itemPath: string) => {
+  return route.path === itemPath
+}
+
+// SidebarItemと同じロジックでアイコンパスを生成
+const getIconPath = (iconName: string, isActive: boolean) => {
+  return isActive ? `material-symbols:${iconName}` : `material-symbols-light:${iconName}-outline`
+}
 </script>
 
 <template>
@@ -27,26 +36,19 @@ const isCurrent = computed(() => {
       v-for="item in navItems"
       :key="item.to"
       :to="item.to"
-      :class="[$style.tabItem, { [$style.current]: isCurrent }]"
-      active-class="is-active"
+      :class="[$style.tabItem, { [$style.isActive]: isCurrentRoute(item.to) }]"
     >
-      <Icon :icon="item.icon" :class="$style.icon" />
+      <Icon :icon="getIconPath(item.icon, isCurrentRoute(item.to))" :class="$style.icon" />
       <span :class="$style.label">{{ item.label }}</span>
     </router-link>
   </footer>
 </template>
 
 <style lang="scss" module>
-/*
- * 全てのスタイルをこのコンポーネント内にまとめて記述します。
- */
-
-/* 親コンテナのスタイル */
 .bottomBar {
-  --colorBackground: #000000;
-  --colorPrimary: #f9f9fb;
-  --colorActive: #7591e4;
-  --colorBorder: #000300;
+  --colorBackground: var(--color-background);
+  --colorPrimary: var(--color-text-primary);
+  --colorActive: var(--color-primary);
   --shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-around;
@@ -59,6 +61,7 @@ const isCurrent = computed(() => {
   box-shadow: var(--shadow);
   z-index: 1000;
 }
+
 .tabItem {
   display: flex;
   flex-direction: column;
@@ -74,24 +77,19 @@ const isCurrent = computed(() => {
   border-radius: 10px;
   &:hover {
     color: var(--colorActive);
-    transform: scale(2);
+    transform: scale(1.1);
     box-shadow: var(--shadow);
-    transition:
-      color 0.3s ease,
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
   }
+
   &.isActive {
     color: var(--colorActive);
     transform: scale(1.1);
     font-weight: bold;
     box-shadow: var(--shadow);
-    transition:
-      color 0.3s ease,
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
+    background-color: var(--color-shadow-light);
   }
 }
+
 .icon {
   font-size: 24px;
 }
@@ -99,9 +97,5 @@ const isCurrent = computed(() => {
 .label {
   font-size: 10px;
   margin-top: 2px;
-}
-.current {
-  color: var(--colorPrimary);
-  font-weight: bold;
 }
 </style>
