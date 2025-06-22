@@ -135,7 +135,6 @@ watch(
 <template>
   <form :class="$style.messageForm" @submit.prevent="handleSubmit">
     <div :class="$style.formGroup">
-      <label for="message-content" class="sr-only">メッセージ内容</label>
       <textarea
         id="message-content"
         ref="textareaRef"

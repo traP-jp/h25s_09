@@ -18,16 +18,16 @@ const isVisible = computed(() => loadingStore.isPageLoading)
 
 <style scoped>
 .page-loading-overlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--color-background);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 10;
 }
 
 .loading-spinner {
@@ -37,8 +37,8 @@ const isVisible = computed(() => loadingStore.isPageLoading)
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 4px solid var(--color-border-light);
+  border-top: 4px solid var(--color-primary-500);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 16px;
@@ -56,22 +56,8 @@ const isVisible = computed(() => loadingStore.isPageLoading)
 .loading-text {
   margin: 0;
   font-size: 16px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
-/* ダークモード対応 */
-@media (prefers-color-scheme: dark) {
-  .page-loading-overlay {
-    background-color: rgba(0, 0, 0, 0.9);
-  }
-
-  .spinner {
-    border: 4px solid #333;
-    border-top: 4px solid #3498db;
-  }
-
-  .loading-text {
-    color: #ccc;
-  }
-}
+/* ダークモード用のスタイルは削除（CSS変数で対応） */
 </style>
