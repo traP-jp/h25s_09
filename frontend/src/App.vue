@@ -22,7 +22,7 @@ const showCompactSidebar = breakpoints.between('compactSidebar', 'fullSidebar')
 const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
 
 onMounted(async () => {
-  const isCursorLoading = randomBoolean(0.5)
+  const isCursorLoading = randomBoolean(0.2)
   if (isCursorLoading) {
     document.body.classList.add('cursor-loading')
     await useCreateAchievement().mutateAsync('読込中')
