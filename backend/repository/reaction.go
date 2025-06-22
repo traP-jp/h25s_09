@@ -78,7 +78,7 @@ func (r *repositoryImpl) GetReactionsToMessage(messageID uuid.UUID) ([]*domain.M
 		}
 		return nil, err
 	}
-	result := make([]*domain.MessageReaction, len(reactions), 0)
+	result := make([]*domain.MessageReaction, len(reactions))
 	for i, reaction := range reactions {
 		result[i] = &domain.MessageReaction{
 			MessageID: reaction.MessageID,
