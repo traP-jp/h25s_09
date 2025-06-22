@@ -207,7 +207,7 @@ export interface Reply {
      * @type {string}
      * @memberof Reply
      */
-    'images': string | null;
+    'imageId': string | null;
     /**
      * 
      * @type {Reactions}

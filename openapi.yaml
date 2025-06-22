@@ -353,7 +353,7 @@ components:
         content:
           type: string
           description: 返信本文
-        images:
+        imageId:
           type: string
           format: uuid
           nullable: true
@@ -368,7 +368,7 @@ components:
         - id
         - author
         - content
-        - images
+        - imageId
         - reactions
         - createdAt
 
