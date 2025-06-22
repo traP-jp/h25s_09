@@ -145,7 +145,10 @@ const onImageError = (event: Event) => {
         </p>
 
         <!-- 画像表示 -->
-        <div v-if="message.imageId" :class="$style.imageContainer">
+        <div
+          v-if="message.imageId && message.imageId !== '00000000-0000-0000-0000-000000000000'"
+          :class="$style.imageContainer"
+        >
           <img
             :src="`/api/images/${message.imageId}`"
             :alt="'添付画像'"
