@@ -226,6 +226,6 @@ body {
 }
 
 body.cursor-loading {
-  cursor: wait;
+  cursor: progress;
 }
 </style>
