@@ -324,7 +324,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		})
 	}
 
-	msg.CreatedAt = time.Now().AddDate(1, 0, 0) //後で消す
+	msg.CreatedAt = time.Now().AddDate(0, 0, -1) //後で消す
 	return c.JSON(http.StatusOK, &messageDetail{
 		ID:      ID,
 		Author:  msg.Author,
