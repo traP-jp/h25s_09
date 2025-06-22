@@ -247,6 +247,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 				c.Logger().Error("Failed to retrieve image ID for reply:", reply.ID, err)
 				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reply image ID")
 			}
+			replyImageID = uuid.Nil
 		}
 		replyReactionList, err := h.repo.GetReactionsToMessage(reply.ID)
 		if err != nil {
