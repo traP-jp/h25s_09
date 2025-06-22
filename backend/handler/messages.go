@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/traP-jp/h25s_09/domain"
+	u "github.com/traP-jp/h25s_09/utils"
 	"github.com/traP-jp/h25s_09/handler/middleware"
 )
 
@@ -236,7 +237,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve replies")
 	}
 
-	repliesList := make([]any, len(replies))
+	repliesList := make([]any,0, len(replies)*20)
 	for i, reply := range replies {
 		replyImageID, err := h.repo.GetMessageImageIDByMessageID(reply.ID)
 		if err != nil {
@@ -252,7 +253,8 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reply reactions")
 		}
 
-		repliesList[i] = message{
+	
+		repliesList = append(repliesList, message{
 			ID:      reply.ID,
 			Author: reply.Author,
 			Content: reply.Content,
@@ -264,6 +266,26 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 				}),
 			},
 			CreatedAt: reply.CreatedAt,
+		})
+
+		duplicateCount := 0
+		bug, shouldDispatch := u.DetermineDispatchBugAndRecord(i+1, h.repo)
+		if shouldDispatch && duplicateCount < 100 {
+			duplicateCount++
+			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount)
+			repliesList = append(repliesList, message{
+			ID:      reply.ID,
+			Author: reply.Author,
+			Content: reply.Content,
+			ImageID: replyImageID,
+			Reactions: reactions{
+				Count:      int64(len(replyReactionList)),
+				MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
+					return r.Username == c.Get("username").(string)
+				}),
+			},
+			CreatedAt: reply.CreatedAt,
+			})
 		}
 	}
 	
