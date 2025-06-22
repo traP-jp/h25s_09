@@ -55,7 +55,7 @@ func (r *repositoryImpl) InsertMessageReaction(messageID uuid.UUID, username str
 }
 
 func (r *repositoryImpl) DeleteMessageReaction(messageID uuid.UUID, username string) error {
-	res, err := r.db.Exec("DELETE FROM message_reactions WHERE message_id = ? AND WHERE username = ?", messageID, username)
+	res, err := r.db.Exec("DELETE FROM message_reactions WHERE message_id = ?", messageID)
 	if err != nil {
 		return err
 	}
