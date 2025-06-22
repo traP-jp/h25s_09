@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
@@ -16,10 +15,7 @@ type bugState struct {
 	ValidBefore time.Time `json:"validBefore"`
 }
 
-func getValidBugStates(ctx echo.Context, ss sessions.Store) map[int]bugState {
-	if ss == nil {
-		return map[int]bugState{}
-	}
+func getValidBugStates(ctx echo.Context) map[int]bugState {
 	sess, err := session.Get(StatesSessionKey, ctx)
 	if err != nil {
 		return map[int]bugState{}
@@ -52,10 +48,7 @@ func getValidBugStates(ctx echo.Context, ss sessions.Store) map[int]bugState {
 	return result
 }
 
-func AddOrUpdateBugState(ctx echo.Context, ss sessions.Store, bugID int, validTimeSec int) {
-	if ss == nil {
-		return
-	}
+func AddOrUpdateBugState(ctx echo.Context, bugID int, validTimeSec int) {
 	sess, err := session.Get(StatesSessionKey, ctx)
 	if err != nil {
 		return
@@ -64,7 +57,7 @@ func AddOrUpdateBugState(ctx echo.Context, ss sessions.Store, bugID int, validTi
 	sess.Save(ctx.Request(), ctx.Response())
 }
 
-func IsValidBugNow(ctx echo.Context, bugID int, ss sessions.Store) bool {
-	_, ok := getValidBugStates(ctx, ss)[bugID]
+func IsValidBugNow(ctx echo.Context, bugID int) bool {
+	_, ok := getValidBugStates(ctx)[bugID]
 	return ok
 }

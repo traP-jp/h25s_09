@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"math/rand/v2"
 
-	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
 	"github.com/traP-jp/h25s_09/handler/middleware"
 	"github.com/traP-jp/h25s_09/repository"
@@ -44,14 +43,14 @@ func DetermineDispatchBugAndRecord(id int, repo repository.Repository) (Bug, boo
 	return Bug{}, false
 }
 
-func DetermineDispatchBug(ctx echo.Context, repo repository.Repository, ss sessions.Store, bugID int) bool {
-	if IsValidBugNow(ctx, bugID, ss) {
+func DetermineDispatchBug(ctx echo.Context, repo repository.Repository, bugID int) bool {
+	if IsValidBugNow(ctx, bugID) {
 		return true
 	}
 	if bug, exists := BackendBugs[bugID]; exists {
 		p := cmp.Or(bug.Probability, 0.25)
 		if p >= 1.0 || (0 < p && rand.Float64() < p) {
-			AddOrUpdateBugState(ctx, ss, bugID, cmp.Or(bug.ValidTimeSec, 10))
+			AddOrUpdateBugState(ctx, bugID, cmp.Or(bug.ValidTimeSec, 10))
 			_, err := repo.InsertUserAchievement(ctx.Get(middleware.UsernameKey).(string), bug.Name)
 			if err != nil {
 				ctx.Logger().Error("Failed to insert bug achievement:", err)
