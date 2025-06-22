@@ -131,7 +131,10 @@ const formatDate = (dateString: string) => {
             </p>
 
             <!-- 画像表示 -->
-            <div v-if="message.imageId" :class="$style.imageContainer">
+            <div
+              v-if="message.imageId && message.imageId !== '00000000-0000-0000-0000-000000000000'"
+              :class="$style.imageContainer"
+            >
               <img
                 :src="`/api/images/${message.imageId}`"
                 :alt="'添付画像'"
@@ -208,7 +211,10 @@ const formatDate = (dateString: string) => {
                 </p>
 
                 <!-- 返信の画像表示 -->
-                <div v-if="reply.imageId" :class="$style.imageContainer">
+                <div
+                  v-if="reply.imageId && reply.imageId !== '00000000-0000-0000-0000-000000000000'"
+                  :class="$style.imageContainer"
+                >
                   <img
                     :src="`/api/images/${reply.imageId}`"
                     :alt="'添付画像'"
