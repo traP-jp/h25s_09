@@ -39,11 +39,9 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "failed to decode image")
 			}
-			//resize
-			m := resize.Resize(120, 0, imgDecoded, resize.NearestNeighbor)
 			//image.Image→[]byte
 			var buf bytes.Buffer
-			err = jpeg.Encode(&buf, m, nil)
+			err = jpeg.Encode(&buf, imgDecoded, &jpeg.Options{Quality: 20})
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "failed to encode resized image")
 			}
