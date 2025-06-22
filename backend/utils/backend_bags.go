@@ -1,6 +1,10 @@
 package utils
 
-import "math/rand/v2"
+import (
+	"math/rand/v2"
+
+	"github.com/traP-jp/h25s_09/repository"
+)
 
 type Bug struct {
 	Name        string
@@ -56,7 +60,7 @@ var (
 	}
 )
 
-func DetermineDispatchBug(id int) (Bug, bool) {
+func DetermineDispatchBugAndRecord(id int, repo repository.Repository) (Bug, bool) {
 	if bug, exists := BackendBugs[id]; exists {
 		if bug.Probability >= 1.0 || (bug.Probability > 0 && rand.Float64() < bug.Probability) {
 			return bug, true
