@@ -38,7 +38,7 @@ var (
 			Probability: 0.25,
 		},
 		7: {
-			Name:        "投稿が増殖する",
+			Name:        "リプが増殖する",
 			Probability: 0.25,
 		},
 		8: {
