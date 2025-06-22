@@ -114,7 +114,7 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	for i , msg := range jsonMessages {
 		bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(1, h.repo)
 		if shouldDispatch {
-			jsonMessages[i].CreatedAt = time.Now().AddDate(0, 0, -10) // "投稿の日時がおかしい"のバグを発生させる
+			jsonMessages[i].CreatedAt = time.Now().AddDate(0, 0, 10) // "投稿の日時がおかしい"のバグを発生させる
 			ctx.Logger().Info("Bug dispatched:", bug.Name, "Message ID:", msg.ID)
 		}
 		bug, shouldDispatch = utils.DetermineDispatchBugAndRecord(1, h.repo)
