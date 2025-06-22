@@ -33,6 +33,7 @@ func Start() {
 		g.GET("/messages/:id/reaction",h.ReactionsGetter)
 		g.GET("/messages", h.GetMessagesHandler)
 		g.POST("/messages", h.PostMessageHandler)
+		g.GET("/messages/:id", h.GetMessageHandler)
 	}
 
 	e.Logger.Fatal(e.Start(":8080"))
