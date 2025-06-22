@@ -5,7 +5,7 @@ All URIs are relative to */api*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**achievementsGet**](#achievementsget) | **GET** /achievements | 実績一覧の取得|
-|[**meAchievementsPost**](#meachievementspost) | **POST** /me-achievements | 実績の作成|
+|[**meAchievementsPost**](#meachievementspost) | **POST** /me/achievements | 実績の作成|
 
 # **achievementsGet**
 > Array<Achievement> achievementsGet()
