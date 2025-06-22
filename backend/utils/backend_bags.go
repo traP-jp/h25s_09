@@ -17,7 +17,7 @@ type Bug struct {
 
 var (
 	BackendBugs = map[int]Bug{
-		1:   {Name: "投稿の日時がおかしい", Probability: 0.2, ValidTimeSec: 10},
+		1:   {Name: "投稿の日時がおかしい", Probability: 0.2},
 		2:   {Name: "データが取得できない", ValidTimeSec: 10},
 		3:   {Name: "ダイヤルアップ", Probability: 0.1, ValidTimeSec: 10},
 		4:   {Name: "同じ投稿が複数ある"},
@@ -30,6 +30,8 @@ var (
 		11:  {Name: "いいねが無限に増やせる"},
 		12:  {Name: "TL/ツイート増殖"},
 		100: {Name: "リプライ増殖", Probability: 0.65},
+		404: {Name: "404 このバグは存在しないよ……？"},
+
 	}
 )
 
