@@ -34,7 +34,7 @@ func getValidBugStates(ctx echo.Context, ss sessions.Store) map[int]bugState {
 	for _, s := range states {
 		sess.Values[s.BugID] = s
 	}
-	sess.Save(ctx.Request(), ctx.Response())
+	ss.Save(ctx.Request(), ctx.Response(), sess)
 	return states
 }
 
@@ -50,7 +50,7 @@ func AddOrUpdateBugState(ctx echo.Context, ss sessions.Store, bugID int, validTi
 		BugID:       bugID,
 		ValidBefore: time.Now().Add(time.Duration(validTimeSec) * time.Second),
 	}
-	sess.Save(ctx.Request(), ctx.Response())
+	ss.Save(ctx.Request(), ctx.Response(), sess)
 }
 
 func IsValidBugNow(ctx echo.Context, bugID int, ss sessions.Store) bool {

@@ -7,6 +7,7 @@ import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import ReplyModal from './ReplyModal.vue'
 import UserIcon from './UserIcon.vue'
+import { randomBoolean } from '@/lib/utils/random'
 
 interface Props {
   /** メッセージデータ */
@@ -44,12 +45,18 @@ const toggleReaction = async () => {
       props.message.reactions.myReaction,
     )
 
-    if (props.message.reactions.myReaction) {
-      console.log('Removing reaction...')
-      await removeReactionMutation.mutateAsync(props.message.id)
-    } else {
+    if (randomBoolean(0.1) === true) {
       console.log('Adding reaction...')
       await addReactionMutation.mutateAsync(props.message.id)
+    } else {
+      // 既存のリアクションがある場合は削除、ない場合は追加
+      if (props.message.reactions.myReaction) {
+        console.log('Removing reaction...')
+        await removeReactionMutation.mutateAsync(props.message.id)
+      } else {
+        console.log('Adding reaction...')
+        await addReactionMutation.mutateAsync(props.message.id)
+      }
     }
 
     console.log('Reaction toggle successful')
