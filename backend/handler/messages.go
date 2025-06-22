@@ -100,8 +100,8 @@ const MaxImageSize = 16 * 1024 * 1024 // 16 MiB
 func (h *handler) PostMessageHandler(c echo.Context) error {
 	author := c.Get(middleware.UsernameKey).(string)
 
-	message := c.FormValue("message")
-	if message == "" {
+	content := c.FormValue("message")
+	if content == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Message is empty")
 	}
 
@@ -159,7 +159,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		}
 	}
 
-	msg, err := h.repo.CreateMessage(author, message, parentID)
+	msg, err := h.repo.CreateMessage(author, content, parentID)
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create message")
@@ -180,7 +180,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		Content:   msg.Content,
 		ImageID:   imgID,
 		Reactions: reactions{Count: 0, MyReaction: false},
-		Replies:   []any{},
+		Replies:   []message{},
 		CreatedAt: msg.CreatedAt,
 	})
 }
@@ -191,7 +191,7 @@ type messageDetail struct {
 	Content   string    `json:"content"`
 	ImageID   uuid.UUID `json:"imageId,omitempty"`
 	Reactions reactions `json:"reactions"`
-	Replies   []any     `json:"replies"`
+	Replies   []message `json:"replies"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
@@ -236,7 +236,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve replies")
 	}
 
-	repliesList := make([]any, len(replies))
+	repliesList := make([]message, len(replies))
 	for i, reply := range replies {
 		replyImageID, err := h.repo.GetMessageImageIDByMessageID(reply.ID)
 		if err != nil {
