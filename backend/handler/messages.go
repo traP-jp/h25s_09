@@ -110,6 +110,15 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		rand := rand.IntN(n - 1)
 		jsonMessages[rand+1] = jsonMessages[rand] // "TLでも同じ投稿が2つある"のバグを発生させる
 	}
+
+	for i , msg := range jsonMessages {
+		bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(1, h.repo)
+		if shouldDispatch {
+			jsonMessages[i].CreatedAt = time.Now().AddDate(0, 0, -1) // "投稿の日時がおかしい"のバグを発生させる
+			ctx.Logger().Info("Bug dispatched:", bug.Name, "Message ID:", msg.ID)
+		}
+	}
+	
 	return ctx.JSON(http.StatusOK, jsonMessages)
 }
 
