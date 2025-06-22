@@ -108,10 +108,11 @@ const achievementIcon = computed(() => {
   color: var(--color-text-primary);
   line-height: 1.4;
 
-  /* 長い名前の場合の省略表示 */
+  /* 長い名前の場合の表示 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .achievedAt {
