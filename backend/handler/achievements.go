@@ -14,9 +14,6 @@ type achievement struct {
 
 func (h *handler) PostAchievementsHandler(ctx echo.Context) error {
 	username := ctx.Get("username").(string)
-	if username == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-	}
 
 	var reqBody struct {
 		Name string `json:"name"`
