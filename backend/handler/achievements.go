@@ -26,12 +26,6 @@ func (h *handler) PostAchievementsHandler(ctx echo.Context) error {
 	if reqBody.Name == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
-
-	// ここに何かしらの判定ロジックを追加
-	Judge := true
-	if !Judge {
-		return ctx.JSON(http.StatusOK, map[string]bool{"dispatched": false})
-	}
 	
 	domainAchievement, err := h.repo.InsertUserAchievement(username, reqBody.Name)
 	if err != nil {
