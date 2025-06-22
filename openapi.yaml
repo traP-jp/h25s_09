@@ -218,7 +218,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Achievement"
 
-  /me-achievements:
+  /me/achievements:
     post:
       tags:
         - Achievements
