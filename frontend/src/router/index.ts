@@ -60,6 +60,7 @@ router.beforeEach((to, from, next) => {
 
 // ページ遷移完了後のフック
 router.afterEach(() => {
+  return
   const loadingStore = useLoadingStore()
 
   // 3秒間ローディングを表示
