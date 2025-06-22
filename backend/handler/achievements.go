@@ -2,14 +2,13 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
 type achievement struct {
-	Name      string    `json:"name"`
+	Name       string    `json:"name"`
 	AchievedAt time.Time `json:"achievedAt"`
 }
 
@@ -26,7 +25,7 @@ func (h *handler) PostAchievementsHandler(ctx echo.Context) error {
 	if reqBody.Name == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
-	
+
 	domainAchievement, err := h.repo.InsertUserAchievement(username, reqBody.Name)
 	if err != nil {
 		ctx.Logger().Error("Failed to insert achievement:", err)
@@ -34,26 +33,11 @@ func (h *handler) PostAchievementsHandler(ctx echo.Context) error {
 	}
 
 	achievement := achievement{
-		Name:      domainAchievement.AchievementName,
+		Name:       domainAchievement.AchievementName,
 		AchievedAt: domainAchievement.AchievedAt,
 	}
 	return ctx.JSON(http.StatusCreated, achievement)
 }
-
-func (h *handler) hasUserAchievement(username string, achievementID int64) (bool, error) {
-	userAchievements, err := h.repo.GetUserAchievements(username)
-	if err != nil {
-		return false, err
-	}
-
-	for _, achievement := range userAchievements {
-		if achievement.AchievementID == achievementID {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
 
 func (h *handler) GetUserAchievementsHandler(ctx echo.Context) error {
 	username := ctx.Param("name")

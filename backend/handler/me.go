@@ -25,8 +25,7 @@ func (h *handler) GetMyAchievementsHandler(ctx echo.Context) error {
 	result := make([]achievement, len(achievements))
 	for i, a := range achievements {
 		result[i] = achievement{
-			ID:         a.AchievementID,
-			Name:       "",
+			Name:       a.AchievementName,
 			AchievedAt: a.AchievedAt,
 		}
 	}
