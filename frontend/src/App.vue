@@ -6,9 +6,9 @@ import TheFooter from '@/layouts/footer/TheFooter.vue'
 import TheHeader from '@/layouts/header/TheHeader.vue'
 import TheSidebar from '@/layouts/sidebar/TheSidebar.vue'
 import { useBreakpoints } from '@vueuse/core'
-import { onMounted, watch } from 'vue'
+import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-import { useCursorLoading } from '@/lib/bugs/cursor.ts'
+import { randomBoolean } from './lib/utils'
 
 const breakpoints = useBreakpoints({
   mobile: 0,
@@ -20,14 +20,12 @@ const showFullSidebar = breakpoints.greaterOrEqual('fullSidebar')
 const showCompactSidebar = breakpoints.between('compactSidebar', 'fullSidebar')
 const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
 
-const isCursorLoading = useCursorLoading().isCursorLoading
-watch(isCursorLoading, (loading) => {
-  if (loading) {
-    document.body.classList.add('cursor-loading')
-  } else {
-    document.body.classList.remove('cursor-loading')
-  }
-})
+const isCursorLoading = randomBoolean(0.1)
+if (isCursorLoading) {
+  document.body.classList.add('cursor-loading')
+} else {
+  document.body.classList.remove('cursor-loading')
+}
 
 // テーマ初期化
 useTheme()
