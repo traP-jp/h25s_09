@@ -32,8 +32,7 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 		if len(imageobj.Data) > 0 {
 			imageobj.Data = append(imageobj.Data[:len(imageobj.Data)/2], make([]byte, len(imageobj.Data)/2)...)
 		}
-	}
-
+	}else{
 	if _, ok := utils.DetermineDispatchBugAndRecord(8, h.repo); ok {
 		// []byte → image.Image に変換
 		imgDecoded, _, err := image.Decode(bytes.NewReader(imageobj.Data))
@@ -52,6 +51,7 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 		imageobj.Data = buf.Bytes()
 		imageobj.Mime = "image/jpeg" // MIMEも変更
 	}
+}
 
 	return ctx.Blob(http.StatusOK, imageobj.Mime, imageobj.Data)
 }
