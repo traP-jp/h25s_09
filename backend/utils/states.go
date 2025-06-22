@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
 
-const StatesSessionKey = "bugStates"
+const StatesSessionKey = "bug_states"
 
 type bugState struct {
 	BugID       int       `json:"bugId"`
@@ -18,39 +19,38 @@ func getValidBugStates(ctx echo.Context, ss sessions.Store) map[int]bugState {
 	if ss == nil {
 		return map[int]bugState{}
 	}
-	sess, err := ss.Get(ctx.Request(), StatesSessionKey)
+	sess, err := session.Get(StatesSessionKey, ctx)
 	if err != nil {
 		return map[int]bugState{}
 	}
-	states := make(map[int]bugState)
-	for _, v := range sess.Values {
-		if s, ok := v.(bugState); ok {
-			if time.Now().Before(s.ValidBefore) {
-				states[s.BugID] = s
+	result := make(map[int]bugState)
+	for k, v := range sess.Values {
+		if id, ok := k.(int); ok {
+			if datetime, ok := v.(time.Time); ok {
+				if datetime.After(time.Now()) {
+					result[id] = bugState{id, datetime}
+				}
 			}
 		}
 	}
 	clear(sess.Values)
-	for _, s := range states {
-		sess.Values[s.BugID] = s
+	for k, v := range result {
+		sess.Values[k] = v.ValidBefore
 	}
-	ss.Save(ctx.Request(), ctx.Response(), sess)
-	return states
+	sess.Save(ctx.Request(), ctx.Response())
+	return result
 }
 
 func AddOrUpdateBugState(ctx echo.Context, ss sessions.Store, bugID int, validTimeSec int) {
 	if ss == nil {
 		return
 	}
-	sess, err := ss.Get(ctx.Request(), StatesSessionKey)
+	sess, err := session.Get(StatesSessionKey, ctx)
 	if err != nil {
 		return
 	}
-	sess.Values[bugID] = bugState{
-		BugID:       bugID,
-		ValidBefore: time.Now().Add(time.Duration(validTimeSec) * time.Second),
-	}
-	ss.Save(ctx.Request(), ctx.Response(), sess)
+	sess.Values[bugID] = time.Now().Add(time.Duration(validTimeSec) * time.Second)
+	sess.Save(ctx.Request(), ctx.Response())
 }
 
 func IsValidBugNow(ctx echo.Context, bugID int, ss sessions.Store) bool {
