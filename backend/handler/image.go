@@ -35,7 +35,7 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
 	} else {
-		if _, ok := utils.DetermineDispatchBugAndRecord(8, h.repo); ok {
+		if utils.DetermineDispatchBug(ctx, h.repo, 8) {
 			// []byte → image.Image に変換
 			imgDecoded, _, err := image.Decode(bytes.NewReader(imageObj.Data))
 			if err != nil {
