@@ -299,29 +299,24 @@ export const handlers = [
     )
   }),
 
-  // 実績達成の試行
-  http.post('/api/try-achieve/:id', ({ params }) => {
-    const { id } = params
-    const achievementId = Number(id)
+  // 実績の作成
+  http.post('/api/achievements', async ({ request }) => {
+    const body = (await request.json()) as { name: string }
 
-    // すでに達成済みの実績かチェック
-    const isAlreadyAchieved = mockAchievements.some((a) => a.id === achievementId)
-
-    if (isAlreadyAchieved) {
-      return HttpResponse.json({ message: 'すでに達成済みの実績です' }, { status: 400 })
+    if (!body.name) {
+      return HttpResponse.json({ message: '実績名が必要です' }, { status: 400 })
     }
 
-    // 新しい実績を追加
+    // 新しい実績を作成
     const newAchievement = {
-      id: achievementId,
-      name: `実績${achievementId}`,
+      id: mockAchievements.length + 1,
+      name: body.name,
       achievedAt: new Date().toISOString(),
     }
 
     mockAchievements.push(newAchievement)
 
-    // OpenAPI仕様に合わせてdispatchedフィールドを返す
-    return HttpResponse.json({ dispatched: true })
+    return HttpResponse.json(newAchievement, { status: 201 })
   }),
 
   // 実績一覧の取得

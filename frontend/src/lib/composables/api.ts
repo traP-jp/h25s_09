@@ -125,11 +125,11 @@ export function useUserAchievements(userId?: MaybeRefOrGetter<string>) {
   })
 }
 
-export function useTryAchieve() {
+export function useCreateAchievement() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (achievementId: string) => apiService.achievements.tryAchieve(achievementId),
+    mutationFn: (name: string) => apiService.achievements.createAchievement({ name }),
     onSuccess: () => {
       // ユーザーの実績リストを更新
       queryClient.invalidateQueries({ queryKey: queryKeys.userAchievements() })
