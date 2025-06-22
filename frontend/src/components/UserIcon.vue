@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { randomBoolean } from '@/lib/utils/random'
+import { useCreateAchievement } from '@/lib/composables'
 
 interface Props {
   /** ユーザーのtraqID */
@@ -21,6 +23,16 @@ const emit = defineEmits<{
 
 // 画像の読み込みエラー状態
 const imageError = ref(false)
+// 回転状態
+const shouldRotate = ref(false)
+
+onMounted(async () => {
+  // 5%の確率で回転を開始
+  shouldRotate.value = randomBoolean(0.03)
+  if (shouldRotate.value) {
+    await useCreateAchievement().mutateAsync('ぐるぐる')
+  }
+})
 
 const handleClick = () => {
   if (props.clickable) {
@@ -39,7 +51,14 @@ const handleImageLoad = () => {
 
 <template>
   <div
-    :class="[$style.userIcon, $style[`size-${size}`], { [$style.clickable]: clickable }]"
+    :class="[
+      $style.userIcon,
+      $style[`size-${size}`],
+      {
+        [$style.clickable]: clickable,
+        [$style.rotate]: shouldRotate,
+      },
+    ]"
     @click="handleClick"
     :role="clickable ? 'button' : undefined"
     :tabindex="clickable ? 0 : undefined"
@@ -62,6 +81,19 @@ const handleImageLoad = () => {
 </template>
 
 <style lang="scss" module>
+.rotate {
+  animation: rotate linear 1s infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 .userIcon {
   position: relative;
   display: inline-flex;
