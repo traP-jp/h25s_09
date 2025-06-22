@@ -34,10 +34,13 @@ type message struct {
 
 func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	_, ok := utils.DetermineDispatchBugAndRecord(10, h.repo)
-
 	if ok  {
 		time.Sleep(3 * time.Second)
 	}//"レスポンスが遅い" == true で3秒まつ
+	_, ok1 := utils.DetermineDispatchBugAndRecord(2, h.repo)
+	if ok1  {
+			return echo.NewHTTPError(http.StatusNotFound, "Message not found")
+	}//確率で"データの取得に失敗"
 
 	var messages []domain.Message
 	var err error
