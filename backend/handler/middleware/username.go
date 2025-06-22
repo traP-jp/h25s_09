@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -16,6 +17,8 @@ func UsernameProvider(next echo.HandlerFunc) echo.HandlerFunc {
 			c.Set(UsernameKey, username)
 		} else if os.Getenv("ENVIRONMENT") == DevelopmentEnv {
 			c.Set(UsernameKey, "anonymous")
+		} else {
+			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 		return next(c)
 	}
