@@ -19,7 +19,7 @@ interface Reply {
   id: string
   author: string
   content: string
-  images: string | null // OpenAPI仕様に合わせてimagesフィールド
+  imageId: string | null // OpenAPI仕様に合わせてimageIdフィールド
   reactions: {
     count: number
     myReaction: boolean
@@ -81,7 +81,7 @@ const generateMockMessageDetails = (messages: Message[]): MessageDetail[] => {
               id: `reply-${message.id}`,
               author: 'rei',
               content: `${message.content}への返信です。`,
-              images: null,
+              imageId: null,
               reactions: {
                 count: Math.floor(Math.random() * 3),
                 myReaction: Math.random() > 0.5,
@@ -160,7 +160,7 @@ export const handlers = [
               id: reply.id,
               author: reply.author,
               content: reply.content,
-              imageId: reply.images,
+              imageId: reply.imageId,
               reactions: reply.reactions,
               replyCount: 0, // 返信の返信は現在サポートしていない
               createdAt: reply.createdAt,
@@ -212,7 +212,7 @@ export const handlers = [
         id: newMessageId,
         author: currentUserTraqId,
         content: message,
-        images: image ? `image-${Date.now()}` : null,
+        imageId: image ? `image-${Date.now()}` : null,
         reactions: {
           count: 0,
           myReaction: false,
