@@ -197,39 +197,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  "/try-achieve/{id}":
-    post:
-      tags:
-        - Achievements
-      summary: 確率に応じてイベントが発火するかどうか決める
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: イベントID
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: イベント処理結果
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  dispatched:
-                    type: boolean
-                    description: イベントが発火したかどうか
-                required:
-                  - dispatched
-        "404":
-          description: 指定されたIDのイベントが見つからない
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
   /achievements:
     get:
       tags:
@@ -250,6 +217,37 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Achievement"
+
+  /me-achievements:
+    post:
+      tags:
+        - Achievements
+      summary: 実績の作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 実績名
+              required:
+                - name
+      responses:
+        "201":
+          description: 実績が正常に作成された
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Achievement"
+        "400":
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /me:
     get:
