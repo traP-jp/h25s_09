@@ -30,5 +30,5 @@ func (h *handler) GetMyAchievementsHandler(ctx echo.Context) error {
 			AchievedAt: a.AchievedAt,
 		}
 	}
-	return ctx.JSON(http.StatusOK, achievements)
+	return ctx.JSON(http.StatusOK, result)
 }
