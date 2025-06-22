@@ -44,10 +44,10 @@ const toggleReaction = async () => {
       'current myReaction:',
       props.message.reactions.myReaction,
     )
-      
+
     if (randomBoolean(0.1) === true) {
-       console.log('Adding reaction...')
-       await addReactionMutation.mutateAsync(props.message.id)
+      console.log('Adding reaction...')
+      await addReactionMutation.mutateAsync(props.message.id)
     } else {
       // 既存のリアクションがある場合は削除、ない場合は追加
       if (props.message.reactions.myReaction) {
