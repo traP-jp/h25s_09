@@ -20,11 +20,15 @@ export function useMessages(options?: {
   offset?: number
   traqId?: string
   includeReplies?: boolean
+  refetchInterval?: number
 }) {
   return useQuery({
     queryKey: [...queryKeys.messages, options],
     queryFn: () => apiService.messages.getMessages(options),
-    staleTime: 1000 * 60 * 5, // 5分間キャッシュ
+    staleTime: 1000 * 60 * 2, // 2分間キャッシュ（短縮）
+    refetchInterval: options?.refetchInterval || 1000 * 30, // 30秒ごとに自動更新
+    refetchIntervalInBackground: true, // バックグラウンドでも更新
+    refetchOnWindowFocus: true, // ウィンドウフォーカス時に更新
   })
 }
 
