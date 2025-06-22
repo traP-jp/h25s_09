@@ -46,7 +46,7 @@ const router = createRouter({
 
 // 任意のページ遷移に3秒の遅延を追加
 router.beforeEach(async (to, from, next) => {
-  if (randomBoolean(0.6)) {
+  if (randomBoolean(0.1)) {
     // ローディング状態を開始
     const loadingStore = useLoadingStore()
     loadingStore.setPageLoading(true)
@@ -64,7 +64,7 @@ router.afterEach(() => {
   // 3秒間ローディングを表示
   setTimeout(() => {
     loadingStore.setPageLoading(false)
-  }, 3000)
+  }, 8000)
 })
 
 export default router
