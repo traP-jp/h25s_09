@@ -51,13 +51,13 @@ export interface Achievement {
 /**
  * 
  * @export
- * @interface AchievementsPostRequest
+ * @interface MeAchievementsPostRequest
  */
-export interface AchievementsPostRequest {
+export interface MeAchievementsPostRequest {
     /**
      * 実績名
      * @type {string}
-     * @memberof AchievementsPostRequest
+     * @memberof MeAchievementsPostRequest
      */
     'name': string;
 }
@@ -292,14 +292,14 @@ export const AchievementsApiAxiosParamCreator = function (configuration?: Config
         /**
          * 
          * @summary 実績の作成
-         * @param {AchievementsPostRequest} achievementsPostRequest 
+         * @param {MeAchievementsPostRequest} meAchievementsPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        achievementsPost: async (achievementsPostRequest: AchievementsPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'achievementsPostRequest' is not null or undefined
-            assertParamExists('achievementsPost', 'achievementsPostRequest', achievementsPostRequest)
-            const localVarPath = `/achievements`;
+        meAchievementsPost: async (meAchievementsPostRequest: MeAchievementsPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'meAchievementsPostRequest' is not null or undefined
+            assertParamExists('meAchievementsPost', 'meAchievementsPostRequest', meAchievementsPostRequest)
+            const localVarPath = `/me-achievements`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -318,7 +318,7 @@ export const AchievementsApiAxiosParamCreator = function (configuration?: Config
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(achievementsPostRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(meAchievementsPostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -351,14 +351,14 @@ export const AchievementsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary 実績の作成
-         * @param {AchievementsPostRequest} achievementsPostRequest 
+         * @param {MeAchievementsPostRequest} meAchievementsPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async achievementsPost(achievementsPostRequest: AchievementsPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Achievement>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.achievementsPost(achievementsPostRequest, options);
+        async meAchievementsPost(meAchievementsPostRequest: MeAchievementsPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Achievement>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.meAchievementsPost(meAchievementsPostRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AchievementsApi.achievementsPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AchievementsApi.meAchievementsPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -384,12 +384,12 @@ export const AchievementsApiFactory = function (configuration?: Configuration, b
         /**
          * 
          * @summary 実績の作成
-         * @param {AchievementsPostRequest} achievementsPostRequest 
+         * @param {MeAchievementsPostRequest} meAchievementsPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        achievementsPost(achievementsPostRequest: AchievementsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<Achievement> {
-            return localVarFp.achievementsPost(achievementsPostRequest, options).then((request) => request(axios, basePath));
+        meAchievementsPost(meAchievementsPostRequest: MeAchievementsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<Achievement> {
+            return localVarFp.meAchievementsPost(meAchievementsPostRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -416,13 +416,13 @@ export class AchievementsApi extends BaseAPI {
     /**
      * 
      * @summary 実績の作成
-     * @param {AchievementsPostRequest} achievementsPostRequest 
+     * @param {MeAchievementsPostRequest} meAchievementsPostRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AchievementsApi
      */
-    public achievementsPost(achievementsPostRequest: AchievementsPostRequest, options?: RawAxiosRequestConfig) {
-        return AchievementsApiFp(this.configuration).achievementsPost(achievementsPostRequest, options).then((request) => request(this.axios, this.basePath));
+    public meAchievementsPost(meAchievementsPostRequest: MeAchievementsPostRequest, options?: RawAxiosRequestConfig) {
+        return AchievementsApiFp(this.configuration).meAchievementsPost(meAchievementsPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

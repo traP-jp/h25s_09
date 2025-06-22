@@ -5,7 +5,7 @@ All URIs are relative to */api*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**achievementsGet**](#achievementsget) | **GET** /achievements | 実績一覧の取得|
-|[**achievementsPost**](#achievementspost) | **POST** /achievements | 実績の作成|
+|[**meAchievementsPost**](#meachievementspost) | **POST** /me-achievements | 実績の作成|
 
 # **achievementsGet**
 > Array<Achievement> achievementsGet()
@@ -57,8 +57,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **achievementsPost**
-> Achievement achievementsPost(achievementsPostRequest)
+# **meAchievementsPost**
+> Achievement meAchievementsPost(meAchievementsPostRequest)
 
 
 ### Example
@@ -67,16 +67,16 @@ No authorization required
 import {
     AchievementsApi,
     Configuration,
-    AchievementsPostRequest
+    MeAchievementsPostRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AchievementsApi(configuration);
 
-let achievementsPostRequest: AchievementsPostRequest; //
+let meAchievementsPostRequest: MeAchievementsPostRequest; //
 
-const { status, data } = await apiInstance.achievementsPost(
-    achievementsPostRequest
+const { status, data } = await apiInstance.meAchievementsPost(
+    meAchievementsPostRequest
 );
 ```
 
@@ -84,7 +84,7 @@ const { status, data } = await apiInstance.achievementsPost(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **achievementsPostRequest** | **AchievementsPostRequest**|  | |
+| **meAchievementsPostRequest** | **MeAchievementsPostRequest**|  | |
 
 
 ### Return type

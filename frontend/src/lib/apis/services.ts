@@ -101,7 +101,7 @@ export const achievementsService = {
   },
 
   async createAchievement(data: { name: string }): Promise<Achievement> {
-    return httpClient.post<Achievement>('/achievements', data)
+    return httpClient.post<Achievement>('/me-achievements', data)
   },
 }
 

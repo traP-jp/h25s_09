@@ -6,9 +6,9 @@ common.ts
 configuration.ts
 docs/Achievement.md
 docs/AchievementsApi.md
-docs/AchievementsPostRequest.md
 docs/Error.md
 docs/ImagesApi.md
+docs/MeAchievementsPostRequest.md
 docs/Message.md
 docs/MessageDetail.md
 docs/MessagesApi.md
