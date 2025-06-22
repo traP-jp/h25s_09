@@ -5,6 +5,7 @@ import (
 	"errors"
 	"image"
 	"image/jpeg"
+	"math/rand/v2"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -28,8 +29,10 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 	}
 
 	if utils.DetermineDispatchBug(ctx, h.repo, h.ss, 3) {
-		if len(imageObj.Data) > 0 {
+		if rand.Float64() < 0.5 && len(imageObj.Data) > 0 {
 			imageObj.Data = append(imageObj.Data[:len(imageObj.Data)/2], make([]byte, len(imageObj.Data)/2)...)
+		} else {
+			return echo.NewHTTPError(http.StatusNotFound)
 		}
 	} else {
 		if _, ok := utils.DetermineDispatchBugAndRecord(8, h.repo); ok {
