@@ -2,7 +2,8 @@
 import MessageForm from '@/components/MessageForm.vue'
 import { useGlobalError } from '@/lib/composables'
 import { Icon } from '@iconify/vue'
-import { onMounted, ref } from 'vue'
+import { useBreakpoints } from '@vueuse/core'
+import { computed, onMounted, ref } from 'vue'
 
 // ToggleEvent型の定義
 interface ToggleEvent extends Event {
@@ -11,6 +12,16 @@ interface ToggleEvent extends Event {
 }
 
 const { setError } = useGlobalError()
+
+// ブレークポイント設定（App.vueと同じ設定）
+const breakpoints = useBreakpoints({
+  mobile: 0,
+  compactSidebar: 900,
+  fullSidebar: 1200,
+})
+
+// フッターが表示されるかどうかを判定
+const showFooter = computed(() => !breakpoints.greaterOrEqual('compactSidebar').value)
 
 const popoverRef = ref<HTMLElement | null>(null)
 const messageFormRef = ref<InstanceType<typeof MessageForm> | null>(null)
@@ -96,7 +107,7 @@ const handleOutsideClick = (event: Event) => {
 <template>
   <!-- 投稿ボタン -->
   <button
-    :class="$style.postButton"
+    :class="[$style.postButton, { [$style.postButtonWithFooter]: showFooter }]"
     @click="openModal"
     aria-label="新しい投稿を作成"
     title="新しい投稿を作成"
@@ -162,6 +173,11 @@ const handleOutsideClick = (event: Event) => {
     outline: 2px solid var(--color-primary-300);
     outline-offset: 2px;
   }
+}
+
+// フッターがある時のボタン位置調整
+.postButtonWithFooter {
+  bottom: 5.5rem; // フッターの高さ（約3.5rem）+ マージン（約2rem）
 }
 
 .buttonIcon {
@@ -271,6 +287,11 @@ const handleOutsideClick = (event: Event) => {
     right: 1rem;
     width: 3rem;
     height: 3rem;
+  }
+
+  // モバイルでフッターがある時の位置調整
+  .postButtonWithFooter {
+    bottom: 4.5rem; // フッターの高さ（約3.5rem）+ マージン（約1rem）
   }
 
   .buttonIcon {
