@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
 import { userService } from '@/lib/apis/services.ts'
-import { onMounted, ref } from 'vue'
-import { computed } from 'vue'
+import { Icon } from '@iconify/vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 // ユーザーIDの取得
@@ -50,6 +49,8 @@ const getIconPath = (iconName: string, isActive: boolean) => {
   --colorPrimary: var(--color-text-primary);
   --colorActive: var(--color-primary);
   --shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  --footer-height: 70px; /* フッターの高さを明確に定義 */
+
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -58,8 +59,10 @@ const getIconPath = (iconName: string, isActive: boolean) => {
   position: fixed;
   bottom: 0;
   width: 100%;
+  height: var(--footer-height);
   box-shadow: var(--shadow);
   z-index: 1000;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .tabItem {

@@ -22,6 +22,7 @@ const breakpoints = useBreakpoints({
 const showFullSidebar = breakpoints.greaterOrEqual('fullSidebar')
 const showCompactSidebar = breakpoints.between('compactSidebar', 'fullSidebar')
 const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
+const showFooter = computed(() => !showSidebar.value)
 
 const loadingStore = useLoadingStore()
 const isPageLoading = computed(() => loadingStore.isPageLoading)
@@ -60,6 +61,7 @@ onMounted(() => {
         :class="{
           'app-main--full-sidebar': showFullSidebar,
           'app-main--compact-sidebar': showCompactSidebar,
+          'app-main--with-footer': showFooter,
         }"
       >
         <div class="main-content">
@@ -68,7 +70,7 @@ onMounted(() => {
         </div>
       </main>
     </div>
-    <TheFooter v-if="!showSidebar" class="app-footer" />
+    <TheFooter v-if="showFooter" class="app-footer" />
     <ErrorToast />
     <PostModal />
   </div>
@@ -154,6 +156,10 @@ body {
   margin-left: 100px; /* コンパクトサイドバーの幅分マージン */
 }
 
+.app-main--with-footer {
+  padding-bottom: 80px; /* フッターの高さ（70px）+ 少し余裕（10px）を確保 */
+}
+
 .main-content {
   position: relative;
   width: 100%;
@@ -170,6 +176,10 @@ body {
     margin-left: 0; /* サイドバー非表示時はマージンなし */
     padding: 0.5rem;
     padding-top: calc(4rem + 0.5rem); /* ヘッダーの高さ(4rem) + 通常のpadding(0.5rem) */
+  }
+
+  .app-main--with-footer {
+    padding-bottom: 80px; /* モバイル時もフッターの高さ（70px）+ 少し余裕（10px）を確保 */
   }
 }
 
