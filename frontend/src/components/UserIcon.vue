@@ -52,12 +52,12 @@ const handleImageLoad = () => {
 <template>
   <div
     :class="[
-      $style.userIcon, 
-      $style[`size-${size}`], 
-      { 
+      $style.userIcon,
+      $style[`size-${size}`],
+      {
         [$style.clickable]: clickable,
-        [$style.rotate]: shouldRotate
-      }
+        [$style.rotate]: shouldRotate,
+      },
     ]"
     @click="handleClick"
     :role="clickable ? 'button' : undefined"
