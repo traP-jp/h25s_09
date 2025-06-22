@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"bytes"
 	"errors"
+	"image"
+	"image/jpeg"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -15,7 +18,7 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid image ID")
 	}
-	image, err := h.repo.GetMessageImage(imageID)
+	imageObj, err := h.repo.GetMessageImage(imageID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "image not found")
@@ -25,10 +28,27 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 	}
 
 	if utils.DetermineDispatchBug(ctx, h.repo, h.ss, 3) {
-		if len(image.Data) > 0 {
-			image.Data = append(image.Data[:len(image.Data)/2], make([]byte, len(image.Data)/2)...)
+		if len(imageObj.Data) > 0 {
+			imageObj.Data = append(imageObj.Data[:len(imageObj.Data)/2], make([]byte, len(imageObj.Data)/2)...)
+		}
+	} else {
+		if _, ok := utils.DetermineDispatchBugAndRecord(8, h.repo); ok {
+			// []byte → image.Image に変換
+			imgDecoded, _, err := image.Decode(bytes.NewReader(imageObj.Data))
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, "failed to decode image")
+			}
+			//image.Image→[]byte
+			var buf bytes.Buffer
+			err = jpeg.Encode(&buf, imgDecoded, &jpeg.Options{Quality: 20})
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, "failed to encode resized image")
+			}
+			// Dataを書き換え
+			imageObj.Data = buf.Bytes()
+			imageObj.Mime = "image/jpeg" // MIMEも変更
 		}
 	}
 
-	return ctx.Blob(http.StatusOK, image.Mime, image.Data)
+	return ctx.Blob(http.StatusOK, imageObj.Mime, imageObj.Data)
 }

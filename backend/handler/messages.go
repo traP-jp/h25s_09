@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"slices"
 	"strconv"
@@ -13,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/traP-jp/h25s_09/domain"
-	u "github.com/traP-jp/h25s_09/utils"
 	"github.com/traP-jp/h25s_09/handler/middleware"
 	"github.com/traP-jp/h25s_09/utils"
 )
@@ -35,13 +35,13 @@ type message struct {
 
 func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	_, ok := utils.DetermineDispatchBugAndRecord(10, h.repo)
-	if ok  {
+	if ok {
 		time.Sleep(3 * time.Second)
-	}//"レスポンスが遅い" == true で3秒まつ
+	} //"レスポンスが遅い" == true で3秒まつ
 	_, ok1 := utils.DetermineDispatchBugAndRecord(2, h.repo)
-	if ok1  {
-			return echo.NewHTTPError(http.StatusNotFound, "Message not found")
-	}//確率で"データの取得に失敗"
+	if ok1 {
+		return echo.NewHTTPError(http.StatusNotFound, "Message not found")
+	} //確率で"データの取得に失敗"
 
 	var messages []domain.Message
 	var err error
@@ -64,7 +64,8 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	jsonMessages := make([]message, len(messages))
+	n := len(messages)
+	jsonMessages := make([]message, n)
 	for i, msg := range messages {
 		ImageID, err := h.repo.GetMessageImageIDByMessageID(msg.ID)
 		if err != nil {
@@ -102,6 +103,12 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 			ReplyCount: RepliesCount,
 			CreatedAt:  msg.CreatedAt,
 		}
+	}
+
+	_, ok2 := utils.DetermineDispatchBugAndRecord(12, h.repo)
+	if ok2 {
+		rand := rand.IntN(n - 1)
+		jsonMessages[rand+1] = jsonMessages[rand] // "TLでも同じ投稿が2つある"のバグを発生させる
 	}
 	return ctx.JSON(http.StatusOK, jsonMessages)
 }
@@ -263,7 +270,6 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reply reactions")
 		}
 
-	
 		repliesList = append(repliesList, message{
 			ID:      reply.ID,
 			Author:  reply.Author,
@@ -279,25 +285,43 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		})
 
 		duplicateCount := 0
-		bug, shouldDispatch := u.DetermineDispatchBugAndRecord(100, h.repo)
+		bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(100, h.repo)
 		for shouldDispatch && duplicateCount < 20 {
 			duplicateCount++
-			bug, shouldDispatch = u.DetermineDispatchBugAndRecord(7, h.repo)
+			bug, shouldDispatch = utils.DetermineDispatchBugAndRecord(7, h.repo)
 			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount, "Reply Index:", i)
 			repliesList = append(repliesList, message{
-			ID:      reply.ID,
-			Author: reply.Author,
-			Content: reply.Content,
-			ImageID: replyImageID,
-			Reactions: reactions{
-				Count:      int64(len(replyReactionList)),
-				MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
-					return r.Username == c.Get("username").(string)
-				}),
-			},
-			CreatedAt: reply.CreatedAt,
+				ID:      reply.ID,
+				Author:  reply.Author,
+				Content: reply.Content,
+				ImageID: replyImageID,
+				Reactions: reactions{
+					Count: int64(len(replyReactionList)),
+					MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
+						return r.Username == c.Get("username").(string)
+					}),
+				},
+				CreatedAt: reply.CreatedAt,
 			})
 		}
+	}
+
+	bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(1, h.repo)
+	if shouldDispatch {
+		c.Logger().Info("Bug dispatched:", bug.Name)
+		msg.CreatedAt = time.Now().AddDate(1, 0, 0)
+		return c.JSON(http.StatusOK, &messageDetail{
+			ID:      ID,
+			Author:  msg.Author,
+			Content: msg.Content,
+			ImageID: imageID,
+			Reactions: reactions{
+				Count:      reactionsCount,
+				MyReaction: myReaction,
+			},
+			Replies:   repliesList,
+			CreatedAt: msg.CreatedAt,
+		})
 	}
 
 	return c.JSON(http.StatusOK, &messageDetail{

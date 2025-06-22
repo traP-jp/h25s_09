@@ -92,12 +92,14 @@ export const userService = {
 // Achievements API
 export const achievementsService = {
   async getAchievements(): Promise<Achievement[]> {
-    return httpClient.get<Achievement[]>('/achievements')
+    // 現在のユーザーの実績を取得するため、/me経由でtraqIDを取得してから呼び出す
+    const userInfo = await httpClient.get<UserInfo>('/me')
+    return httpClient.get<Achievement[]>(`/users/${userInfo.traqId}/achievements`)
   },
 
   async getUserAchievements(userId: string): Promise<Achievement[]> {
-    // OpenAPI仕様では/achievementsエンドポイントでtraqIdパラメータを使用
-    return httpClient.get<Achievement[]>(`/achievements?traqId=${userId}`)
+    // 新しいエンドポイント形式に更新
+    return httpClient.get<Achievement[]>(`/users/${userId}/achievements`)
   },
 
   async createAchievement(data: { name: string }): Promise<Achievement> {

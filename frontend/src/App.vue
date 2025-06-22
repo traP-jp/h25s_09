@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import ErrorToast from '@/components/ErrorToast.vue'
+import PageLoading from '@/components/PageLoading.vue'
 import PostModal from '@/components/PostModal.vue'
 import { useTheme } from '@/composables'
 import TheFooter from '@/layouts/footer/TheFooter.vue'
 import TheHeader from '@/layouts/header/TheHeader.vue'
 import TheSidebar from '@/layouts/sidebar/TheSidebar.vue'
+import { useCursorLoading } from '@/lib/bugs/cursor.ts'
 import { useBreakpoints } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
@@ -63,6 +65,7 @@ onMounted(() => {
     <TheFooter v-if="!showSidebar" class="app-footer" />
     <ErrorToast />
     <PostModal />
+    <PageLoading />
   </div>
 </template>
 

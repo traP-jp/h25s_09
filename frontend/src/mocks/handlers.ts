@@ -328,14 +328,13 @@ export const handlers = [
   }),
 
   // 実績一覧の取得
-  http.get('/api/achievements', ({ request }) => {
-    const url = new URL(request.url)
-    const traqId = url.searchParams.get('traqId')
+  http.get('/api/users/:traqId/achievements', ({ params }) => {
+    const { traqId } = params
 
     // /me APIで取得されるcurrentUserのtraqId（モック環境では固定値）
     const currentUserTraqId = 'rei'
 
-    if (traqId && traqId !== currentUserTraqId) {
+    if (traqId !== currentUserTraqId) {
       // 他のユーザーの実績を返す（少なめ）
       return HttpResponse.json([mockAchievements[0]])
     }
