@@ -280,7 +280,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		for shouldDispatch && duplicateCount < 20 {
 			duplicateCount++
 			bug, shouldDispatch = u.DetermineDispatchBugAndRecord(7, h.repo)
-			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount)
+			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount, "Reply Index:", i)
 			repliesList = append(repliesList, message{
 			ID:      reply.ID,
 			Author: reply.Author,
