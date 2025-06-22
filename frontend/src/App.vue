@@ -23,9 +23,9 @@ const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
 const isCursorLoading = useCursorLoading().isCursorLoading
 watch(isCursorLoading, (loading) => {
   if (loading) {
-    document.body.classList.add('$style.cursor-loading')
+    document.body.classList.add('cursor-loading')
   } else {
-    document.body.classList.remove('$style.cursor-loading')
+    document.body.classList.remove('cursor-loading')
   }
 })
 
@@ -226,6 +226,6 @@ body {
 }
 
 body.cursor-loading {
-  cursor: wait; /* カーソルが読み込み中を示す */
+  cursor: wait;
 }
 </style>

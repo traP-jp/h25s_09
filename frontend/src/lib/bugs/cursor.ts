@@ -10,7 +10,9 @@ export const useCursorLoading = () => {
 const toggleCursorLoading = () => {
   isCursorLoading.value = !isCursorLoading.value
 
-  const delay = isCursorLoading.value ? randomExponential(1000)() : randomExponential(5000)()
+  const delay = isCursorLoading.value
+    ? randomExponential(1 / 1000)()
+    : randomExponential(1 / 5000)()
   setTimeout(toggleCursorLoading, delay)
 }
 
