@@ -1,3 +1,4 @@
+import { randomBoolean } from '@/lib/utils'
 import { useLoadingStore } from '@/stores/loading'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -44,10 +45,11 @@ const router = createRouter({
 
 // 任意のページ遷移に3秒の遅延を追加
 router.beforeEach((to, from, next) => {
-  return
-  // ローディング状態を開始
-  const loadingStore = useLoadingStore()
-  loadingStore.setPageLoading(true)
+  if (randomBoolean(0.1)) {
+    // ローディング状態を開始
+    const loadingStore = useLoadingStore()
+    loadingStore.setPageLoading(true)
+  }
 
   // すぐにページ遷移を実行
   next()
