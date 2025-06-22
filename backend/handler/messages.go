@@ -35,9 +35,9 @@ type message struct {
 func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 	_, ok := utils.DetermineDispatchBugAndRecord(10, h.repo)
 
-	if ok  {
+	if ok {
 		time.Sleep(3 * time.Second)
-	}//"レスポンスが遅い" == true で3秒まつ
+	} //"レスポンスが遅い" == true で3秒まつ
 
 	var messages []domain.Message
 	var err error
