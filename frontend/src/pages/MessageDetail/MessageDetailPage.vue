@@ -212,7 +212,7 @@ const formatDate = (dateString: string) => {
 
                 <!-- 返信の画像表示 -->
                 <div
-                  v-if="reply.images && reply.images !== '00000000-0000-0000-0000-000000000000'"
+                  v-if="reply.imageId && reply.imageId !== '00000000-0000-0000-0000-000000000000'"
                   :class="$style.imageContainer"
                 >
                   <img
