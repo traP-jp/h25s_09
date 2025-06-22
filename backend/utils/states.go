@@ -27,6 +27,7 @@ func getValidBugStates(ctx echo.Context, ss sessions.Store) map[int]bugState {
 	for k, v := range sess.Values {
 		if id, ok := k.(int); ok {
 			if datetime, ok := v.(time.Time); ok {
+				ctx.Logger().Info("hit:", datetime)
 				if datetime.After(time.Now()) {
 					result[id] = bugState{id, datetime}
 				}
