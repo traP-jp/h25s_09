@@ -44,12 +44,7 @@ const router = createRouter({
 
 // 任意のページ遷移に3秒の遅延を追加
 router.beforeEach((to, from, next) => {
-  // 初期ロード時は遅延を適用しない
-  if (from.name === undefined) {
-    next()
-    return
-  }
-
+  return
   // ローディング状態を開始
   const loadingStore = useLoadingStore()
   loadingStore.setPageLoading(true)
@@ -60,7 +55,6 @@ router.beforeEach((to, from, next) => {
 
 // ページ遷移完了後のフック
 router.afterEach(() => {
-  return
   const loadingStore = useLoadingStore()
 
   // 3秒間ローディングを表示
