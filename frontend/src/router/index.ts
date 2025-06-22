@@ -1,3 +1,4 @@
+import { useLoadingStore } from '@/stores/loading'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -39,6 +40,32 @@ const router = createRouter({
       ],
     },
   ],
+})
+
+// 任意のページ遷移に3秒の遅延を追加
+router.beforeEach((to, from, next) => {
+  // 初期ロード時は遅延を適用しない
+  if (from.name === undefined) {
+    next()
+    return
+  }
+
+  // ローディング状態を開始
+  const loadingStore = useLoadingStore()
+  loadingStore.setPageLoading(true)
+
+  // すぐにページ遷移を実行
+  next()
+})
+
+// ページ遷移完了後のフック
+router.afterEach(() => {
+  const loadingStore = useLoadingStore()
+
+  // 3秒間ローディングを表示
+  setTimeout(() => {
+    loadingStore.setPageLoading(false)
+  }, 3000)
 })
 
 export default router
