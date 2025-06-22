@@ -197,15 +197,16 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /achievements:
+  "/users/{traqId}/achievements":
     get:
       tags:
         - Achievements
       summary: 実績一覧の取得
       parameters:
         - name: traqId
-          in: query
-          description: 特定のユーザーの実績のみを取得
+          in: path
+          required: true
+          description: ユーザーのtraqID
           schema:
             type: string
       responses:
