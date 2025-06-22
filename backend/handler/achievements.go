@@ -15,13 +15,17 @@ type achievement struct {
 func (h *handler) PostAchievementsHandler(ctx echo.Context) error {
 	username := ctx.Get("username").(string)
 	if username == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "unauthorized")
+		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 	}
 
 	var reqBody struct {
 		Name string `json:"name"`
 	}
 	if err := ctx.Bind(&reqBody); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
+	}
+
+	if reqBody.Name == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 	
