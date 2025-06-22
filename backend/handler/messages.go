@@ -105,7 +105,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Message is empty")
 	}
 
-	parentIDString := c.FormValue("parent_id")
+	parentIDString := c.FormValue("repliesTo")
 	parentID := uuid.Nil
 	if parentIDString != "" {
 		var err error
@@ -254,11 +254,11 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 
 		repliesList[i] = message{
 			ID:      reply.ID,
-			Author: reply.Author,
+			Author:  reply.Author,
 			Content: reply.Content,
 			ImageID: replyImageID,
 			Reactions: reactions{
-				Count:      int64(len(replyReactionList)),
+				Count: int64(len(replyReactionList)),
 				MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
 					return r.Username == c.Get("username").(string)
 				}),
@@ -266,10 +266,10 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 			CreatedAt: reply.CreatedAt,
 		}
 	}
-	
+
 	return c.JSON(http.StatusOK, &messageDetail{
-		ID:     ID,
-		Author: msg.Author,
+		ID:      ID,
+		Author:  msg.Author,
 		Content: msg.Content,
 		ImageID: imageID,
 		Reactions: reactions{
