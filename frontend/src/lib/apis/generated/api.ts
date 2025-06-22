@@ -299,7 +299,7 @@ export const AchievementsApiAxiosParamCreator = function (configuration?: Config
         meAchievementsPost: async (meAchievementsPostRequest: MeAchievementsPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'meAchievementsPostRequest' is not null or undefined
             assertParamExists('meAchievementsPost', 'meAchievementsPostRequest', meAchievementsPostRequest)
-            const localVarPath = `/me-achievements`;
+            const localVarPath = `/me/achievements`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;

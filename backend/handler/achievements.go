@@ -17,10 +17,7 @@ var achievements = map[int64]int64{
 }
 
 func (h *handler) TryAchieveHandler(ctx echo.Context) error {
-	username, ok := ctx.Get("username").(string)
-	if !ok || username == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized)
-	}
+	username := ctx.Get("username").(string)
 
 	ID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {

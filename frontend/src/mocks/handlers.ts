@@ -300,7 +300,7 @@ export const handlers = [
   }),
 
   // 実績の作成
-  http.post('/api/me-achievements', async ({ request }) => {
+  http.post('/api/me/achievements', async ({ request }) => {
     const body = (await request.json()) as { name: string }
 
     if (!body.name) {

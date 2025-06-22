@@ -51,7 +51,8 @@ func Start() {
 		msg := g.Group("/messages")
 		{
 			msg.GET("", h.GetMessagesHandler)
-			msg.POST("", h.PostMessageHandler)
+			msg.POST("", h.PostMessageHandler)      
+		  msg.GET("/:id", h.GetMessageHandler)
 			msg.POST("/:id/reactions", h.ReactionsAdder)
 			msg.DELETE("/:id/reactions", h.ReactionsDeleter)
 		}
