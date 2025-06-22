@@ -39,7 +39,7 @@ func (r *repositoryImpl) GetMessages(limit, offset int64, username string, inclu
 		query += " WHERE author = ? AND replies_to IS NULL"
 		args = append(args, username)
 	}
-	if includeReplies {
+	if username == "" && includeReplies {
 		query += " WHERE replies_to IS NULL"
 	}
 
