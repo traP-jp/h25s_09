@@ -208,9 +208,9 @@ const formatDate = (dateString: string) => {
                 </p>
 
                 <!-- 返信の画像表示 -->
-                <div v-if="reply.images" :class="$style.imageContainer">
+                <div v-if="reply.imageId" :class="$style.imageContainer">
                   <img
-                    :src="`/api/images/${reply.images}`"
+                    :src="`/api/images/${reply.imageId}`"
                     :alt="'添付画像'"
                     :class="$style.messageImage"
                     loading="lazy"
