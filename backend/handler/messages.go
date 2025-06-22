@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"slices"
 	"strconv"
@@ -63,7 +64,8 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	jsonMessages := make([]message, len(messages))
+	n := len(messages)
+	jsonMessages := make([]message, n)
 	for i, msg := range messages {
 		ImageID, err := h.repo.GetMessageImageIDByMessageID(msg.ID)
 		if err != nil {
@@ -101,6 +103,12 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 			ReplyCount: RepliesCount,
 			CreatedAt:  msg.CreatedAt,
 		}
+	}
+
+	_, ok2 := utils.DetermineDispatchBugAndRecord(12, h.repo)
+	if ok2 {
+		rand := rand.IntN(n - 1)
+		jsonMessages[rand+1] = jsonMessages[rand] // "TLでも同じ投稿が2つある"のバグを発生させる
 	}
 	return ctx.JSON(http.StatusOK, jsonMessages)
 }
