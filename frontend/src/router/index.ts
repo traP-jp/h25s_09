@@ -64,7 +64,7 @@ router.afterEach(() => {
   // 3秒間ローディングを表示
   setTimeout(() => {
     loadingStore.setPageLoading(false)
-  }, 8000)
+  }, 4000)
 })
 
 export default router
