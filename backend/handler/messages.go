@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/traP-jp/h25s_09/domain"
 	"github.com/traP-jp/h25s_09/handler/middleware"
+	"github.com/traP-jp/h25s_09/utils"
 )
 
 type reactions struct {
@@ -32,6 +33,12 @@ type message struct {
 }
 
 func (h *handler) GetMessagesHandler(ctx echo.Context) error {
+	_, ok := utils.DetermineDispatchBugAndRecord(10, h.repo)
+
+	if ok  {
+		time.Sleep(3 * time.Second)
+	}//"レスポンスが遅い" == true で3秒まつ
+
 	var messages []domain.Message
 	var err error
 
