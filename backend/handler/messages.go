@@ -13,9 +13,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/traP-jp/h25s_09/domain"
-	u "github.com/traP-jp/h25s_09/utils"
 	"github.com/traP-jp/h25s_09/handler/middleware"
-	"github.com/traP-jp/h25s_09/utils"
+	u "github.com/traP-jp/h25s_09/utils"
 )
 
 type reactions struct {
@@ -263,7 +262,6 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reply reactions")
 		}
 
-	
 		repliesList = append(repliesList, message{
 			ID:      reply.ID,
 			Author:  reply.Author,
@@ -285,17 +283,17 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 			bug, shouldDispatch = u.DetermineDispatchBugAndRecord(7, h.repo)
 			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount, "Reply Index:", i)
 			repliesList = append(repliesList, message{
-			ID:      reply.ID,
-			Author: reply.Author,
-			Content: reply.Content,
-			ImageID: replyImageID,
-			Reactions: reactions{
-				Count:      int64(len(replyReactionList)),
-				MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
-					return r.Username == c.Get("username").(string)
-				}),
-			},
-			CreatedAt: reply.CreatedAt,
+				ID:      reply.ID,
+				Author:  reply.Author,
+				Content: reply.Content,
+				ImageID: replyImageID,
+				Reactions: reactions{
+					Count: int64(len(replyReactionList)),
+					MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
+						return r.Username == c.Get("username").(string)
+					}),
+				},
+				CreatedAt: reply.CreatedAt,
 			})
 		}
 	}
