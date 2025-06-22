@@ -216,7 +216,7 @@ const formatDate = (dateString: string) => {
                   :class="$style.imageContainer"
                 >
                   <img
-                    :src="`/api/images/${reply.images}`"
+                    :src="`/api/images/${reply.imageId}`"
                     :alt="'添付画像'"
                     :class="$style.messageImage"
                     loading="lazy"
