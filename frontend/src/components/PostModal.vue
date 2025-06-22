@@ -202,7 +202,6 @@ const handleOutsideClick = (event: Event) => {
 
   &::backdrop {
     background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
     /* バックドロップのクリックを有効化 */
     pointer-events: auto;
   }
