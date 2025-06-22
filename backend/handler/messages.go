@@ -107,15 +107,18 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		rand := rand.IntN(n - 1)
 		jsonMessages[rand+1] = jsonMessages[rand] // "TLでも同じ投稿が2つある"のバグを発生させる
 	}
-
-	for i := range jsonMessages {
-		shouldDispatch := utils.DetermineDispatchBug(ctx, h.repo, 1)
-		if shouldDispatch {
-			jsonMessages[i].CreatedAt = time.Now().AddDate(0, 0, 10) // "投稿の日時がおかしい"のバグを発生させる
-		}
-		shouldDispatch = utils.DetermineDispatchBug(ctx, h.repo, 1)
-		if shouldDispatch {
+	
+	shouldDispatch := utils.DetermineDispatchBug(ctx, h.repo, 1)
+	if shouldDispatch {
+		for i := range jsonMessages {
 			jsonMessages[i].CreatedAt = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC) // "投稿の日時がおかしい"のバグを発生させる
+		}
+	}
+
+	shouldDispatch = utils.DetermineDispatchBug(ctx, h.repo, 1)
+	if shouldDispatch {
+		for i := range jsonMessages {
+			jsonMessages[i].CreatedAt = time.Now().AddDate(0, 0, 10) // "投稿の日時がおかしい"のバグを発生させる
 		}
 	}
 
