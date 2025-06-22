@@ -9,7 +9,7 @@ import (
 	"github.com/traP-jp/h25s_09/domain"
 )
 
-func (h *handler) ReactionsAdder(c echo.Context) error {
+func (h *handler) ReactionsDeleter(c echo.Context) error {
 	//idを取得してuuid型に
 	ID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -21,8 +21,8 @@ func (h *handler) ReactionsAdder(c echo.Context) error {
 		if errors.Is(err, domain.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "id not found")
 		} //404用
-		c.Logger().Error("Failed to retrieve id:", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve id")
+		c.Logger().Error("Failed to delete:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete:")
 	} //404以外は500に
 	//ユーザーネームの取得
 	usernameRaw := c.Get("username")
@@ -30,15 +30,15 @@ func (h *handler) ReactionsAdder(c echo.Context) error {
 	if !ok || username == "" {
 		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 	}
-	//リアクションを追加
-	_, err = h.repo.InsertMessageReaction(ID, username)
+	//リアクションを削除
+	err = h.repo.DeleteMessageReaction(ID, username)
 	if err != nil {
-		if errors.Is(err, domain.ErrConflict) {
-			return echo.NewHTTPError(http.StatusConflict, "already reacted")
-		} //409
-		c.Logger().Error("failed to insert reaction:", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to insert reaction")
-	} //409以外
+		if errors.Is(err, domain.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "id not found")
+		} //404用
+		c.Logger().Error("Failed to delete:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete")
+	} //404以外は500に
 	//リアクションの数の取得
 	s, err := h.repo.GetReactionsToMessage(ID)
 	if err != nil {
@@ -47,14 +47,14 @@ func (h *handler) ReactionsAdder(c echo.Context) error {
 	}
 	count := len(s)
 	//自身のリアクションの有無
-	myreaction := contains(s, username)
+	myreaction := containsb(s, username)
 	res := map[string]interface{}{
 		"count":      count,
 		"myReaction": myreaction,
 	}
-	return c.JSON(http.StatusCreated, res)
+	return c.JSON(http.StatusOK, res)
 }
-func contains(slice []*domain.MessageReaction, target string) bool {
+func containsb(slice []*domain.MessageReaction, target string) bool {
 	for _, v := range slice {
 		if v.Username == target {
 			return true

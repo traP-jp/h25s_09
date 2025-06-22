@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -66,4 +67,31 @@ func (h *handler) hasUserAchievement(username string, achievementID int64) (bool
 		}
 	}
 	return false, nil
+}
+
+type achievement struct {
+	ID         int64     `json:"id"`
+	Name       string    `json:"name"`
+	AchievedAt time.Time `json:"achievedAt"`
+}
+
+func (h *handler) GetUserAchievementsHandler(ctx echo.Context) error {
+	username := ctx.Param("name")
+	if username == "" {
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+	userAchievements, err := h.repo.GetUserAchievements(username)
+	if err != nil {
+		ctx.Logger().Error("Failed to retrieve user achievements:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	result := make([]*achievement, len(userAchievements))
+	for i, a := range userAchievements {
+		result[i] = &achievement{
+			ID:         a.AchievementID,
+			Name:       "",
+			AchievedAt: a.AchievedAt,
+		}
+	}
+	return ctx.JSON(http.StatusOK, result)
 }

@@ -8,12 +8,12 @@ docs/Achievement.md
 docs/AchievementsApi.md
 docs/Error.md
 docs/ImagesApi.md
+docs/MeAchievementsPostRequest.md
 docs/Message.md
 docs/MessageDetail.md
 docs/MessagesApi.md
 docs/Reactions.md
 docs/Reply.md
-docs/TryAchieveIdPost200Response.md
 docs/UserApi.md
 docs/UserInfo.md
 git_push.sh

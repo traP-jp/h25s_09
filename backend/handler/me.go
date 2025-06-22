@@ -14,3 +14,21 @@ func (h *handler) GetMeHandler(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, map[string]string{"traqId": result})
 }
+
+func (h *handler) GetMyAchievementsHandler(ctx echo.Context) error {
+	username := ctx.Get(m.UsernameKey).(string)
+	achievements, err := h.repo.GetUserAchievements(username)
+	if err != nil {
+		ctx.Logger().Error("Failed to retrieve user achievements:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve achievements")
+	}
+	result := make([]achievement, len(achievements))
+	for i, a := range achievements {
+		result[i] = achievement{
+			ID:         a.AchievementID,
+			Name:       "",
+			AchievedAt: a.AchievedAt,
+		}
+	}
+	return ctx.JSON(http.StatusOK, result)
+}
