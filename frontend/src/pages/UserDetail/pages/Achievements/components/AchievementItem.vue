@@ -24,19 +24,19 @@ const formattedAchievedAt = computed(() => {
 
 // 実績のアイコンを取得（名前に基づいてIconifyのアイコンを返す）
 const achievementIcon = computed(() => {
-  const name = props.achievement.name.toLowerCase()
+  // const name = props.achievement.name.toLowerCase()
 
-  if (name.includes('first') || name.includes('初')) return 'mdi:trophy-award'
-  if (name.includes('message') || name.includes('メッセージ')) return 'mdi:chat'
-  if (name.includes('reaction') || name.includes('リアクション')) return 'mdi:heart'
-  if (name.includes('reply') || name.includes('返信')) return 'mdi:reply'
-  if (name.includes('image') || name.includes('画像')) return 'mdi:image'
-  if (name.includes('login') || name.includes('ログイン')) return 'mdi:key'
-  if (name.includes('streak') || name.includes('連続')) return 'mdi:fire'
-  if (name.includes('time') || name.includes('時間')) return 'mdi:clock'
-  if (name.includes('friend') || name.includes('友達')) return 'mdi:account-group'
-  if (name.includes('star') || name.includes('スター')) return 'mdi:star'
-  if (name.includes('loading') || name.includes('読込')) return 'svg-spinners:ring-resize'
+  // if (name.includes('first') || name.includes('初')) return 'mdi:trophy-award'
+  // if (name.includes('message') || name.includes('メッセージ')) return 'mdi:chat'
+  // if (name.includes('reaction') || name.includes('リアクション')) return 'mdi:heart'
+  // if (name.includes('reply') || name.includes('返信')) return 'mdi:reply'
+  // if (name.includes('image') || name.includes('画像')) return 'mdi:image'
+  // if (name.includes('login') || name.includes('ログイン')) return 'mdi:key'
+  // if (name.includes('streak') || name.includes('連続')) return 'mdi:fire'
+  // if (name.includes('time') || name.includes('時間')) return 'mdi:clock'
+  // if (name.includes('friend') || name.includes('友達')) return 'mdi:account-group'
+  // if (name.includes('star') || name.includes('スター')) return 'mdi:star'
+  // if (name.includes('loading') || name.includes('読込')) return 'svg-spinners:ring-resize'
 
   return 'mdi:trophy' // デフォルトアイコン
 })
