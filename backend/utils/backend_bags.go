@@ -38,8 +38,8 @@ var (
 			Probability: 0.25,
 		},
 		7: {
-			Name:        "リプが増殖する",
-			Probability: 0.25,
+			Name:        "リプがさらに増殖する",
+			Probability: 0.80,
 		},
 		8: {
 			Name:        "画質が悪い",
@@ -55,6 +55,10 @@ var (
 		},
 		11: {
 			Name:        "いいねが無限に増やせる",
+			Probability: 0.25,
+		},
+		100: {
+			Name:        "リプ増殖が始まる",
 			Probability: 0.25,
 		},
 	}
