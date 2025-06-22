@@ -27,7 +27,18 @@ enableMocking().then(() => {
 
   app.use(createPinia())
   app.use(router)
-  app.use(VueQueryPlugin)
+  app.use(VueQueryPlugin, {
+    queryClientConfig: {
+      defaultOptions: {
+        queries: {
+          retry: false, // クエリの自動再試行を無効化
+        },
+        mutations: {
+          retry: false, // ミューテーションの自動再試行を無効化
+        },
+      },
+    },
+  })
 
   app.mount('#app')
 })
