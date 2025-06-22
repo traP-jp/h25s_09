@@ -51,7 +51,10 @@ func DetermineDispatchBug(ctx echo.Context, repo repository.Repository, ss sessi
 		p := cmp.Or(bug.Probability, 0.25)
 		if p >= 1.0 || (0 < p && rand.Float64() < p) {
 			AddOrUpdateBugState(ctx, ss, bugID, cmp.Or(bug.ValidTimeSec, 10))
-			_, _ = repo.InsertUserAchievement(ctx.Get(middleware.UsernameKey).(string), bug.Name)
+			_, err := repo.InsertUserAchievement(ctx.Get(middleware.UsernameKey).(string), bug.Name)
+			if err != nil {
+				ctx.Logger().Error("Failed to insert bug achievement:", err)
+			}
 			return true
 		}
 	}
