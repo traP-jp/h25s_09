@@ -42,7 +42,7 @@ func getValidBugStates(ctx echo.Context) map[int]bugState {
 	}
 	clear(sess.Values)
 	for k, v := range result {
-		sess.Values[strconv.Itoa(k)] = v.ValidBefore
+		sess.Values[strconv.Itoa(k)] = v.ValidBefore.Format(time.RFC3339)
 	}
 	sess.Save(ctx.Request(), ctx.Response())
 	return result
