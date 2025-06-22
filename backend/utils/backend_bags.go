@@ -18,7 +18,7 @@ type Bug struct {
 var (
 	BackendBugs = map[int]Bug{
 		1:   {Name: "投稿の日時がおかしい", Probability: 0.2},
-		2:   {Name: "データが取得できない", ValidTimeSec: 10},
+		2:   {Name: "データが取得できない", Probability: 0.05},
 		3:   {Name: "ダイヤルアップ", Probability: 0.25, ValidTimeSec: 10}, // 画像が半分しか出ない
 		4:   {Name: "同じ投稿が複数ある"},
 		5:   {Name: "API制限", ValidTimeSec: 5},
