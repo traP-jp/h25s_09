@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"time"
 	"database/sql"
 	"errors"
+	"time"
+
 	"github.com/google/uuid"
 
 	"github.com/traP-jp/h25s_09/domain"
@@ -17,12 +18,12 @@ type MessageRepository interface {
 }
 
 type Message struct {
-    ID        uuid.UUID `db:"id"`
-    Author    string    `db:"author"`
-    Content   string    `db:"message"`
-    ParentID  uuid.UUID `db:"replies_to"`
-    CreatedAt time.Time `db:"created_at"`
-    UpdatedAt time.Time `db:"updated_at"`
+	ID        uuid.UUID `db:"id"`
+	Author    string    `db:"author"`
+	Content   string    `db:"message"`
+	ParentID  uuid.UUID `db:"replies_to"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 func (r *repositoryImpl) GetMessages(limit, offset int64, username string, includeReplies bool) ([]domain.Message, error) {
@@ -42,10 +43,9 @@ func (r *repositoryImpl) GetMessages(limit, offset int64, username string, inclu
 		query += " WHERE replies_to IS NULL"
 	}
 
-
 	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
 	args = append(args, limit, offset)
-	
+
 	err := r.db.Select(&messages, query, args...)
 	if err != nil {
 		return nil, err
@@ -69,10 +69,10 @@ func (r *repositoryImpl) GetMessages(limit, offset int64, username string, inclu
 
 func (r *repositoryImpl) CreateMessage(author, content string, parentID uuid.UUID) (*domain.Message, error) {
 	message := &domain.Message{
-		ID:        uuid.Must(uuid.NewV7()),
-		Author:    author,
-		Content:   content,
-		ParentID:  parentID,
+		ID:       uuid.Must(uuid.NewV7()),
+		Author:   author,
+		Content:  content,
+		ParentID: parentID,
 	}
 
 	// データベースに保存
@@ -122,14 +122,14 @@ func (r *repositoryImpl) GetRepliesByMessageID(messageID uuid.UUID) ([]*domain.M
 	// Messageをdomain.Messageに変換
 	domainReplies := make([]*domain.Message, len(replies))
 	for i := range replies {
-		domainReplies = append(domainReplies, &domain.Message{
+		domainReplies[i] = &domain.Message{
 			ID:        replies[i].ID,
 			Author:    replies[i].Author,
 			Content:   replies[i].Content,
 			ParentID:  replies[i].ParentID,
 			CreatedAt: replies[i].CreatedAt,
 			UpdatedAt: replies[i].UpdatedAt,
-		})
+		}
 	}
 
 	return domainReplies, nil
