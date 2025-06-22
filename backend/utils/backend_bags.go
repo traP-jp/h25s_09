@@ -17,11 +17,11 @@ type Bug struct {
 
 var (
 	BackendBugs = map[int]Bug{
-		1:   {Name: "投稿の日時がおかしい", Probability: 0.2},
-		2:   {Name: "データが取得できない"},
-		3:   {Name: "ダイヤルアップ", Probability: 0.1, ValidTimeSec: 60},
+		1:   {Name: "投稿の日時がおかしい", Probability: 0.2, ValidTimeSec: 10},
+		2:   {Name: "データが取得できない", ValidTimeSec: 10},
+		3:   {Name: "ダイヤルアップ", Probability: 0.1, ValidTimeSec: 10},
 		4:   {Name: "同じ投稿が複数ある"},
-		5:   {Name: "API制限"},
+		5:   {Name: "API制限", ValidTimeSec: 5},
 		6:   {Name: "ユーザーが全部同じに見える"},
 		7:   {Name: "リプ増殖:motto:", Probability: 0.8},
 		8:   {Name: "解像度が低いな"},
@@ -40,11 +40,10 @@ func DetermineDispatchBug(ctx echo.Context, repo repository.Repository, bugID in
 	if bug, exists := BackendBugs[bugID]; exists {
 		p := cmp.Or(bug.Probability, 0.25)
 		if p >= 1.0 || (0 < p && rand.Float64() < p) {
-			AddOrUpdateBugState(ctx, bugID, cmp.Or(bug.ValidTimeSec, 10))
-			_, err := repo.InsertUserAchievement(ctx.Get(middleware.UsernameKey).(string), bug.Name)
-			if err != nil {
-				ctx.Logger().Error("Failed to insert bug achievement:", err)
+			if bug.ValidTimeSec > 0 {
+				AddOrUpdateBugState(ctx, bugID, cmp.Or(bug.ValidTimeSec, 10))
 			}
+			repo.InsertUserAchievement(ctx.Get(middleware.UsernameKey).(string), bug.Name)
 			return true
 		}
 	}
