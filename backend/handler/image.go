@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/nfnt/resize"
 	"github.com/traP-jp/h25s_09/domain"
 	"github.com/traP-jp/h25s_09/utils"
 )
