@@ -28,12 +28,18 @@ func Start() {
 	{
 		g.GET("/health", h.GetHealthHandler)
 		g.GET("/images/:id", h.GetMessageImageHandler)
-		g.GET("/me", h.GetMeHandler)
 		g.GET("/try-achieve/:id", h.TryAchieveHandler)
-		g.POST("/messages/:id/reaction",h.ReactionsAdder)
-		g.GET("/messages", h.GetMessagesHandler)
-		g.DELETE("/messages/:id/reaction", h.ReactionsDeleter)
-		g.POST("/messages", h.PostMessageHandler)
+		me := g.Group("/me")
+		{
+			me.GET("", h.GetMeHandler)
+		}
+		msg := g.Group("/messages")
+		{
+			msg.GET("", h.GetMessagesHandler)
+			msg.POST("", h.PostMessageHandler)
+			msg.POST("/:id/reactions", h.ReactionsAdder)
+			msg.DELETE("/:id/reactions", h.ReactionsDeleter)
+		}
 	}
 
 	e.Logger.Fatal(e.Start(":8080"))
