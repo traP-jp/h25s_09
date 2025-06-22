@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -31,16 +32,22 @@ func (r *repositoryImpl) GetMessages(limit, offset int64, username string, inclu
 	query := "SELECT id, author, message, replies_to, created_at, updated_at FROM messages"
 	args := []any{}
 
-	if username != "" && includeReplies {
-		query += " WHERE author = ?"
+	conditions := []string{}
+
+	// ユーザー名フィルター
+	if username != "" {
+		conditions = append(conditions, "author = ?")
 		args = append(args, username)
 	}
-	if username != "" && !includeReplies {
-		query += " WHERE author = ? AND replies_to IS NULL"
-		args = append(args, username)
+
+	// 返信フィルター
+	if !includeReplies {
+		conditions = append(conditions, "replies_to IS NULL")
 	}
-	if includeReplies {
-		query += " WHERE replies_to IS NULL"
+
+	// WHERE句の構築
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
