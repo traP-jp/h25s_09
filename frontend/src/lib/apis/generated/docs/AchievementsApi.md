@@ -5,7 +5,7 @@ All URIs are relative to */api*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**achievementsGet**](#achievementsget) | **GET** /achievements | 実績一覧の取得|
-|[**tryAchieveIdPost**](#tryachieveidpost) | **POST** /try-achieve/{id} | 確率に応じてイベントが発火するかどうか決める|
+|[**meAchievementsPost**](#meachievementspost) | **POST** /me/achievements | 実績の作成|
 
 # **achievementsGet**
 > Array<Achievement> achievementsGet()
@@ -57,8 +57,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tryAchieveIdPost**
-> TryAchieveIdPost200Response tryAchieveIdPost()
+# **meAchievementsPost**
+> Achievement meAchievementsPost(meAchievementsPostRequest)
 
 
 ### Example
@@ -66,16 +66,17 @@ No authorization required
 ```typescript
 import {
     AchievementsApi,
-    Configuration
+    Configuration,
+    MeAchievementsPostRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AchievementsApi(configuration);
 
-let id: string; //イベントID (default to undefined)
+let meAchievementsPostRequest: MeAchievementsPostRequest; //
 
-const { status, data } = await apiInstance.tryAchieveIdPost(
-    id
+const { status, data } = await apiInstance.meAchievementsPost(
+    meAchievementsPostRequest
 );
 ```
 
@@ -83,12 +84,12 @@ const { status, data } = await apiInstance.tryAchieveIdPost(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | イベントID | defaults to undefined|
+| **meAchievementsPostRequest** | **MeAchievementsPostRequest**|  | |
 
 
 ### Return type
 
-**TryAchieveIdPost200Response**
+**Achievement**
 
 ### Authorization
 
@@ -96,15 +97,15 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | イベント処理結果 |  -  |
-|**404** | 指定されたIDのイベントが見つからない |  -  |
+|**201** | 実績が正常に作成された |  -  |
+|**400** | リクエストが不正 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

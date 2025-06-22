@@ -25,11 +25,7 @@ func (h *handler) ReactionsDeleter(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete:")
 	} //404以外は500に
 	//ユーザーネームの取得
-	usernameRaw := c.Get("username")
-	username, ok := usernameRaw.(string)
-	if !ok || username == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-	}
+	username := c.Get("username").(string)
 	//リアクションを削除
 	err = h.repo.DeleteMessageReaction(ID, username)
 	if err != nil {

@@ -98,10 +98,7 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 const MaxImageSize = 16 * 1024 * 1024 // 16 MiB
 
 func (h *handler) PostMessageHandler(c echo.Context) error {
-	author, ok := c.Get(middleware.UsernameKey).(string)
-	if !ok || author == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized)
-	}
+	author := c.Get(middleware.UsernameKey).(string)
 
 	message := c.FormValue("message")
 	if message == "" {
@@ -196,4 +193,90 @@ type messageDetail struct {
 	Reactions reactions `json:"reactions"`
 	Replies   []any     `json:"replies"`
 	CreatedAt time.Time `json:"createdAt"`
+}
+
+func (h *handler) GetMessageHandler(c echo.Context) error {
+	ID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid message ID")
+	}
+
+	msg, err := h.repo.GetMessageByID(ID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Message not found")
+		}
+		c.Logger().Error("Failed to retrieve message:", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve message")
+	}
+
+	imageID, err := h.repo.GetMessageImageIDByMessageID(ID)
+	if err != nil {
+		if !errors.Is(err, domain.ErrNotFound) {
+			c.Logger().Error("Failed to retrieve image ID for message:", ID, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve image ID")
+		}
+		imageID = uuid.Nil
+		c.Logger().Info("No image found for message:", ID)
+	}
+
+	reactionList, err := h.repo.GetReactionsToMessage(ID)
+	if err != nil {
+		c.Logger().Error("Failed to retrieve reactions for message:", ID, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reactions")
+	}
+	reactionsCount := int64(len(reactionList))
+	myReaction := slices.ContainsFunc(reactionList, func(r *domain.MessageReaction) bool {
+		return r.Username == c.Get("username").(string)
+	})
+
+	replies, err := h.repo.GetRepliesByMessageID(ID)
+	if err != nil {
+		c.Logger().Error("Failed to retrieve replies for message:", ID, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve replies")
+	}
+
+	repliesList := make([]any, len(replies))
+	for i, reply := range replies {
+		replyImageID, err := h.repo.GetMessageImageIDByMessageID(reply.ID)
+		if err != nil {
+			if !errors.Is(err, domain.ErrNotFound) {
+				c.Logger().Error("Failed to retrieve image ID for reply:", reply.ID, err)
+				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reply image ID")
+			}
+			replyImageID = uuid.Nil
+		}
+		replyReactionList, err := h.repo.GetReactionsToMessage(reply.ID)
+		if err != nil {
+			c.Logger().Error("Failed to retrieve reactions for reply:", reply.ID, err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve reply reactions")
+		}
+
+		repliesList[i] = message{
+			ID:      reply.ID,
+			Author: reply.Author,
+			Content: reply.Content,
+			ImageID: replyImageID,
+			Reactions: reactions{
+				Count:      int64(len(replyReactionList)),
+				MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
+					return r.Username == c.Get("username").(string)
+				}),
+			},
+			CreatedAt: reply.CreatedAt,
+		}
+	}
+	
+	return c.JSON(http.StatusOK, &messageDetail{
+		ID:     ID,
+		Author: msg.Author,
+		Content: msg.Content,
+		ImageID: imageID,
+		Reactions: reactions{
+			Count:      reactionsCount,
+			MyReaction: myReaction,
+		},
+		Replies:   repliesList,
+		CreatedAt: msg.CreatedAt,
+	})
 }

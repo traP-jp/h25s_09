@@ -188,8 +188,12 @@ export const handlers = [
     const image = formData.get('image') as File
     const repliesTo = formData.get('repliesTo') as string
 
-    if (!message || message.trim() === '') {
-      return HttpResponse.json({ message: 'メッセージ本文が空です' }, { status: 400 })
+    // メッセージ本文が空で、かつ画像も添付されていない場合はエラー
+    if ((!message || message.trim() === '') && !image) {
+      return HttpResponse.json(
+        { message: 'メッセージ本文または画像のいずれかが必要です' },
+        { status: 400 },
+      )
     }
 
     // /me APIで取得されるcurrentUserのtraqId（モック環境では固定値）
@@ -299,29 +303,24 @@ export const handlers = [
     )
   }),
 
-  // 実績達成の試行
-  http.post('/api/try-achieve/:id', ({ params }) => {
-    const { id } = params
-    const achievementId = Number(id)
+  // 実績の作成
+  http.post('/api/me/achievements', async ({ request }) => {
+    const body = (await request.json()) as { name: string }
 
-    // すでに達成済みの実績かチェック
-    const isAlreadyAchieved = mockAchievements.some((a) => a.id === achievementId)
-
-    if (isAlreadyAchieved) {
-      return HttpResponse.json({ message: 'すでに達成済みの実績です' }, { status: 400 })
+    if (!body.name) {
+      return HttpResponse.json({ message: '実績名が必要です' }, { status: 400 })
     }
 
-    // 新しい実績を追加
+    // 新しい実績を作成
     const newAchievement = {
-      id: achievementId,
-      name: `実績${achievementId}`,
+      id: mockAchievements.length + 1,
+      name: body.name,
       achievedAt: new Date().toISOString(),
     }
 
     mockAchievements.push(newAchievement)
 
-    // OpenAPI仕様に合わせてdispatchedフィールドを返す
-    return HttpResponse.json({ dispatched: true })
+    return HttpResponse.json(newAchievement, { status: 201 })
   }),
 
   // 実績一覧の取得

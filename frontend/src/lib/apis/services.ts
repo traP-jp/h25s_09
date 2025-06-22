@@ -100,8 +100,8 @@ export const achievementsService = {
     return httpClient.get<Achievement[]>(`/achievements?traqId=${userId}`)
   },
 
-  async tryAchieve(achievementId: string): Promise<{ dispatched: boolean }> {
-    return httpClient.post(`/try-achieve/${achievementId}`)
+  async createAchievement(data: { name: string }): Promise<Achievement> {
+    return httpClient.post<Achievement>('/me/achievements', data)
   },
 }
 

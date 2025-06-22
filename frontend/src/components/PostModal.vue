@@ -13,6 +13,7 @@ interface ToggleEvent extends Event {
 const { setError } = useGlobalError()
 
 const popoverRef = ref<HTMLElement | null>(null)
+const messageFormRef = ref<InstanceType<typeof MessageForm> | null>(null)
 
 // メッセージ投稿成功時の処理
 const handlePostSuccess = () => {
@@ -68,6 +69,10 @@ onMounted(() => {
         setTimeout(() => {
           document.addEventListener('click', handleOutsideClick)
         }, 0)
+        // MessageFormのテキストエリアにフォーカス
+        setTimeout(() => {
+          messageFormRef.value?.focusTextarea()
+        }, 100)
       } else {
         // モーダルが閉じた時にキーボードイベントリスナーを削除
         document.removeEventListener('keydown', handleKeydown)
@@ -116,6 +121,7 @@ const handleOutsideClick = (event: Event) => {
     </div>
 
     <MessageForm
+      ref="messageFormRef"
       :class="$style.modalContent"
       @success="handlePostSuccess"
       @error="handlePostError"
