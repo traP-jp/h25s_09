@@ -34,12 +34,10 @@ type message struct {
 }
 
 func (h *handler) GetMessagesHandler(ctx echo.Context) error {
-	_, ok := utils.DetermineDispatchBugAndRecord(10, h.repo)
-	if ok {
+	if utils.DetermineDispatchBug(ctx, h.repo, 10) {
 		time.Sleep(3 * time.Second)
 	} //"レスポンスが遅い" == true で3秒まつ
-	_, ok1 := utils.DetermineDispatchBugAndRecord(2, h.repo)
-	if ok1 {
+	if utils.DetermineDispatchBug(ctx, h.repo, 2) {
 		return echo.NewHTTPError(http.StatusNotFound, "Message not found")
 	} //確率で"データの取得に失敗"
 
@@ -105,22 +103,19 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 		}
 	}
 
-	_, ok2 := utils.DetermineDispatchBugAndRecord(12, h.repo)
-	if ok2 {
+	if utils.DetermineDispatchBug(ctx, h.repo, 12) {
 		rand := rand.IntN(n - 1)
 		jsonMessages[rand+1] = jsonMessages[rand] // "TLでも同じ投稿が2つある"のバグを発生させる
 	}
 
-	for i , msg := range jsonMessages {
-		bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(1, h.repo)
+	for i := range jsonMessages {
+		shouldDispatch := utils.DetermineDispatchBug(ctx, h.repo, 1)
 		if shouldDispatch {
 			jsonMessages[i].CreatedAt = time.Now().AddDate(0, 0, 10) // "投稿の日時がおかしい"のバグを発生させる
-			ctx.Logger().Info("Bug dispatched:", bug.Name, "Message ID:", msg.ID)
 		}
-		bug, shouldDispatch = utils.DetermineDispatchBugAndRecord(1, h.repo)
+		shouldDispatch = utils.DetermineDispatchBug(ctx, h.repo, 1)
 		if shouldDispatch {
 			jsonMessages[i].CreatedAt = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC) // "投稿の日時がおかしい"のバグを発生させる
-			ctx.Logger().Info("Bug dispatched:", bug.Name, "Message ID:", msg.ID)
 		}
 	}
 
@@ -269,7 +264,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 	}
 
 	repliesList := make([]message, 0, len(replies)*20)
-	for i, reply := range replies {
+	for _, reply := range replies {
 		replyImageID, err := h.repo.GetMessageImageIDByMessageID(reply.ID)
 		if err != nil {
 			if !errors.Is(err, domain.ErrNotFound) {
@@ -299,11 +294,10 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		})
 
 		duplicateCount := 0
-		bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(100, h.repo)
+		shouldDispatch := utils.DetermineDispatchBug(c, h.repo, 100)
 		for shouldDispatch && duplicateCount < 20 {
 			duplicateCount++
-			bug, shouldDispatch = utils.DetermineDispatchBugAndRecord(7, h.repo)
-			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount, "Reply Index:", i)
+			shouldDispatch = utils.DetermineDispatchBug(c, h.repo, 7)
 			repliesList = append(repliesList, message{
 				ID:      reply.ID,
 				Author:  reply.Author,
@@ -320,9 +314,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		}
 	}
 
-	bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(1, h.repo)
-	if shouldDispatch {
-		c.Logger().Info("Bug dispatched:", bug.Name)
+	if utils.DetermineDispatchBug(c, h.repo, 1) {
 		msg.CreatedAt = time.Now().AddDate(0, 0, -1)
 		return c.JSON(http.StatusOK, &messageDetail{
 			ID:      ID,
@@ -338,9 +330,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		})
 	}
 
-	bug, shouldDispatch = utils.DetermineDispatchBugAndRecord(1, h.repo)
-	if shouldDispatch {
-		c.Logger().Info("Bug dispatched:", bug.Name)
+	if utils.DetermineDispatchBug(c, h.repo, 1) {
 		msg.CreatedAt = time.Now().Add(30 * time.Minute)
 		return c.JSON(http.StatusOK, &messageDetail{
 			ID:      ID,

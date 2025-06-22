@@ -33,16 +33,6 @@ var (
 	}
 )
 
-func DetermineDispatchBugAndRecord(id int, repo repository.Repository) (Bug, bool) {
-	if bug, exists := BackendBugs[id]; exists {
-		p := cmp.Or(bug.Probability, 0.25)
-		if p >= 1.0 || (0 < p && rand.Float64() < p) {
-			return bug, true
-		}
-	}
-	return Bug{}, false
-}
-
 func DetermineDispatchBug(ctx echo.Context, repo repository.Repository, bugID int) bool {
 	if IsValidBugNow(ctx, bugID) {
 		return true
