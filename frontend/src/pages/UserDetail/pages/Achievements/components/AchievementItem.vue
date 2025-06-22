@@ -53,10 +53,6 @@ const achievementIcon = computed(() => {
         {{ formattedAchievedAt }}に達成
       </time>
     </div>
-
-    <div :class="$style.badge">
-      <span :class="$style.badgeText">達成済み</span>
-    </div>
   </div>
 </template>
 
