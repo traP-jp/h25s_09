@@ -12,21 +12,6 @@ const userId = computed(() => route.params.traqId as string)
 
 // ユーザー実績取得
 const { data: achievements, isLoading, error } = useUserAchievements(userId)
-
-// 実績の統計情報
-const achievementStats = computed(() => {
-  if (!achievements.value) return null
-
-  return {
-    total: achievements.value.length,
-    recent: achievements.value.filter((achievement) => {
-      const achievedDate = new Date(achievement.achievedAt)
-      const weekAgo = new Date()
-      weekAgo.setDate(weekAgo.getDate() - 7)
-      return achievedDate > weekAgo
-    }).length,
-  }
-})
 </script>
 
 <template>
@@ -46,21 +31,8 @@ const achievementStats = computed(() => {
 
     <!-- 実績一覧 -->
     <div v-else-if="achievements && achievements.length > 0" :class="$style.content">
-      <!-- 統計情報 -->
-      <div v-if="achievementStats" :class="$style.stats">
-        <div :class="$style.statCard">
-          <div :class="$style.statNumber">{{ achievementStats.total }}</div>
-          <div :class="$style.statLabel">総実績数</div>
-        </div>
-        <div :class="$style.statCard">
-          <div :class="$style.statNumber">{{ achievementStats.recent }}</div>
-          <div :class="$style.statLabel">今週の実績</div>
-        </div>
-      </div>
-
       <!-- 実績リスト -->
       <div :class="$style.achievementsList">
-        <h2 :class="$style.sectionTitle">達成した実績</h2>
         <div :class="$style.grid">
           <AchievementItem
             v-for="achievement in achievements"
