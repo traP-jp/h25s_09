@@ -8,7 +8,52 @@ type Bug struct {
 }
 
 var (
-	BackendBugs = map[int]Bug{}
+	BackendBugs = map[int]Bug{
+		1: {
+			Name:        "投稿の日時がおかしい",
+			Probability: 0.25,
+		},
+		2: {
+			Name:        "データが取得できない",
+			Probability: 0.25,
+		},
+		3: {
+			Name:        "画像が半分しか表示されない",
+			Probability: 0.25,
+		},
+		4: {
+			Name:        "同じ投稿が複数ある",
+			Probability: 0.25,
+		},
+		5: {
+			Name:        "API制限",
+			Probability: 0.25,
+		},
+		6: {
+			Name:        "ユーザーが全部同じに見える",
+			Probability: 0.25,
+		},
+		7: {
+			Name:        "投稿が増殖する",
+			Probability: 0.25,
+		},
+		8: {
+			Name:        "画質が悪い",
+			Probability: 0.25,
+		},
+		9: {
+			Name:        "阿部寛で爆速に",
+			Probability: 0.25,
+		},
+		10: {
+			Name:        "レスポンスが遅い",
+			Probability: 0.25,
+		},
+		11: {
+			Name:        "いいねが無限に増やせる",
+			Probability: 0.25,
+		},
+	}
 )
 
 func DetermineDispatchBug(id int) (Bug, bool) {
