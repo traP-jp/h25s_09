@@ -311,6 +311,10 @@ export const handlers = [
       return HttpResponse.json({ message: '実績名が必要です' }, { status: 400 })
     }
 
+    if (body.name.length > 32) {
+      return HttpResponse.json({ message: '実績名は32文字以内で入力してください' }, { status: 400 })
+    }
+
     // 新しい実績を作成
     const newAchievement = {
       id: mockAchievements.length + 1,
