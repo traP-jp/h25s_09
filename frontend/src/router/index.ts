@@ -1,3 +1,4 @@
+import { useCreateAchievement } from '@/lib/composables'
 import { randomBoolean } from '@/lib/utils'
 import { useLoadingStore } from '@/stores/loading'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -44,11 +45,12 @@ const router = createRouter({
 })
 
 // 任意のページ遷移に3秒の遅延を追加
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (randomBoolean(0.1)) {
     // ローディング状態を開始
     const loadingStore = useLoadingStore()
     loadingStore.setPageLoading(true)
+    await useCreateAchievement().mutateAsync('Long Loading')
   }
 
   // すぐにページ遷移を実行
