@@ -40,7 +40,7 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 			}
 			//image.Image→[]byte
 			var buf bytes.Buffer
-			err = jpeg.Encode(&buf, imgDecoded, &jpeg.Options{Quality: 5})
+			err = jpeg.Encode(&buf, imgDecoded, &jpeg.Options{Quality: 6})
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "failed to encode resized image")
 			}
