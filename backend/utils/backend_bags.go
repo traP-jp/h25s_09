@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
+	"github.com/traP-jp/h25s_09/handler/middleware"
 	"github.com/traP-jp/h25s_09/repository"
 )
 
@@ -50,6 +51,7 @@ func DetermineDispatchBug(ctx echo.Context, repo repository.Repository, ss sessi
 		p := cmp.Or(bug.Probability, 0.25)
 		if p >= 1.0 || (0 < p && rand.Float64() < p) {
 			AddOrUpdateBugState(ctx, ss, bugID, cmp.Or(bug.ValidTimeSec, 10))
+			_, _ = repo.InsertUserAchievement(ctx.Get(middleware.UsernameKey).(string), bug.Name)
 			return true
 		}
 	}
