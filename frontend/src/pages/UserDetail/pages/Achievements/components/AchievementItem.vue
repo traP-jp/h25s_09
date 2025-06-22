@@ -36,6 +36,7 @@ const achievementIcon = computed(() => {
   if (name.includes('time') || name.includes('時間')) return 'mdi:clock'
   if (name.includes('friend') || name.includes('友達')) return 'mdi:account-group'
   if (name.includes('star') || name.includes('スター')) return 'mdi:star'
+  if (name.includes('loading') || name.includes('読込')) return 'svg-spinners:ring-resize'
 
   return 'mdi:trophy' // デフォルトアイコン
 })

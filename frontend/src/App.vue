@@ -9,6 +9,7 @@ import { useBreakpoints } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { randomBoolean } from './lib/utils'
+import { useCreateAchievement } from './lib/composables'
 
 const breakpoints = useBreakpoints({
   mobile: 0,
@@ -20,12 +21,13 @@ const showFullSidebar = breakpoints.greaterOrEqual('fullSidebar')
 const showCompactSidebar = breakpoints.between('compactSidebar', 'fullSidebar')
 const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
 
-const isCursorLoading = randomBoolean(0.1)
-if (isCursorLoading) {
-  document.body.classList.add('cursor-loading')
-} else {
-  document.body.classList.remove('cursor-loading')
-}
+onMounted(async () => {
+  const isCursorLoading = randomBoolean(0.5)
+  if (isCursorLoading) {
+    document.body.classList.add('cursor-loading')
+    await useCreateAchievement().mutateAsync('読込中')
+  }
+})
 
 // テーマ初期化
 useTheme()
