@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"time"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/traP-jp/h25s_09/domain"
 )
@@ -14,14 +14,14 @@ type AchievementsRepository interface {
 }
 
 type userAchievement struct {
-	AchievementName string     `db:"name"`
+	AchievementName string    `db:"name"`
 	Username        string    `db:"username"`
 	AchievedAt      time.Time `db:"achieved_at"`
 }
 
 func (r *repositoryImpl) GetUserAchievements(username string) ([]domain.UserAchievement, error) {
 	var achievementsDB []userAchievement
-	err := r.db.Select(&achievementsDB, "SELECT * FROM achievements WHERE username = ?", username)
+	err := r.db.Select(&achievementsDB, "SELECT name, username, achieved_at FROM achievements WHERE username = ?", username)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (r *repositoryImpl) InsertUserAchievement(username string, achievementName 
 		return nil, err
 	}
 	var achievement userAchievement
-	err = r.db.Get(&achievement, "SELECT * FROM achievements WHERE name = ? AND username = ?", achievementName, username)
+	err = r.db.Get(&achievement, "SELECT name, username, achieved_at FROM achievements WHERE name = ? AND username = ?", achievementName, username)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domain.ErrNotFound
