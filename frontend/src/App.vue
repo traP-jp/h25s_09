@@ -6,12 +6,11 @@ import { useTheme } from '@/composables'
 import TheFooter from '@/layouts/footer/TheFooter.vue'
 import TheHeader from '@/layouts/header/TheHeader.vue'
 import TheSidebar from '@/layouts/sidebar/TheSidebar.vue'
-import { useCursorLoading } from '@/lib/bugs/cursor.ts'
 import { useBreakpoints } from '@vueuse/core'
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-import { randomBoolean } from './lib/utils'
 import { useCreateAchievement } from './lib/composables'
+import { randomBoolean } from './lib/utils'
 
 const breakpoints = useBreakpoints({
   mobile: 0,
