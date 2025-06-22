@@ -31,7 +31,7 @@ func Start() {
 		me := g.Group("/me")
 		{
 			me.GET("", h.GetMeHandler)
-			me.POST("/achievements/", h.PostAchievementsHandler)
+			me.POST("/achievements", h.PostAchievementsHandler)
 		}
 		msg := g.Group("/messages")
 		{
