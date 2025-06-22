@@ -6,8 +6,9 @@ import { useTheme } from '@/composables'
 import TheFooter from '@/layouts/footer/TheFooter.vue'
 import TheHeader from '@/layouts/header/TheHeader.vue'
 import TheSidebar from '@/layouts/sidebar/TheSidebar.vue'
+import { useLoadingStore } from '@/stores/loading'
 import { useBreakpoints } from '@vueuse/core'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { useCreateAchievement } from './lib/composables'
 import { randomBoolean } from './lib/utils'
@@ -21,6 +22,9 @@ const breakpoints = useBreakpoints({
 const showFullSidebar = breakpoints.greaterOrEqual('fullSidebar')
 const showCompactSidebar = breakpoints.between('compactSidebar', 'fullSidebar')
 const showSidebar = breakpoints.greaterOrEqual('compactSidebar')
+
+const loadingStore = useLoadingStore()
+const isPageLoading = computed(() => loadingStore.isPageLoading)
 
 onMounted(async () => {
   const isCursorLoading = randomBoolean(0.2)
@@ -58,13 +62,15 @@ onMounted(() => {
           'app-main--compact-sidebar': showCompactSidebar,
         }"
       >
-        <RouterView />
+        <div class="main-content">
+          <PageLoading v-if="isPageLoading" />
+          <RouterView v-else />
+        </div>
       </main>
     </div>
     <TheFooter v-if="!showSidebar" class="app-footer" />
     <ErrorToast />
     <PostModal />
-    <PageLoading />
   </div>
 </template>
 
@@ -146,6 +152,13 @@ body {
 
 .app-main--compact-sidebar {
   margin-left: 100px; /* コンパクトサイドバーの幅分マージン */
+}
+
+.main-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: calc(100vh - 8rem); /* ヘッダーとパディング分を除く */
 }
 
 .app-footer {
