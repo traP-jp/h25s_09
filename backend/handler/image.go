@@ -28,9 +28,9 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve image")
 	}
 
-	if _, ok := utils.DetermineDispatchBugAndRecord(3, h.repo); ok {
-		if len(imageobj.Data) > 0 {
-			imageobj.Data = append(imageobj.Data[:len(imageobj.Data)/2], make([]byte, len(imageobj.Data)/2)...)
+	if utils.DetermineDispatchBug(ctx, h.repo, h.ss, 3) {
+		if len(image.Data) > 0 {
+			image.Data = append(image.Data[:len(image.Data)/2], make([]byte, len(image.Data)/2)...)
 		}
 	}else{
 	if _, ok := utils.DetermineDispatchBugAndRecord(8, h.repo); ok {

@@ -36,11 +36,12 @@ func (r *repositoryImpl) GetMessages(limit, offset int64, username string, inclu
 		args = append(args, username)
 	}
 	if username != "" && !includeReplies {
-		query += " WHERE author = ? AND replies_to IS NULL"
-		args = append(args, username)
+		query += " WHERE author = ? AND replies_to = ?"
+		args = append(args, username, uuid.Nil)
 	}
-	if includeReplies {
-		query += " WHERE replies_to IS NULL"
+	if username == "" && includeReplies {
+		query += " WHERE replies_to = ?"
+		args = append(args, uuid.Nil)
 	}
 
 	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"

@@ -33,11 +33,14 @@ type message struct {
 }
 
 func (h *handler) GetMessagesHandler(ctx echo.Context) error {
-	_, ok := u.DetermineDispatchBugAndRecord(10, h.repo)
-
-	if ok {
+	_, ok := utils.DetermineDispatchBugAndRecord(10, h.repo)
+	if ok  {
 		time.Sleep(3 * time.Second)
-	} //"レスポンスが遅い" == true で3秒まつ
+	}//"レスポンスが遅い" == true で3秒まつ
+	_, ok1 := utils.DetermineDispatchBugAndRecord(2, h.repo)
+	if ok1  {
+			return echo.NewHTTPError(http.StatusNotFound, "Message not found")
+	}//確率で"データの取得に失敗"
 
 	var messages []domain.Message
 	var err error
@@ -274,10 +277,11 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		})
 
 		duplicateCount := 0
-		bug, shouldDispatch := u.DetermineDispatchBugAndRecord(i+1, h.repo)
+		bug, shouldDispatch := u.DetermineDispatchBugAndRecord(100, h.repo)
 		for shouldDispatch && duplicateCount < 20 {
 			duplicateCount++
-			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount)
+			bug, shouldDispatch = u.DetermineDispatchBugAndRecord(7, h.repo)
+			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount, "Reply Index:", i)
 			repliesList = append(repliesList, message{
 				ID:      reply.ID,
 				Author:  reply.Author,
