@@ -23,6 +23,21 @@ const emit = defineEmits<{
   error: [error: Error]
 }>()
 
+// テキストエリアのref
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+
+// フォーカス機能を親から呼び出せるように
+const focusTextarea = () => {
+  if (textareaRef.value) {
+    textareaRef.value.focus()
+  }
+}
+
+// 親から呼び出せるようにexposeで公開
+defineExpose({
+  focusTextarea,
+})
+
 // 画像プレビューURL管理
 const imagePreviewUrl = ref<string | null>(null)
 
@@ -123,6 +138,7 @@ watch(
       <label for="message-content" class="sr-only">メッセージ内容</label>
       <textarea
         id="message-content"
+        ref="textareaRef"
         v-model="formData.content"
         :class="$style.textarea"
         :placeholder="placeholder"
