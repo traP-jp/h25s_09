@@ -38,7 +38,6 @@ func Start() {
 	{
 		g.GET("/health", h.GetHealthHandler)
 		g.GET("/images/:id", h.GetMessageImageHandler)
-		g.GET("/try-achieve/:id", h.TryAchieveHandler)
 		u := g.Group("/users/:name")
 		{
 			u.GET("/achievements", h.GetUserAchievementsHandler)
@@ -47,6 +46,7 @@ func Start() {
 		{
 			me.GET("", h.GetMeHandler)
 			me.GET("/achievements", h.GetMyAchievementsHandler)
+			me.POST("/achievements", h.PostAchievementsHandler)
 		}
 		msg := g.Group("/messages")
 		{

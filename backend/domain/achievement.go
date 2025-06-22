@@ -5,7 +5,7 @@ import (
 )
 
 type UserAchievement struct {
-	AchievementID int64
-	Username      string
-	AchievedAt    time.Time
+	AchievementName string
+	Username        string
+	AchievedAt      time.Time
 }
