@@ -117,8 +117,13 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 			jsonMessages[i].CreatedAt = time.Now().AddDate(0, 0, -1) // "投稿の日時がおかしい"のバグを発生させる
 			ctx.Logger().Info("Bug dispatched:", bug.Name, "Message ID:", msg.ID)
 		}
+		bug, shouldDispatch = utils.DetermineDispatchBugAndRecord(1, h.repo)
+		if shouldDispatch {
+			jsonMessages[i].CreatedAt = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC) // "投稿の日時がおかしい"のバグを発生させる
+			ctx.Logger().Info("Bug dispatched:", bug.Name, "Message ID:", msg.ID)
+		}
 	}
-	
+
 	return ctx.JSON(http.StatusOK, jsonMessages)
 }
 
