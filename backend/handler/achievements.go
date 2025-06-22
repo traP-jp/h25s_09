@@ -54,14 +54,14 @@ func (h *handler) TryAchieveHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]bool{"dispatched": true})
 }
 
-func (h *handler) hasUserAchievement(username string, achievementID int64) (bool, error) {
+func (h *handler) hasUserAchievement(username string, achievementName string) (bool, error) {
 	userAchievements, err := h.repo.GetUserAchievements(username)
 	if err != nil {
 		return false, err
 	}
 
 	for _, achievement := range userAchievements {
-		if achievement.AchievementID == achievementID {
+		if achievement.AchievementName == achievementName {
 			return true, nil
 		}
 	}
