@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -25,12 +26,21 @@ func getValidBugStates(ctx echo.Context, ss sessions.Store) map[int]bugState {
 	}
 	result := make(map[int]bugState)
 	for k, v := range sess.Values {
-		if id, ok := k.(int); ok {
-			if datetime, ok := v.(time.Time); ok {
-				ctx.Logger().Info("hit:", datetime)
-				if datetime.After(time.Now()) {
-					result[id] = bugState{id, datetime}
-				}
+		idStr := k.(string)
+		timeStr := v.(string)
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			continue
+		}
+		datetime, err := time.Parse(time.RFC3339, timeStr)
+		if err != nil {
+			continue
+		}
+		if datetime.After(time.Now()) {
+			ctx.Logger().Info("Hit: ", id)
+			result[id] = bugState{
+				BugID:       id,
+				ValidBefore: datetime,
 			}
 		}
 	}
@@ -50,7 +60,7 @@ func AddOrUpdateBugState(ctx echo.Context, ss sessions.Store, bugID int, validTi
 	if err != nil {
 		return
 	}
-	sess.Values[bugID] = time.Now().Add(time.Duration(validTimeSec) * time.Second)
+	sess.Values[strconv.Itoa(bugID)] = time.Now().Add(time.Duration(validTimeSec) * time.Second).Format(time.RFC3339)
 	sess.Save(ctx.Request(), ctx.Response())
 }
 
