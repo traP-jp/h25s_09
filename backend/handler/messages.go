@@ -98,10 +98,7 @@ func (h *handler) GetMessagesHandler(ctx echo.Context) error {
 const MaxImageSize = 16 * 1024 * 1024 // 16 MiB
 
 func (h *handler) PostMessageHandler(c echo.Context) error {
-	author, ok := c.Get(middleware.UsernameKey).(string)
-	if !ok || author == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized)
-	}
+	author := c.Get(middleware.UsernameKey).(string)
 
 	message := c.FormValue("message")
 	if message == "" {

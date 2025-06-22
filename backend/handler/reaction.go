@@ -25,11 +25,7 @@ func (h *handler) ReactionsAdder(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to retrieve id")
 	} //404以外は500に
 	//ユーザーネームの取得
-	usernameRaw := c.Get("username")
-	username, ok := usernameRaw.(string)
-	if !ok || username == "" {
-		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-	}
+	username := c.Get("username").(string)
 	//リアクションを追加
 	_, err = h.repo.InsertMessageReaction(ID, username)
 	if err != nil {
