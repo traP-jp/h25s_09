@@ -233,6 +233,7 @@ paths:
                 name:
                   type: string
                   description: 実績名
+                  maxLength: 32
               required:
                 - name
       responses:

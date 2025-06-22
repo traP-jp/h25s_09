@@ -15,6 +15,7 @@ import (
 	"github.com/traP-jp/h25s_09/domain"
 	u "github.com/traP-jp/h25s_09/utils"
 	"github.com/traP-jp/h25s_09/handler/middleware"
+	"github.com/traP-jp/h25s_09/utils"
 )
 
 type reactions struct {
@@ -33,6 +34,12 @@ type message struct {
 }
 
 func (h *handler) GetMessagesHandler(ctx echo.Context) error {
+	_, ok := utils.DetermineDispatchBugAndRecord(10, h.repo)
+
+	if ok  {
+		time.Sleep(3 * time.Second)
+	}//"レスポンスが遅い" == true で3秒まつ
+
 	var messages []domain.Message
 	var err error
 
@@ -101,12 +108,12 @@ const MaxImageSize = 16 * 1024 * 1024 // 16 MiB
 func (h *handler) PostMessageHandler(c echo.Context) error {
 	author := c.Get(middleware.UsernameKey).(string)
 
-	message := c.FormValue("message")
-	if message == "" {
+	content := c.FormValue("message")
+	if content == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Message is empty")
 	}
 
-	parentIDString := c.FormValue("parent_id")
+	parentIDString := c.FormValue("repliesTo")
 	parentID := uuid.Nil
 	if parentIDString != "" {
 		var err error
@@ -160,7 +167,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		}
 	}
 
-	msg, err := h.repo.CreateMessage(author, message, parentID)
+	msg, err := h.repo.CreateMessage(author, content, parentID)
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create message")
@@ -181,7 +188,7 @@ func (h *handler) PostMessageHandler(c echo.Context) error {
 		Content:   msg.Content,
 		ImageID:   imgID,
 		Reactions: reactions{Count: 0, MyReaction: false},
-		Replies:   []any{},
+		Replies:   []message{},
 		CreatedAt: msg.CreatedAt,
 	})
 }
@@ -192,7 +199,7 @@ type messageDetail struct {
 	Content   string    `json:"content"`
 	ImageID   uuid.UUID `json:"imageId,omitempty"`
 	Reactions reactions `json:"reactions"`
-	Replies   []any     `json:"replies"`
+	Replies   []message `json:"replies"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
@@ -237,7 +244,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve replies")
 	}
 
-	repliesList := make([]any,0, len(replies)*20)
+	repliesList := make([]message, 0, len(replies)*20)
 	for i, reply := range replies {
 		replyImageID, err := h.repo.GetMessageImageIDByMessageID(reply.ID)
 		if err != nil {
@@ -256,11 +263,11 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 	
 		repliesList = append(repliesList, message{
 			ID:      reply.ID,
-			Author: reply.Author,
+			Author:  reply.Author,
 			Content: reply.Content,
 			ImageID: replyImageID,
 			Reactions: reactions{
-				Count:      int64(len(replyReactionList)),
+				Count: int64(len(replyReactionList)),
 				MyReaction: slices.ContainsFunc(replyReactionList, func(r *domain.MessageReaction) bool {
 					return r.Username == c.Get("username").(string)
 				}),
@@ -270,7 +277,7 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 
 		duplicateCount := 0
 		bug, shouldDispatch := u.DetermineDispatchBugAndRecord(i+1, h.repo)
-		if shouldDispatch && duplicateCount < 100 {
+		if shouldDispatch && duplicateCount < 20 {
 			duplicateCount++
 			c.Logger().Info("Bug dispatched:", bug.Name, "Probability:", duplicateCount)
 			repliesList = append(repliesList, message{
@@ -288,10 +295,10 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 			})
 		}
 	}
-	
+
 	return c.JSON(http.StatusOK, &messageDetail{
-		ID:     ID,
-		Author: msg.Author,
+		ID:      ID,
+		Author:  msg.Author,
 		Content: msg.Content,
 		ImageID: imageID,
 		Reactions: reactions{

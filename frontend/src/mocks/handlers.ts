@@ -188,8 +188,12 @@ export const handlers = [
     const image = formData.get('image') as File
     const repliesTo = formData.get('repliesTo') as string
 
-    if (!message || message.trim() === '') {
-      return HttpResponse.json({ message: 'メッセージ本文が空です' }, { status: 400 })
+    // メッセージ本文が空で、かつ画像も添付されていない場合はエラー
+    if ((!message || message.trim() === '') && !image) {
+      return HttpResponse.json(
+        { message: 'メッセージ本文または画像のいずれかが必要です' },
+        { status: 400 },
+      )
     }
 
     // /me APIで取得されるcurrentUserのtraqId（モック環境では固定値）
@@ -305,6 +309,10 @@ export const handlers = [
 
     if (!body.name) {
       return HttpResponse.json({ message: '実績名が必要です' }, { status: 400 })
+    }
+
+    if (body.name.length > 32) {
+      return HttpResponse.json({ message: '実績名は32文字以内で入力してください' }, { status: 400 })
     }
 
     // 新しい実績を作成

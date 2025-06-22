@@ -10,13 +10,13 @@ import (
 
 type AchievementsRepository interface {
 	GetUserAchievements(username string) ([]domain.UserAchievement, error)
-	InsertUserAchievement(username string, achievementID int64) (*domain.UserAchievement, error)
+	InsertUserAchievement(username string, achievementName string) (*domain.UserAchievement, error)
 }
 
 type userAchievement struct {
-	AchievementID int64     `db:"id"`
-	Username      string    `db:"username"`
-	AchievedAt    time.Time `db:"achieved_at"`
+	AchievementName string     `db:"name"`
+	Username        string    `db:"username"`
+	AchievedAt      time.Time `db:"achieved_at"`
 }
 
 func (r *repositoryImpl) GetUserAchievements(username string) ([]domain.UserAchievement, error) {
@@ -30,22 +30,22 @@ func (r *repositoryImpl) GetUserAchievements(username string) ([]domain.UserAchi
 	domainAchievements := make([]domain.UserAchievement, 0, len(achievementsDB))
 	for _, achDB := range achievementsDB {
 		domainAchievements = append(domainAchievements, domain.UserAchievement{
-			AchievementID: achDB.AchievementID,
-			Username:      achDB.Username,
-			AchievedAt:    achDB.AchievedAt,
+			AchievementName: achDB.AchievementName,
+			Username:        achDB.Username,
+			AchievedAt:      achDB.AchievedAt,
 		})
 	}
 
 	return domainAchievements, nil
 }
 
-func (r *repositoryImpl) InsertUserAchievement(username string, achievementID int64) (*domain.UserAchievement, error) {
-	_, err := r.db.Exec("INSERT INTO achievements (id, username) VALUES (?, ?)", achievementID, username)
+func (r *repositoryImpl) InsertUserAchievement(username string, achievementName string) (*domain.UserAchievement, error) {
+	_, err := r.db.Exec("INSERT INTO achievements (name, username) VALUES (?, ?)", achievementName, username)
 	if err != nil {
 		return nil, err
 	}
 	var achievement userAchievement
-	err = r.db.Get(&achievement, "SELECT * FROM achievements WHERE id = ? AND username = ?", achievementID, username)
+	err = r.db.Get(&achievement, "SELECT * FROM achievements WHERE name = ? AND username = ?", achievementName, username)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domain.ErrNotFound
@@ -55,9 +55,9 @@ func (r *repositoryImpl) InsertUserAchievement(username string, achievementID in
 
 	// ドメインの型に変換
 	domainAchievement := domain.UserAchievement{
-		AchievementID: achievement.AchievementID,
-		Username:      achievement.Username,
-		AchievedAt:    achievement.AchievedAt,
+		AchievementName: achievement.AchievementName,
+		Username:        achievement.Username,
+		AchievedAt:      achievement.AchievedAt,
 	}
 
 	return &domainAchievement, nil
