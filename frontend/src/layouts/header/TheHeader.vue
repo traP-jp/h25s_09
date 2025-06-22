@@ -12,7 +12,7 @@ const { data: userInfo, isLoading } = useUserInfo()
   <header :class="$style.header">
     <div :class="$style.headerContent">
       <div :class="$style.headerLeft">
-        <RouterLink to="/" :class="$style.headerTitle">traQ Messages</RouterLink>
+        <RouterLink to="/" :class="$style.headerTitle">Bugtter</RouterLink>
       </div>
       <div :class="$style.headerRight">
         <ThemeToggle />
