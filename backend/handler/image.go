@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/nfnt/resize"
 	"github.com/traP-jp/h25s_09/domain"
 	"github.com/traP-jp/h25s_09/utils"
 )
@@ -39,11 +38,9 @@ func (h *handler) GetMessageImageHandler(ctx echo.Context) error {
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "failed to decode image")
 			}
-			//resize
-			m := resize.Resize(120, 0, imgDecoded, resize.NearestNeighbor)
 			//image.Image→[]byte
 			var buf bytes.Buffer
-			err = jpeg.Encode(&buf, m, nil)
+			err = jpeg.Encode(&buf, imgDecoded, &jpeg.Options{Quality: 20})
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "failed to encode resized image")
 			}

@@ -306,6 +306,24 @@ func (h *handler) GetMessageHandler(c echo.Context) error {
 		}
 	}
 
+	bug, shouldDispatch := utils.DetermineDispatchBugAndRecord(1, h.repo)
+	if shouldDispatch {
+		c.Logger().Info("Bug dispatched:", bug.Name)
+		msg.CreatedAt = time.Now().AddDate(1, 0, 0)
+		return c.JSON(http.StatusOK, &messageDetail{
+			ID:      ID,
+			Author:  msg.Author,
+			Content: msg.Content,
+			ImageID: imageID,
+			Reactions: reactions{
+				Count:      reactionsCount,
+				MyReaction: myReaction,
+			},
+			Replies:   repliesList,
+			CreatedAt: msg.CreatedAt,
+		})
+	}
+
 	return c.JSON(http.StatusOK, &messageDetail{
 		ID:      ID,
 		Author:  msg.Author,
